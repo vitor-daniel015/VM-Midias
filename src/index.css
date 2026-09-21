@@ -1,0 +1,97 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --vm-black: #000000;
+    --vm-graphite: #111116;
+    --vm-card: #15151B;
+    --vm-card-hover: #1C1C24;
+    --vm-border: #22222E;
+    --vm-red: #F8032D;
+    --vm-red-deep: #B80024;
+    --vm-gray: #A9ACB3;
+    --vm-gray-muted: #6B6F7A;
+    --vm-white: #FFFFFF;
+  }
+
+  body {
+    background-color: #000000;
+    color: #FFFFFF;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* Custom subtle scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0D0D11;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #252530;
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #F8032D;
+  }
+}
+
+/* Subtle LED Matrix & Dot Grid Backgrounds */
+.bg-led-grid {
+  background-size: 24px 24px;
+  background-image: 
+    radial-gradient(circle, rgba(248, 3, 45, 0.08) 1px, transparent 1px);
+}
+
+.bg-led-grid-dense {
+  background-size: 16px 16px;
+  background-image: 
+    radial-gradient(circle, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+}
+
+.bg-digital-lines {
+  background-size: 100% 4px;
+  background-image: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.02) 50%,
+    transparent 50%
+  );
+}
+
+/* Red LED Glow Utilities */
+.shadow-led {
+  box-shadow: 0 0 25px -3px rgba(248, 3, 45, 0.45), 0 0 10px -2px rgba(248, 3, 45, 0.3);
+}
+
+.shadow-led-sm {
+  box-shadow: 0 0 15px -2px rgba(248, 3, 45, 0.35);
+}
+
+.shadow-led-subtle {
+  box-shadow: 0 4px 20px -2px rgba(248, 3, 45, 0.15);
+}
+
+.shadow-card-hover {
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(248, 3, 45, 0.4);
+}
+
+.text-led-glow {
+  text-shadow: 0 0 20px rgba(248, 3, 45, 0.5), 0 0 40px rgba(248, 3, 45, 0.2);
+}
+
+/* Smooth pulse animation for live screens and nodes */
+@keyframes led-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.05);
+  }
+}
+
+.animate-led-pulse {
+  animation: led-pulse 2.5s ease-in-out infinite;
+}

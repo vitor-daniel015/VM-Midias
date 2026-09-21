@@ -1,0 +1,6 @@
+{
+  "name": "VM MÍDIAS - Mídia Indoor e Painéis de LED",
+  "description": "Site oficial da VM MÍDIAS. Publicidade em telas digitais e pontos estratégicos de circulação em Capela do Alto - SP.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
