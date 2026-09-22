@@ -47,7 +47,6 @@ export const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
         </div>
       )}
 
-      {/* Main WhatsApp Floating Action Button */}
       <a
         id="floating-whatsapp-button"
         href={whatsappUrl}
