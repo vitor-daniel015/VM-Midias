@@ -44,8 +44,8 @@ jobs:
           server: ${{ secrets.HOSTGATOR_FTP_SERVER }}
           username: ${{ secrets.HOSTGATOR_FTP_USERNAME }}
           password: ${{ secrets.HOSTGATOR_FTP_PASSWORD }}
-          protocol: ftps-legacy
-          port: 990
+          protocol: ftps
+          port: 21
           local-dir: ./dist/
           server-dir: ${{ secrets.HOSTGATOR_FTP_DIRECTORY }}
           state-name: .ftp-deploy-vm-midias.json

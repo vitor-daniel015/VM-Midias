@@ -298,6 +298,8 @@ Cadastre estes segredos em **GitHub → Settings → Secrets and variables → A
 
 Se a conta FTP foi limitada diretamente ao `public_html`, use `/` como diretório remoto. Se ela acessa a raiz da conta cPanel, use `/public_html/`.
 
+Na configuração atual da HostGator, o workflow utiliza FTPS explícito pela porta 21.
+
 As credenciais nunca devem ser adicionadas ao workflow, ao README ou a qualquer outro arquivo versionado.
 
 ## Cuidados de manutenção
