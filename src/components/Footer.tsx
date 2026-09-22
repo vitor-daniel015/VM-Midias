@@ -1,8 +1,8 @@
-import React from 'react';
-import { VMLogo } from './VMLogo';
-import { siteConfig } from '../data/siteConfig';
-import { MapPin, Mail, Instagram, Globe, ArrowUp } from 'lucide-react';
-import { WhatsAppIcon } from './WhatsAppIcon';
+import React from "react";
+import { VMLogo } from "./VMLogo";
+import { siteConfig } from "../data/siteConfig";
+import { MapPin, Mail, Instagram, Globe, ArrowUp } from "lucide-react";
+import { WhatsAppIcon } from "./WhatsAppIcon";
 
 interface FooterProps {
   onOpenPrivacyModal: () => void;
@@ -10,11 +10,14 @@ interface FooterProps {
 
 export const Footer: React.FC<FooterProps> = ({ onOpenPrivacyModal }) => {
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
-    <footer id="main-footer" className="bg-[#0A0A0E] border-t border-[#1C1C26] text-white pt-16 pb-12">
+    <footer
+      id="main-footer"
+      className="bg-[#0A0A0E] border-t border-[#1C1C26] text-white pt-16 pb-12"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-[#1E1E2A]">
           {/* Col 1: Brand & Positioning */}
@@ -26,7 +29,9 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPrivacyModal }) => {
               {siteConfig.company.tagline}
             </p>
             <p className="text-sm text-gray-400 leading-relaxed">
-              Rede de telas digitais e mídia indoor estratégica em Capela do Alto. Visibilidade constante e frequência que transformam marcas locais em referências.
+              Rede de telas digitais e mídia indoor estratégica em Capela do
+              Alto. Visibilidade constante e frequência que transformam marcas
+              locais em referências.
             </p>
             <div className="flex items-center gap-3 pt-2">
               <a
@@ -64,27 +69,42 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPrivacyModal }) => {
             </h4>
             <ul className="space-y-2 text-sm text-gray-400">
               <li>
-                <a href="#inicio" className="hover:text-white transition-colors">
+                <a
+                  href="#inicio"
+                  className="hover:text-white transition-colors"
+                >
                   Início
                 </a>
               </li>
               <li>
-                <a href="#onde-estamos" className="hover:text-white transition-colors">
+                <a
+                  href="#onde-estamos"
+                  className="hover:text-white transition-colors"
+                >
                   Onde Estamos
                 </a>
               </li>
               <li>
-                <a href="#solucoes" className="hover:text-white transition-colors">
+                <a
+                  href="#solucoes"
+                  className="hover:text-white transition-colors"
+                >
                   Soluções
                 </a>
               </li>
               <li>
-                <a href="#como-funciona" className="hover:text-white transition-colors">
+                <a
+                  href="#como-funciona"
+                  className="hover:text-white transition-colors"
+                >
                   Como Funciona
                 </a>
               </li>
               <li>
-                <a href="#planos" className="hover:text-white transition-colors">
+                <a
+                  href="#planos"
+                  className="hover:text-white transition-colors"
+                >
                   Planos
                 </a>
               </li>
@@ -94,7 +114,10 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPrivacyModal }) => {
                 </a>
               </li>
               <li>
-                <a href="#contato" className="hover:text-white transition-colors">
+                <a
+                  href="#contato"
+                  className="hover:text-white transition-colors"
+                >
                   Contato
                 </a>
               </li>
@@ -124,22 +147,6 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPrivacyModal }) => {
                 <span>Atendimento comercial via WhatsApp</span>
               </li>
             </ul>
-          </div>
-
-          {/* Col 4: Chamada Rápida */}
-          <div className="space-y-3 bg-[#111117] p-5 rounded-xl border border-[#22222E]">
-            <h4 className="text-sm font-bold text-white">
-              Pronto para anunciar?
-            </h4>
-            <p className="text-xs text-gray-400 leading-relaxed">
-              Consulte a disponibilidade de pontos para o seu segmento em Capela do Alto.
-            </p>
-            <a
-              href="#contato"
-              className="w-full inline-flex items-center justify-center py-2.5 px-4 rounded-lg bg-[#F8032D] hover:bg-[#B80024] text-white text-xs font-bold uppercase tracking-wider shadow-led-sm transition-all"
-            >
-              Anunciar Agora
-            </a>
           </div>
         </div>
 

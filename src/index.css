@@ -16,13 +16,19 @@
     --vm-radius-md: 10px;
     --vm-radius-lg: 16px;
     --vm-section-space: clamp(6rem, 10vw, 9rem);
-    --vm-ease: cubic-bezier(.22, 1, .36, 1);
+    --vm-ease: cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   body {
     background-color: #030406;
-    color: #FFFFFF;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #ffffff;
+    font-family:
+      "Inter",
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      Roboto,
+      sans-serif;
     overflow-x: hidden;
     text-rendering: optimizeLegibility;
   }
@@ -32,7 +38,8 @@
     background: #030406;
   }
 
-  section[id], div[id] {
+  section[id],
+  div[id] {
     scroll-margin-top: 88px;
   }
 
@@ -46,14 +53,14 @@
     width: 8px;
   }
   ::-webkit-scrollbar-track {
-    background: #0D0D11;
+    background: #0d0d11;
   }
   ::-webkit-scrollbar-thumb {
     background: #252530;
     border-radius: 4px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #F8032D;
+    background: #f8032d;
   }
 }
 
@@ -110,7 +117,11 @@
     font-weight: 900;
     letter-spacing: 0.09em;
     text-transform: uppercase;
-    transition: transform 240ms var(--vm-ease), border-color 240ms ease, background 240ms ease, box-shadow 240ms ease;
+    transition:
+      transform 240ms var(--vm-ease),
+      border-color 240ms ease,
+      background 240ms ease,
+      box-shadow 240ms ease;
   }
 
   .brand-button:hover {
@@ -121,12 +132,16 @@
     color: #fff;
     border: 1px solid rgba(255, 255, 255, 0.3);
     background: var(--vm-red);
-    box-shadow: 0 12px 30px rgba(180, 0, 35, 0.22), inset 0 1px 0 rgba(255,255,255,0.18);
+    box-shadow:
+      0 12px 30px rgba(180, 0, 35, 0.22),
+      inset 0 1px 0 rgba(255, 255, 255, 0.18);
   }
 
   .brand-button-primary:hover {
     background: #ff2149;
-    box-shadow: 0 14px 34px rgba(180, 0, 35, 0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+    box-shadow:
+      0 14px 34px rgba(180, 0, 35, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
   }
 
   .brand-button-outline {
@@ -146,7 +161,9 @@
   .brand-panel {
     border: 1px solid rgba(104, 112, 126, 0.22);
     background: rgba(13, 15, 19, 0.94);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.025), 0 24px 70px rgba(0,0,0,0.28);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.025),
+      0 24px 70px rgba(0, 0, 0, 0.28);
   }
 
   .brand-panel:hover {
@@ -157,12 +174,15 @@
 /* Subtle LED Matrix & Dot Grid Backgrounds */
 .bg-led-grid {
   background-size: 24px 24px;
-  background-image: 
-    radial-gradient(circle, rgba(248, 3, 45, 0.08) 1px, transparent 1px);
+  background-image: radial-gradient(
+    circle,
+    rgba(248, 3, 45, 0.08) 1px,
+    transparent 1px
+  );
 }
 
 .bg-hero-city {
-  background-image: url('/images/generated/vm-hero-city.webp');
+  background-image: url("/images/generated/vm-hero-city.webp");
   background-position: center;
   background-size: cover;
 }
@@ -173,7 +193,7 @@
 }
 
 .bg-indoor-space {
-  background-image: url('/images/generated/vm-indoor-space.webp');
+  background-image: url("/images/generated/vm-indoor-space.webp");
   background-position: center;
   background-size: cover;
 }
@@ -184,8 +204,11 @@
 
 .bg-led-grid-dense {
   background-size: 16px 16px;
-  background-image: 
-    radial-gradient(circle, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-image: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.04) 1px,
+    transparent 1px
+  );
 }
 
 .bg-digital-lines {
@@ -199,7 +222,9 @@
 
 /* Red LED Glow Utilities */
 .shadow-led {
-  box-shadow: 0 0 25px -3px rgba(248, 3, 45, 0.45), 0 0 10px -2px rgba(248, 3, 45, 0.3);
+  box-shadow:
+    0 0 25px -3px rgba(248, 3, 45, 0.45),
+    0 0 10px -2px rgba(248, 3, 45, 0.3);
 }
 
 .shadow-led-sm {
@@ -211,7 +236,9 @@
 }
 
 .shadow-card-hover {
-  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(248, 3, 45, 0.4);
+  box-shadow:
+    0 10px 30px -5px rgba(0, 0, 0, 0.8),
+    0 0 0 1px rgba(248, 3, 45, 0.4);
 }
 
 .text-led-glow {
@@ -220,7 +247,8 @@
 
 /* Smooth pulse animation for live screens and nodes */
 @keyframes led-pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1);
   }
@@ -235,18 +263,30 @@
 }
 
 @keyframes hero-breathe {
-  from { transform: scale(1); }
-  to { transform: scale(1.03); }
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.03);
+  }
 }
 
 @keyframes timeline-progress {
-  from { transform: scaleY(0); }
-  to { transform: scaleY(1); }
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  *, *::before, *::after {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;

@@ -275,6 +275,31 @@ Para uma publicação tradicional, gere os arquivos estáticos e envie o conteú
 
 Como o site utiliza navegação por âncoras em uma única página, não precisa de regras especiais para múltiplas rotas.
 
+### Publicação automática na HostGator
+
+O workflow `.github/workflows/deploy-hostgator.yml` publica automaticamente o site quando um commit chega à branch `main`.
+
+O processo executado pelo GitHub é:
+
+1. baixar o código da branch `main`;
+2. instalar as dependências com `npm ci`;
+3. verificar o TypeScript;
+4. gerar a versão de produção;
+5. sincronizar o conteúdo de `dist/` com a hospedagem por FTPS.
+
+Cadastre estes segredos em **GitHub → Settings → Secrets and variables → Actions**:
+
+| Secret | Conteúdo |
+| --- | --- |
+| `HOSTGATOR_FTP_SERVER` | Servidor FTP, sem `ftp://` |
+| `HOSTGATOR_FTP_USERNAME` | Nome completo da conta FTP |
+| `HOSTGATOR_FTP_PASSWORD` | Senha exclusiva da conta FTP |
+| `HOSTGATOR_FTP_DIRECTORY` | Diretório remoto terminado em `/` |
+
+Se a conta FTP foi limitada diretamente ao `public_html`, use `/` como diretório remoto. Se ela acessa a raiz da conta cPanel, use `/public_html/`.
+
+As credenciais nunca devem ser adicionadas ao workflow, ao README ou a qualquer outro arquivo versionado.
+
 ## Cuidados de manutenção
 
 - Não publique dados fictícios para preencher espaços vazios.

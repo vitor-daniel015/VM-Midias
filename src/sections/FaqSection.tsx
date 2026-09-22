@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { ChevronDown, HelpCircle, ArrowRight } from 'lucide-react';
-import { siteConfig } from '../data/siteConfig';
-import { SectionHeading } from '../components/BrandUI';
+import React, { useState } from "react";
+import { ChevronDown, HelpCircle, ArrowRight } from "lucide-react";
+import { siteConfig } from "../data/siteConfig";
+import { SectionHeading } from "../components/BrandUI";
 
 export const FaqSection: React.FC = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
@@ -31,7 +31,10 @@ export const FaqSection: React.FC = () => {
             const isOpen = openIndex === index;
 
             return (
-              <div key={index} className="overflow-hidden border-b border-white/10 transition-colors duration-200 hover:bg-white/[0.025]">
+              <div
+                key={index}
+                className="overflow-hidden border-b border-white/10 transition-colors duration-200 hover:bg-white/[0.025]"
+              >
                 <button
                   type="button"
                   onClick={() => toggleAccordion(index)}
@@ -42,7 +45,9 @@ export const FaqSection: React.FC = () => {
                     {faq.question}
                   </span>
 
-                  <span className={`flex h-8 w-8 shrink-0 items-center justify-center border border-white/15 transition-all duration-300 ${isOpen ? 'rotate-180 border-[#F8032D] text-[#F8032D]' : 'text-gray-400'}`}>
+                  <span
+                    className={`flex h-8 w-8 shrink-0 items-center justify-center border border-white/15 transition-all duration-300 ${isOpen ? "rotate-180 border-[#F8032D] text-[#F8032D]" : "text-gray-400"}`}
+                  >
                     <ChevronDown className="w-4 h-4" />
                   </span>
                 </button>
@@ -64,14 +69,18 @@ export const FaqSection: React.FC = () => {
               <HelpCircle className="w-5 h-5" />
             </div>
             <div>
-              <div className="text-sm font-bold text-white">Ficou com alguma dúvida específica?</div>
-              <div className="text-xs text-gray-400">Nossa equipe atende rapidamente pelo WhatsApp.</div>
+              <div className="text-sm font-bold text-white">
+                Ficou com alguma dúvida específica?
+              </div>
+              <div className="text-xs text-gray-400">
+                Nossa equipe atende rapidamente pelo WhatsApp.
+              </div>
             </div>
           </div>
 
           <a
             href={`https://wa.me/${siteConfig.company.whatsappRaw}?text=${encodeURIComponent(
-              'Olá! Estava lendo o FAQ no site da VM MÍDIAS e gostaria de tirar uma dúvida sobre os anúncios.'
+              "Olá! Estava lendo o FAQ no site da VM MÍDIAS e gostaria de tirar uma dúvida sobre os anúncios.",
             )}`}
             target="_blank"
             rel="noopener noreferrer"

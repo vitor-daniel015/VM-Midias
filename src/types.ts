@@ -1,4 +1,4 @@
-export type PlanCycle = 'mensal' | 'semestral' | 'anual';
+export type PlanCycle = "mensal" | "semestral" | "anual";
 
 export interface PlanPriceDetail {
   price: string;
@@ -8,7 +8,7 @@ export interface PlanPriceDetail {
 }
 
 export interface PlanItem {
-  id: 'start' | 'destaque';
+  id: "start" | "destaque";
   name: string;
   type: string;
   coverage: string;

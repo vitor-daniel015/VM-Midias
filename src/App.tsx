@@ -1,25 +1,24 @@
-import React, { useState } from 'react';
-import { Header } from './components/Header';
-import { HeroSection } from './sections/HeroSection';
-import { BenefitsSection } from './sections/BenefitsSection';
-import { WhereItAppearsSection } from './sections/WhereItAppearsSection';
-import { SolutionsSection } from './sections/SolutionsSection';
-import { HowItWorksSection } from './sections/HowItWorksSection';
-import { PlansSection } from './sections/PlansSection';
-import { WhyAdvertiseSection } from './sections/WhyAdvertiseSection';
-import { CasesSection } from './sections/CasesSection';
-import { FaqSection } from './sections/FaqSection';
-import { CtaFinalSection } from './sections/CtaFinalSection';
-import { ContactSection } from './sections/ContactSection';
-import { Footer } from './components/Footer';
-import { WhatsAppButton } from './components/WhatsAppButton';
-import { PrivacyModal } from './components/PrivacyModal';
-import { PlanCycle } from './types';
+import React, { useState } from "react";
+import { Header } from "./components/Header";
+import { HeroSection } from "./sections/HeroSection";
+import { BenefitsSection } from "./sections/BenefitsSection";
+import { WhereItAppearsSection } from "./sections/WhereItAppearsSection";
+import { HowItWorksSection } from "./sections/HowItWorksSection";
+import { PlansSection } from "./sections/PlansSection";
+import { WhyAdvertiseSection } from "./sections/WhyAdvertiseSection";
+import { FaqSection } from "./sections/FaqSection";
+import { CtaFinalSection } from "./sections/CtaFinalSection";
+import { ContactSection } from "./sections/ContactSection";
+import { Footer } from "./components/Footer";
+import { WhatsAppButton } from "./components/WhatsAppButton";
+import { PrivacyModal } from "./components/PrivacyModal";
+import { PlanCycle } from "./types";
 
 export default function App() {
   const [privacyModalOpen, setPrivacyModalOpen] = useState(false);
-  const [selectedPlanName, setSelectedPlanName] = useState<string>('DESTAQUE');
-  const [selectedPlanCycle, setSelectedPlanCycle] = useState<PlanCycle>('anual');
+  const [selectedPlanName, setSelectedPlanName] = useState<string>("DESTAQUE");
+  const [selectedPlanCycle, setSelectedPlanCycle] =
+    useState<PlanCycle>("anual");
 
   const handleSelectPlan = (planName: string, cycle: PlanCycle) => {
     setSelectedPlanName(planName);
@@ -41,9 +40,6 @@ export default function App() {
         {/* 04 ONDE SUA MARCA APARECE + MAPA */}
         <WhereItAppearsSection />
 
-        {/* 05 SOLUÇÕES VM MÍDIAS */}
-        <SolutionsSection />
-
         {/* 06 COMO FUNCIONA */}
         <HowItWorksSection />
 
@@ -52,9 +48,6 @@ export default function App() {
 
         {/* 08 POR QUE ANUNCIAR COM A VM MÍDIAS */}
         <WhyAdvertiseSection />
-
-        {/* 09 CASES / CLIENTES + MÉTRICAS */}
-        <CasesSection />
 
         {/* 10 FAQ */}
         <FaqSection />

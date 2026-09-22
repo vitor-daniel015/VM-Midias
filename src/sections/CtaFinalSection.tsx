@@ -1,7 +1,7 @@
-import React from 'react';
-import { ArrowRight, Sparkles, MapPin } from 'lucide-react';
-import { VMLogo } from '../components/VMLogo';
-import { BrandButton, BrandEyebrow } from '../components/BrandUI';
+import React from "react";
+import { ArrowRight, Sparkles, MapPin } from "lucide-react";
+import { VMLogo } from "../components/VMLogo";
+import { BrandButton, BrandEyebrow } from "../components/BrandUI";
 
 export const CtaFinalSection: React.FC = () => {
   return (
@@ -19,12 +19,13 @@ export const CtaFinalSection: React.FC = () => {
         </div>
 
         {/* Eyebrow */}
-        <BrandEyebrow align="center" className="mb-6">Oportunidade limitada de ponto</BrandEyebrow>
+        <BrandEyebrow align="center" className="mb-6">
+          Oportunidade limitada de ponto
+        </BrandEyebrow>
 
         {/* Headline */}
         <h2 className="text-[clamp(2.8rem,6vw,6.5rem)] font-black text-white tracking-[-0.055em] leading-[0.94] uppercase mb-7">
-          SUA MARCA PODE SER{' '}
-          <br className="hidden sm:inline" />
+          SUA MARCA PODE SER <br className="hidden sm:inline" />
           <span className="text-[#F8032D] text-led-glow">
             A PRÓXIMA A APARECER.
           </span>
@@ -32,12 +33,17 @@ export const CtaFinalSection: React.FC = () => {
 
         {/* Subheadline */}
         <p className="text-base sm:text-xl text-[#A9ACB3] max-w-2xl mx-auto leading-relaxed mb-10">
-          Coloque sua empresa nos pontos onde Capela do Alto realmente circula. Garanta frequência, visibilidade e resultados reais.
+          Coloque sua empresa nos pontos onde Capela do Alto realmente circula.
+          Garanta frequência, visibilidade e resultados reais.
         </p>
 
         {/* Action Button */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <BrandButton id="cta-final-button" href="#contato" className="w-full sm:w-auto sm:px-10 sm:min-h-16">
+          <BrandButton
+            id="cta-final-button"
+            href="#contato"
+            className="w-full sm:w-auto sm:px-10 sm:min-h-16"
+          >
             Quero colocar minha marca em destaque
           </BrandButton>
         </div>

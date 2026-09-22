@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { VMLogo } from './VMLogo';
-import { Sparkles, Radio, Clock, MapPin, Eye, Users } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { VMLogo } from "./VMLogo";
+import { Sparkles, Radio, Clock, MapPin, Eye, Users } from "lucide-react";
 
 interface DigitalScreenMockupProps {
   locationLabel?: string;
@@ -9,37 +9,37 @@ interface DigitalScreenMockupProps {
 }
 
 export const DigitalScreenMockup: React.FC<DigitalScreenMockupProps> = ({
-  locationLabel = 'Ponto Central • Capela do Alto',
-  category = 'Supermercados e Conveniências',
+  locationLabel = "Ponto Central • Capela do Alto",
+  category = "Supermercados e Conveniências",
   interactive = true,
 }) => {
   const [activeSlide, setActiveSlide] = useState(0);
-  const [time, setTime] = useState('14:35');
+  const [time, setTime] = useState("14:35");
 
   const slides = [
     {
-      badge: 'DOOH QUE CONECTA PESSOAS',
-      title: 'SUA MARCA EM TODA A CIDADE',
-      subtitle: 'Presença diária nos pontos de maior circulação',
-      tagline: 'VISIBILIDADE • CLIENTES • RESULTADOS',
-      advertiser: 'VM MÍDIAS • REDE CAPELA DO ALTO',
-      highlightColor: '#F8032D',
+      badge: "DOOH QUE CONECTA PESSOAS",
+      title: "SUA MARCA EM TODA A CIDADE",
+      subtitle: "Presença diária nos pontos de maior circulação",
+      tagline: "VISIBILIDADE • CLIENTES • RESULTADOS",
+      advertiser: "VM MÍDIAS • REDE CAPELA DO ALTO",
+      highlightColor: "#F8032D",
     },
     {
-      badge: 'ALTA ATENÇÃO EM FILA DE ESPERA',
-      title: 'QUEM NÃO É VISTO NÃO É LEMBRADO',
-      subtitle: 'Telas posicionadas estrategicamente na linha de visão',
-      tagline: 'SEU PÚBLICO LOCAL NO MOMENTO CERTO',
-      advertiser: 'COMÉRCIO & SERVIÇOS LOCAIS',
-      highlightColor: '#FFFFFF',
+      badge: "ALTA ATENÇÃO EM FILA DE ESPERA",
+      title: "QUEM NÃO É VISTO NÃO É LEMBRADO",
+      subtitle: "Telas posicionadas estrategicamente na linha de visão",
+      tagline: "SEU PÚBLICO LOCAL NO MOMENTO CERTO",
+      advertiser: "COMÉRCIO & SERVIÇOS LOCAIS",
+      highlightColor: "#FFFFFF",
     },
     {
-      badge: 'FREQUÊNCIA E RECONHECIMENTO',
-      title: 'MAIS CLIENTES PARA O SEU NEGÓCIO',
-      subtitle: 'Planos a partir de R$ 139/mês para empresas da região',
-      tagline: 'CAPELA DO ALTO MAIS CONECTADA',
-      advertiser: 'ANUNCIE: WWW.VMMIDIAS.COM.BR',
-      highlightColor: '#F8032D',
+      badge: "FREQUÊNCIA E RECONHECIMENTO",
+      title: "MAIS CLIENTES PARA O SEU NEGÓCIO",
+      subtitle: "Planos a partir de R$ 139/mês para empresas da região",
+      tagline: "CAPELA DO ALTO MAIS CONECTADA",
+      advertiser: "ANUNCIE: WWW.VMMIDIAS.COM.BR",
+      highlightColor: "#F8032D",
     },
   ];
 
@@ -51,7 +51,7 @@ export const DigitalScreenMockup: React.FC<DigitalScreenMockupProps> = ({
     const updateClock = () => {
       const now = new Date();
       setTime(
-        `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+        `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`,
       );
     };
     updateClock();
@@ -171,7 +171,9 @@ export const DigitalScreenMockup: React.FC<DigitalScreenMockupProps> = ({
                     type="button"
                     onClick={() => setActiveSlide(idx)}
                     className={`h-1.5 rounded-full transition-all duration-300 ${
-                      activeSlide === idx ? 'w-5 bg-[#F8032D]' : 'w-1.5 bg-gray-600'
+                      activeSlide === idx
+                        ? "w-5 bg-[#F8032D]"
+                        : "w-1.5 bg-gray-600"
                     }`}
                     aria-label={`Slide ${idx + 1}`}
                   />

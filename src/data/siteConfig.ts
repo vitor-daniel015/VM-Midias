@@ -15,10 +15,10 @@ export const siteConfig = {
     url: 'https://www.vmmidias.com.br',
     
     // Contatos oficiais (configuráveis)
-    whatsappRaw: '5515997880000', // Altere aqui para o número com DDD (ex: 5515998887777)
-    whatsappFormatted: '(15) 99788-0000',
+    whatsappRaw: '551531650153', // Altere aqui para o número com DDD (ex: 5515998887777)
+    whatsappFormatted: '(15) 3165-0153',
     email: 'contato@vmmidias.com.br',
-    instagramUrl: 'https://www.instagram.com/vmmidias',
+    instagramUrl: 'https://www.instagram.com/vmmidiasindoor',
     instagramHandle: '@vmmidias',
 
     // Webhook opcional para automações (n8n, Make, Zapier, Supabase)

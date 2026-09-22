@@ -1,21 +1,23 @@
-import React, { useState } from 'react';
-import { X } from 'lucide-react';
-import { siteConfig } from '../data/siteConfig';
-import { WhatsAppIcon } from './WhatsAppIcon';
+import React, { useState } from "react";
+import { X } from "lucide-react";
+import { siteConfig } from "../data/siteConfig";
+import { WhatsAppIcon } from "./WhatsAppIcon";
 
 interface WhatsAppButtonProps {
   customMessage?: string;
 }
 
-export const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({ customMessage }) => {
+export const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
+  customMessage,
+}) => {
   const [showTooltip, setShowTooltip] = useState(false);
 
   const defaultMessage =
     customMessage ||
-    'Olá! Vi o site da VM MÍDIAS e gostaria de saber como colocar minha empresa em destaque nas telas.';
+    "Olá! Vi o site da VM MÍDIAS e gostaria de saber como colocar minha empresa em destaque nas telas.";
 
   const whatsappUrl = `https://wa.me/${siteConfig.company.whatsappRaw}?text=${encodeURIComponent(
-    defaultMessage
+    defaultMessage,
   )}`;
 
   return (
@@ -39,7 +41,8 @@ export const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({ customMessage })
             Atendimento VM MÍDIAS
           </div>
           <p className="text-gray-300">
-            Dúvidas sobre os planos START e DESTAQUE? Fale diretamente conosco pelo WhatsApp.
+            Dúvidas sobre os planos START e DESTAQUE? Fale diretamente conosco
+            pelo WhatsApp.
           </p>
         </div>
       )}
