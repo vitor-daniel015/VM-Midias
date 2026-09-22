@@ -1,96 +1,48 @@
 import React from 'react';
 import { Tv, Grid, Sparkles, Check, ArrowRight } from 'lucide-react';
 import { siteConfig } from '../data/siteConfig';
+import { SectionHeading } from '../components/BrandUI';
 
 export const SolutionsSection: React.FC = () => {
-  const iconMap: Record<string, React.ElementType> = {
-    Tv,
-    Grid,
-    Sparkles,
-  };
+  const iconMap: Record<string, React.ElementType> = { Tv, Grid, Sparkles };
 
   return (
-    <section
-      id="solucoes"
-      className="relative py-24 bg-[#09090D] border-b border-[#1C1C26] overflow-hidden"
-    >
-      {/* Ambient background glow */}
-      <div className="absolute top-1/2 right-0 w-80 h-80 bg-[#F8032D]/10 blur-[120px] pointer-events-none" />
+    <section id="solucoes" className="border-b border-white/10 bg-[#08090d] py-24 lg:py-32">
+      <div className="mx-auto max-w-[1500px] px-5 sm:px-8 lg:px-12">
+        <SectionHeading eyebrow="Soluções completas" title="Soluções" accent="VM Mídias" description="Soluções para sua marca ser vista, lembrada e reconhecida." align="left" className="mb-14 lg:mb-20" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#15151F] border border-[#262636] text-[#A9ACB3] text-xs font-semibold uppercase tracking-wider mb-4">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#F8032D]"></span>
-            <span>Soluções Completas</span>
-          </div>
-
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight uppercase">
-            SOLUÇÕES{' '}
-            <span className="text-[#F8032D] text-led-glow">VM MÍDIAS</span>
-          </h2>
-
-          <p className="text-base sm:text-lg text-[#A9ACB3] mt-3 max-w-2xl mx-auto">
-            Soluções para sua marca ser vista, lembrada e reconhecida.
-          </p>
-        </div>
-
-        {/* 3 Main Solutions Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {siteConfig.solutions.map((sol) => {
-            const Icon = iconMap[sol.iconName] || Tv;
-
+        <div className="grid gap-px overflow-hidden border border-white/10 bg-white/10 lg:grid-cols-2">
+          {siteConfig.solutions.map((solution, index) => {
+            const Icon = iconMap[solution.iconName] || Tv;
+            const isFeature = index === 0;
             return (
-              <div
-                key={sol.id}
-                className="group relative rounded-2xl bg-[#111116] border border-[#20202E] hover:border-[#F8032D] p-8 transition-all duration-300 shadow-xl hover:shadow-card-hover flex flex-col justify-between"
-              >
-                {/* Subtle top indicator glow on card hover */}
-                <div className="absolute -top-px left-8 right-8 h-[2px] bg-gradient-to-r from-transparent via-[#F8032D] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-                <div>
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="w-14 h-14 rounded-xl bg-[#181824] border border-[#28283C] group-hover:border-[#F8032D]/60 flex items-center justify-center text-[#F8032D] shadow-inner transition-colors">
-                      <Icon className="w-7 h-7" />
+              <article key={solution.id} className={`group relative overflow-hidden bg-[#0d0f13] p-7 sm:p-10 ${isFeature ? 'lg:row-span-2 lg:min-h-[720px] lg:p-14' : 'lg:min-h-[360px]'}`}>
+                {isFeature && (
+                  <>
+                    <div className="absolute inset-0 bg-indoor-space bg-cover bg-center opacity-28 transition-transform duration-700 group-hover:scale-[1.02]" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0d0f13] via-[#0d0f13]/90 to-[#0d0f13]/45" />
+                  </>
+                )}
+                <div className={`relative flex h-full flex-col ${isFeature ? 'justify-end' : 'justify-between'}`}>
+                  <div>
+                    <div className="mb-8 flex items-center justify-between border-b border-white/10 pb-5">
+                      <span className="text-xs font-bold tabular-nums text-[#f40b36]">0{index + 1}</span>
+                      <Icon className="h-6 w-6 text-white/55 transition-colors group-hover:text-[#f40b36]" />
                     </div>
-
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-[#161622] border border-[#262638] text-gray-300 group-hover:text-red-300 transition-colors">
-                      {sol.badge}
-                    </span>
+                    <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/45">{solution.subtitle} · {solution.badge}</p>
+                    <h3 className={`mt-3 font-black tracking-[-0.04em] text-white ${isFeature ? 'text-4xl sm:text-5xl' : 'text-2xl sm:text-3xl'}`}>{solution.title}</h3>
+                    <p className="mt-4 max-w-xl text-sm leading-7 text-white/58">{solution.description}</p>
+                    <div className={`mt-7 grid gap-3 ${isFeature ? 'sm:grid-cols-2' : ''}`}>
+                      {solution.highlights.map((item) => (
+                        <span key={item} className="flex gap-2 text-xs leading-5 text-white/72"><Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#f40b36]" />{item}</span>
+                      ))}
+                    </div>
                   </div>
-
-                  <div className="text-[11px] font-extrabold uppercase tracking-widest text-[#F8032D] mb-1.5">
-                    {sol.subtitle}
-                  </div>
-
-                  <h3 className="text-2xl font-black text-white uppercase tracking-tight mb-4 group-hover:text-red-50 transition-colors">
-                    {sol.title}
-                  </h3>
-
-                  <p className="text-sm text-[#A9ACB3] leading-relaxed mb-6">
-                    {sol.description}
-                  </p>
-
-                  <div className="space-y-2.5 pt-4 border-t border-[#1E1E2A]">
-                    {sol.highlights.map((item, idx) => (
-                      <div key={idx} className="flex items-start gap-2 text-xs text-gray-300">
-                        <Check className="w-3.5 h-3.5 text-[#F8032D] shrink-0 mt-0.5" />
-                        <span>{item}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="pt-8 mt-6 border-t border-[#1C1C26]">
-                  <a
-                    href="#planos"
-                    className="inline-flex items-center gap-2 text-xs font-bold text-white uppercase tracking-wider group-hover:text-[#F8032D] transition-colors"
-                  >
-                    <span>Ver opções e planos</span>
-                    <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+                  <a href="#planos" className="mt-9 inline-flex w-fit items-center gap-2 border-b border-white/25 pb-2 text-xs font-bold uppercase tracking-[0.14em] text-white transition-colors hover:border-[#f40b36] hover:text-[#f40b36]">
+                    Ver opções e planos <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </a>
                 </div>
-              </div>
+              </article>
             );
           })}
         </div>

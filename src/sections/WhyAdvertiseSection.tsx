@@ -1,75 +1,30 @@
 import React from 'react';
-import {
-  CalendarCheck,
-  MapPin,
-  Repeat,
-  Coins,
-  Palette,
-  Headphones,
-  Sparkles,
-} from 'lucide-react';
+import { CalendarCheck, MapPin, Repeat, Coins, Palette, Headphones, Sparkles } from 'lucide-react';
 import { siteConfig } from '../data/siteConfig';
+import { SectionHeading } from '../components/BrandUI';
 
 export const WhyAdvertiseSection: React.FC = () => {
-  const iconMap: Record<string, React.ElementType> = {
-    CalendarCheck,
-    MapPin,
-    Repeat,
-    Coins,
-    Palette,
-    Headphones,
-  };
+  const iconMap: Record<string, React.ElementType> = { CalendarCheck, MapPin, Repeat, Coins, Palette, Headphones };
 
   return (
-    <section
-      id="por-que-anunciar"
-      className="relative py-24 bg-[#000000] border-b border-[#1C1C26] overflow-hidden"
-    >
-      {/* Background Glow */}
-      <div className="absolute inset-0 bg-led-grid opacity-30 pointer-events-none" />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#15151F] border border-[#262636] text-[#A9ACB3] text-xs font-semibold uppercase tracking-wider mb-4">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#F8032D]"></span>
-            <span>Vantagens Reais</span>
-          </div>
-
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight uppercase">
-            POR QUE ANUNCIAR{' '}
-            <span className="text-[#F8032D] text-led-glow">COM A VM MÍDIAS</span>
-          </h2>
-
-          <p className="text-base sm:text-lg text-[#A9ACB3] mt-3">
-            Mais que mídia, resultados de visibilidade e autoridade para o seu negócio.
-          </p>
-        </div>
-
-        {/* 2x3 Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {siteConfig.whyAdvertise.map((item) => {
+    <section id="por-que-anunciar" className="border-b border-white/10 bg-[#030406] py-24 lg:py-32">
+      <div className="mx-auto max-w-[1500px] px-5 sm:px-8 lg:px-12">
+        <SectionHeading eyebrow="Vantagens VM Mídias" title="Por que anunciar" accent="com a VM Mídias" description="Mais que mídia, resultados de visibilidade e autoridade para o seu negócio." align="left" className="mb-14 lg:mb-20" />
+        <div className="grid border-t border-white/10 md:grid-cols-2">
+          {siteConfig.whyAdvertise.map((item, index) => {
             const Icon = iconMap[item.iconName] || Sparkles;
-
             return (
-              <div
-                key={item.id}
-                className="group relative p-7 rounded-2xl bg-[#0F0F16] border border-[#20202E] hover:border-[#F8032D]/60 transition-all duration-300 shadow-lg hover:shadow-card-hover flex flex-col justify-between"
-              >
+              <article key={item.id} className={`group grid grid-cols-[32px_1fr] gap-4 border-b border-white/10 py-7 md:px-8 md:py-10 ${index % 2 === 0 ? 'md:border-r md:pl-0' : 'md:pr-0'}`}>
+                <span className="pt-1 text-[10px] font-bold tabular-nums text-white/28">0{index + 1}</span>
                 <div>
-                  <div className="w-12 h-12 rounded-xl bg-[#161622] border border-[#28283A] group-hover:border-[#F8032D]/50 flex items-center justify-center text-[#F8032D] mb-5 shadow-inner transition-colors">
-                    <Icon className="w-6 h-6 stroke-[1.8]" />
+                  <div className="mb-5 flex items-center justify-between">
+                    <Icon className="h-5 w-5 text-[#f40b36]" />
+                    <span className="h-px w-8 bg-white/12 transition-all duration-300 group-hover:w-16 group-hover:bg-[#f40b36]" />
                   </div>
-
-                  <h3 className="text-lg font-black text-white uppercase tracking-tight mb-2 group-hover:text-red-50 transition-colors">
-                    {item.title}
-                  </h3>
-
-                  <p className="text-sm text-gray-300 leading-relaxed">
-                    {item.description}
-                  </p>
+                  <h3 className="text-xl font-black tracking-[-0.02em] text-white">{item.title}</h3>
+                  <p className="mt-3 max-w-lg text-sm leading-6 text-white/52">{item.description}</p>
                 </div>
-              </div>
+              </article>
             );
           })}
         </div>

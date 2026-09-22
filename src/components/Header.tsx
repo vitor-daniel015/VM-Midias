@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { VMLogo } from './VMLogo';
-import { Menu, X, ArrowRight, MessageSquare } from 'lucide-react';
+import { Menu, X, ArrowRight } from 'lucide-react';
 import { siteConfig } from '../data/siteConfig';
+import { WhatsAppIcon } from './WhatsAppIcon';
 
 interface HeaderProps {
   onOpenContactModal?: () => void;
@@ -10,6 +11,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState('inicio');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -22,6 +24,45 @@ export const Header: React.FC<HeaderProps> = () => {
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setMobileMenuOpen(false);
+    };
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) setMobileMenuOpen(false);
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('resize', handleResize);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [mobileMenuOpen]);
+
+  useEffect(() => {
+    const sectionIds = ['inicio', 'onde-estamos', 'solucoes', 'como-funciona', 'planos', 'cases', 'contato'];
+    const sections = sectionIds
+      .map((id) => document.getElementById(id))
+      .filter((section): section is HTMLElement => Boolean(section));
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (visible) setActiveSection(visible.target.id);
+      },
+      { rootMargin: '-18% 0px -62% 0px', threshold: [0, 0.15, 0.35] }
+    );
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
   }, []);
 
   const navLinks = [
@@ -39,16 +80,17 @@ export const Header: React.FC<HeaderProps> = () => {
   };
 
   return (
+    <>
     <header
       id="main-header"
-      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-        isScrolled
-          ? 'bg-[#000000]/90 backdrop-blur-md border-b border-[#22222E]/80 py-3 shadow-lg shadow-black/40'
-          : 'bg-transparent py-5 border-b border-transparent'
+      className={`fixed left-0 top-0 z-50 h-[72px] w-full border-b transition-all duration-300 lg:h-auto ${
+        isScrolled || mobileMenuOpen
+          ? 'border-white/10 bg-[#030406]/96 shadow-2xl shadow-black/40 backdrop-blur-xl lg:py-3'
+          : 'border-transparent bg-gradient-to-b from-black/85 to-transparent lg:py-5'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between">
+      <div className="mx-auto h-full max-w-[1500px] px-4 sm:px-8 lg:px-12">
+        <div className="flex h-full items-center justify-between">
           {/* Logo VM MÍDIAS */}
           <a
             href="#inicio"
@@ -68,10 +110,11 @@ export const Header: React.FC<HeaderProps> = () => {
               <a
                 key={link.href}
                 href={link.href}
-                className="text-sm font-medium text-[#A9ACB3] hover:text-[#FFFFFF] transition-colors relative py-1 group focus:outline-none focus-visible:text-white"
+                aria-current={activeSection === link.href.slice(1) ? 'page' : undefined}
+                className={`text-[13px] font-bold transition-colors relative py-2 group focus:outline-none focus-visible:text-white ${activeSection === link.href.slice(1) ? 'text-white' : 'text-[#94979f] hover:text-white'}`}
               >
                 {link.label}
-                <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#F8032D] transition-all duration-300 group-hover:w-full" />
+                <span className={`absolute bottom-0 left-0 h-[2px] bg-[#F8032D] transition-all duration-300 group-hover:w-full ${activeSection === link.href.slice(1) ? 'w-full' : 'w-0'}`} />
               </a>
             ))}
           </nav>
@@ -81,7 +124,7 @@ export const Header: React.FC<HeaderProps> = () => {
             <a
               id="header-cta-button"
               href="#contato"
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-[#F8032D] hover:bg-[#B80024] text-white text-sm font-bold tracking-wide transition-all duration-200 shadow-led-sm hover:shadow-led focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              className="group inline-flex items-center justify-center gap-2 rounded-md border border-white/15 bg-[#f40b36] px-6 py-3 text-xs font-black uppercase tracking-[0.12em] text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#d90a31] focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
             >
               <span>ANUNCIE AGORA</span>
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
@@ -92,6 +135,7 @@ export const Header: React.FC<HeaderProps> = () => {
           <div className="flex lg:hidden items-center gap-3">
             <a
               href="#contato"
+              onClick={handleLinkClick}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#F8032D] text-white text-xs font-bold uppercase tracking-wider"
             >
               <span>Anuncie</span>
@@ -104,6 +148,7 @@ export const Header: React.FC<HeaderProps> = () => {
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 rounded-lg bg-[#15151B] border border-[#22222E] text-white hover:text-[#F8032D] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F8032D]"
               aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-navigation-drawer"
               aria-label={mobileMenuOpen ? 'Fechar menu de navegação' : 'Abrir menu de navegação'}
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -112,33 +157,37 @@ export const Header: React.FC<HeaderProps> = () => {
         </div>
       </div>
 
+    </header>
+
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
         <div
           id="mobile-navigation-drawer"
-          className="lg:hidden fixed inset-x-0 top-[61px] bg-[#0A0A0E]/98 backdrop-blur-xl border-b border-[#22222E] shadow-2xl transition-all animate-in slide-in-from-top duration-200"
+          className="fixed inset-x-0 bottom-0 top-[72px] z-[45] overflow-y-auto bg-[#050609] lg:hidden"
         >
-          <div className="px-5 pt-4 pb-6 space-y-3">
-            <div className="text-xs uppercase tracking-wider text-[#A9ACB3] font-semibold mb-2">
-              Navegação
-            </div>
-            {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                onClick={handleLinkClick}
-                className="flex items-center justify-between py-2.5 px-3 rounded-lg text-base font-medium text-gray-200 hover:text-white hover:bg-[#15151B] border border-transparent hover:border-[#22222E] transition-all"
-              >
-                <span>{link.label}</span>
-                <span className="text-xs text-[#F8032D]">→</span>
-              </a>
-            ))}
+          <div className="flex min-h-full flex-col px-5 pb-[max(24px,env(safe-area-inset-bottom))] pt-6 sm:px-8">
+            <div className="mb-4 text-[11px] font-bold uppercase tracking-[0.18em] text-white/38">Navegação</div>
+            <nav aria-label="Navegação móvel" className="border-t border-white/10">
+              {navLinks.map((link, index) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  onClick={handleLinkClick}
+                  aria-current={activeSection === link.href.slice(1) ? 'page' : undefined}
+                  className={`group flex min-h-14 items-center gap-4 border-b border-white/10 px-1 text-base font-bold transition-colors ${activeSection === link.href.slice(1) ? 'text-white' : 'text-white/65 hover:text-white'}`}
+                >
+                  <span className={`text-[10px] tabular-nums ${activeSection === link.href.slice(1) ? 'text-[#f40b36]' : 'text-white/25'}`}>{String(index + 1).padStart(2, '0')}</span>
+                  <span className="flex-1">{link.label}</span>
+                  <ArrowRight className={`h-4 w-4 transition-transform group-hover:translate-x-1 ${activeSection === link.href.slice(1) ? 'text-[#f40b36]' : 'text-white/25'}`} />
+                </a>
+              ))}
+            </nav>
 
-            <div className="pt-4 mt-2 border-t border-[#22222E] flex flex-col gap-2.5">
+            <div className="mt-auto flex flex-col gap-3 border-t border-white/10 pt-5">
               <a
                 href="#contato"
                 onClick={handleLinkClick}
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-[#F8032D] text-white text-sm font-bold shadow-led-sm"
+                className="flex min-h-14 w-full items-center justify-center gap-2 rounded-md bg-[#F8032D] py-3 text-sm font-black text-white"
               >
                 <span>ANUNCIE AGORA</span>
                 <ArrowRight className="w-4 h-4" />
@@ -150,15 +199,16 @@ export const Header: React.FC<HeaderProps> = () => {
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-[#15151B] hover:bg-[#1C1C24] border border-[#22222E] text-white text-sm font-medium"
+                onClick={handleLinkClick}
+                className="flex min-h-12 w-full items-center justify-center gap-2 rounded-md border border-white/12 bg-white/[0.035] py-2.5 text-sm font-bold text-white"
               >
-                <MessageSquare className="w-4 h-4 text-emerald-400" />
+                <WhatsAppIcon className="w-4 h-4 text-emerald-400" />
                 <span>Falar pelo WhatsApp</span>
               </a>
             </div>
           </div>
         </div>
       )}
-    </header>
+    </>
   );
 };

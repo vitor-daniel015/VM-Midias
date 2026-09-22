@@ -1,7 +1,8 @@
 import React from 'react';
 import { VMLogo } from './VMLogo';
 import { siteConfig } from '../data/siteConfig';
-import { MapPin, Mail, MessageSquare, Instagram, Globe, ArrowUp } from 'lucide-react';
+import { MapPin, Mail, Instagram, Globe, ArrowUp } from 'lucide-react';
+import { WhatsAppIcon } from './WhatsAppIcon';
 
 interface FooterProps {
   onOpenPrivacyModal: () => void;
@@ -44,7 +45,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPrivacyModal }) => {
                 className="w-9 h-9 rounded-lg bg-[#15151F] border border-[#232330] flex items-center justify-center text-gray-400 hover:text-emerald-400 hover:border-emerald-500/40 transition-all"
                 aria-label="WhatsApp da VM MÍDIAS"
               >
-                <MessageSquare className="w-4 h-4" />
+                <WhatsAppIcon className="w-4 h-4" />
               </a>
               <a
                 href={`mailto:${siteConfig.company.email}`}
@@ -119,7 +120,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPrivacyModal }) => {
                 <span>{siteConfig.company.email}</span>
               </li>
               <li className="flex items-start gap-2.5">
-                <MessageSquare className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                <WhatsAppIcon className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                 <span>Atendimento comercial via WhatsApp</span>
               </li>
             </ul>

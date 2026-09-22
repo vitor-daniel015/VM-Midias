@@ -1,484 +1,182 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Send,
-  CheckCircle2,
-  AlertCircle,
-  MessageSquare,
-  Building2,
-  Mail,
-  User,
-  Phone,
-  Layers,
-  Sparkles,
-} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { AlertCircle, ArrowUpRight, MapPin } from 'lucide-react';
+import { WhatsAppIcon } from '../components/WhatsAppIcon';
+import { BrandEyebrow } from '../components/BrandUI';
 import { siteConfig } from '../data/siteConfig';
-import { ContactFormData, PlanCycle } from '../types';
+import { PlanCycle } from '../types';
 
 interface ContactSectionProps {
   selectedPlanName?: string;
   selectedPlanCycle?: PlanCycle;
 }
 
+interface SimpleContactForm {
+  nome: string;
+  empresa: string;
+  plano: string;
+  mensagem: string;
+}
+
 export const ContactSection: React.FC<ContactSectionProps> = ({
   selectedPlanName,
   selectedPlanCycle,
 }) => {
-  const [formData, setFormData] = useState<ContactFormData>({
+  const [formData, setFormData] = useState<SimpleContactForm>({
     nome: '',
     empresa: '',
-    whatsapp: '',
-    email: '',
-    segmento: '',
     plano: 'PLANO DESTAQUE (Mais Escolhido)',
     mensagem: '',
-    origem: 'site-vm-midias',
   });
+  const [errors, setErrors] = useState<Partial<Record<keyof SimpleContactForm, string>>>({});
 
-  const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
-  const [errors, setErrors] = useState<Partial<Record<keyof ContactFormData, string>>>({});
-  const [webhookResponseMsg, setWebhookResponseMsg] = useState('');
-
-  // Update plan when user clicks plan in previous section
   useEffect(() => {
-    if (selectedPlanName) {
-      const cycleInfo = selectedPlanCycle ? ` - ${selectedPlanCycle.toUpperCase()}` : '';
-      setFormData((prev) => ({
-        ...prev,
-        plano: `PLANO ${selectedPlanName.toUpperCase()}${cycleInfo}`,
-      }));
-    }
+    if (!selectedPlanName) return;
+    setFormData((current) => ({
+      ...current,
+      plano:
+        selectedPlanName.toUpperCase() === 'START'
+          ? 'PLANO START (05 locais)'
+          : 'PLANO DESTAQUE (Mais Escolhido)',
+    }));
   }, [selectedPlanName, selectedPlanCycle]);
 
-  const validate = (): boolean => {
-    const errs: Partial<Record<keyof ContactFormData, string>> = {};
-
-    if (!formData.nome.trim()) {
-      errs.nome = 'Por favor, informe seu nome.';
-    }
-
-    if (!formData.empresa.trim()) {
-      errs.empresa = 'Informe o nome da sua empresa ou comércio.';
-    }
-
-    if (!formData.whatsapp.trim()) {
-      errs.whatsapp = 'Informe um WhatsApp para contato.';
-    } else if (formData.whatsapp.replace(/\D/g, '').length < 10) {
-      errs.whatsapp = 'Digite um número de telefone/WhatsApp válido com DDD.';
-    }
-
-    if (!formData.email.trim()) {
-      errs.email = 'Informe seu e-mail.';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      errs.email = 'Digite um endereço de e-mail válido.';
-    }
-
-    if (!formData.segmento.trim()) {
-      errs.segmento = 'Informe o segmento do seu negócio.';
-    }
-
-    setErrors(errs);
-    return Object.keys(errs).length === 0;
-  };
-
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
-    if (errors[name as keyof ContactFormData]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: undefined,
-      }));
-    }
+    const field = event.target.name as keyof SimpleContactForm;
+    setFormData((current) => ({ ...current, [field]: event.target.value }));
+    if (errors[field]) setErrors((current) => ({ ...current, [field]: undefined }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const nextErrors: Partial<Record<keyof SimpleContactForm, string>> = {};
+    if (!formData.nome.trim()) nextErrors.nome = 'Informe seu nome.';
+    if (!formData.mensagem.trim()) nextErrors.mensagem = 'Escreva uma mensagem para continuar.';
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) return;
 
-    if (!validate()) {
-      return;
-    }
+    const message = [
+      '*CONTATO PELO SITE — VM MÍDIAS*',
+      '',
+      `*Nome:* ${formData.nome.trim()}`,
+      formData.empresa.trim() ? `*Empresa:* ${formData.empresa.trim()}` : '',
+      `*Interesse:* ${formData.plano}${selectedPlanCycle ? ` — ${selectedPlanCycle}` : ''}`,
+      `*Mensagem:* ${formData.mensagem.trim()}`,
+    ]
+      .filter(Boolean)
+      .join('\n');
 
-    setStatus('submitting');
-
-    const payload = {
-      nome: formData.nome.trim(),
-      empresa: formData.empresa.trim(),
-      whatsapp: formData.whatsapp.trim(),
-      email: formData.email.trim(),
-      segmento: formData.segmento.trim(),
-      plano: formData.plano,
-      mensagem: formData.mensagem.trim(),
-      origem: 'site-vm-midias',
-      dataEnvio: new Date().toISOString(),
-    };
-
-    try {
-      // If a webhook is configured in siteConfig, trigger it (n8n, Make, Zapier, Supabase)
-      if (siteConfig.company.webhookUrl) {
-        const response = await fetch(siteConfig.company.webhookUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-
-        if (!response.ok) {
-          throw new Error('Falha no envio ao webhook');
-        }
-      }
-
-      // Log structured payload ready for automation
-      console.log('VM MÍDIAS Lead Payload:', JSON.stringify(payload, null, 2));
-
-      setStatus('success');
-      setWebhookResponseMsg('Mensagem recebida com sucesso! Nossa equipe entrará em contato em breve.');
-    } catch (err) {
-      console.warn('Webhook dispatch info:', err);
-      // Even if external webhook fails, provide success + WhatsApp fallback
-      setStatus('success');
-      setWebhookResponseMsg('Solicitação registrada! Você também pode nos enviar os dados diretamente pelo WhatsApp.');
-    }
+    const whatsappUrl = `https://wa.me/${siteConfig.company.whatsappRaw}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
   };
 
-  const handleSendViaWhatsApp = () => {
-    const text = `*NOVO CONTATO - SITE VM MÍDIAS*\n\n*Nome:* ${formData.nome || 'Não informado'}\n*Empresa:* ${formData.empresa || 'Não informado'}\n*WhatsApp:* ${formData.whatsapp || 'Não informado'}\n*E-mail:* ${formData.email || 'Não informado'}\n*Segmento:* ${formData.segmento || 'Não informado'}\n*Plano de interesse:* ${formData.plano}\n*Mensagem:* ${formData.mensagem || 'Gostaria de colocar minha empresa em destaque nas telas.'}\n\nOrigem: site-vm-midias`;
-    const url = `https://wa.me/${siteConfig.company.whatsappRaw}?text=${encodeURIComponent(text)}`;
-    window.open(url, '_blank');
-  };
+  const fieldClass =
+    'w-full border-0 border-b border-white/20 bg-transparent px-0 py-3.5 text-base text-white outline-none transition-colors placeholder:text-white/28 focus:border-[#f40b36] focus:ring-0';
+
+  const planOptions = [
+    { value: 'PLANO DESTAQUE (Mais Escolhido)', label: 'Destaque', detail: '10 locais' },
+    { value: 'PLANO START (05 locais)', label: 'Start', detail: '5 locais' },
+    { value: 'PAINÉIS DE LED (Sob Medida)', label: 'Painel de LED', detail: 'sob medida' },
+    { value: 'OUTRO / TIRAR DÚVIDAS', label: 'Tenho dúvidas', detail: 'quero orientação' },
+  ];
 
   return (
-    <section
-      id="contato"
-      className="relative py-24 bg-[#09090D] border-b border-[#1C1C26] overflow-hidden"
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-          {/* Left Column: Context & Direct Channels */}
-          <div className="lg:col-span-5 space-y-6">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#15151F] border border-[#262636] text-[#A9ACB3] text-xs font-semibold uppercase tracking-wider">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#F8032D]"></span>
-              <span>Atendimento Comercial</span>
-            </div>
-
-            <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight uppercase leading-tight">
-              FALE COM A{' '}
-              <span className="text-[#F8032D] text-led-glow">VM MÍDIAS.</span>
+    <section id="contato" className="border-b border-white/10 bg-[#08090d] py-24 lg:py-32">
+      <div className="mx-auto max-w-[1500px] px-5 sm:px-8 lg:px-12">
+        <div className="grid gap-14 lg:grid-cols-12 lg:gap-20">
+          <div className="lg:col-span-5">
+            <BrandEyebrow>Contato direto</BrandEyebrow>
+            <h2 className="brand-section-title !text-[clamp(3.4rem,7vw,7rem)]">
+              Vamos<br />conversar<span className="text-[#f40b36]">.</span>
             </h2>
-
-            <p className="text-base text-gray-300 leading-relaxed">
-              Preencha o formulário para receber uma proposta personalizada para o seu comércio ou fale agora mesmo com o nosso time em Capela do Alto.
+            <p className="mt-6 max-w-md text-base leading-7 text-white/58">
+              Conte o que sua marca precisa. Ao enviar, abriremos o WhatsApp da VM Mídias com a mensagem pronta.
             </p>
 
-            <div className="space-y-4 pt-4">
-              <div className="p-4 rounded-xl bg-[#111117] border border-[#22222E] flex items-center gap-4">
-                <div className="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0">
-                  <MessageSquare className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="text-xs text-gray-400 font-medium">WhatsApp Comercial</div>
-                  <div className="text-sm font-bold text-white">
-                    {siteConfig.company.whatsappFormatted}
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-4 rounded-xl bg-[#111117] border border-[#22222E] flex items-center gap-4">
-                <div className="w-10 h-10 rounded-lg bg-[#F8032D]/10 text-[#F8032D] flex items-center justify-center shrink-0">
-                  <Mail className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="text-xs text-gray-400 font-medium">E-mail Direto</div>
-                  <div className="text-sm font-bold text-white">
-                    {siteConfig.company.email}
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-4 rounded-xl bg-[#111117] border border-[#22222E] flex items-center gap-4">
-                <div className="w-10 h-10 rounded-lg bg-[#1D1D2C] text-gray-300 flex items-center justify-center shrink-0">
-                  <Building2 className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="text-xs text-gray-400 font-medium">Localização</div>
-                  <div className="text-sm font-bold text-white">
-                    {siteConfig.company.locationShort}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Direct WhatsApp Quick Trigger */}
-            <div className="pt-2">
-              <button
-                type="button"
-                onClick={handleSendViaWhatsApp}
-                className="w-full inline-flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs uppercase tracking-wider transition-colors shadow-lg"
+            <div className="mt-10 border-y border-white/10">
+              <a
+                href={`https://wa.me/${siteConfig.company.whatsappRaw}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-center gap-4 border-b border-white/10 py-5"
               >
-                <MessageSquare className="w-4 h-4" />
-                <span>Conversar direto pelo WhatsApp</span>
-              </button>
+                <span className="flex h-10 w-10 items-center justify-center bg-[#25D366] text-white">
+                  <WhatsAppIcon className="h-5 w-5" />
+                </span>
+                <span className="flex-1">
+                  <span className="block text-xs uppercase tracking-[0.16em] text-white/38">WhatsApp comercial</span>
+                  <span className="mt-1 block font-bold text-white">{siteConfig.company.whatsappFormatted}</span>
+                </span>
+                <ArrowUpRight className="h-4 w-4 text-white/35 transition-colors group-hover:text-[#25D366]" />
+              </a>
+              <div className="flex items-center gap-4 py-5">
+                <span className="flex h-10 w-10 items-center justify-center border border-white/12 text-[#f40b36]">
+                  <MapPin className="h-5 w-5" />
+                </span>
+                <span>
+                  <span className="block text-xs uppercase tracking-[0.16em] text-white/38">Atendimento local</span>
+                  <span className="mt-1 block font-bold text-white">{siteConfig.company.locationShort}</span>
+                </span>
+              </div>
             </div>
           </div>
 
-          {/* Right Column: Lead Form */}
-          <div className="lg:col-span-7">
-            <div className="p-8 sm:p-10 rounded-3xl bg-[#111116] border border-[#242434] shadow-2xl relative">
-              <h3 className="text-xl sm:text-2xl font-black text-white uppercase mb-2">
-                Solicitar Proposta de Mídia
-              </h3>
-              <p className="text-xs text-[#A9ACB3] mb-8">
-                Informe os dados do seu negócio. Responderemos com os pontos recomendados para sua empresa.
-              </p>
-
-              {status === 'success' ? (
-                <div className="p-8 rounded-2xl bg-[#141E18] border border-emerald-500/40 text-center space-y-4">
-                  <div className="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto">
-                    <CheckCircle2 className="w-7 h-7" />
-                  </div>
-                  <h4 className="text-lg font-black text-white">
-                    Proposta Solicitada com Sucesso!
-                  </h4>
-                  <p className="text-xs text-gray-300 max-w-md mx-auto leading-relaxed">
-                    {webhookResponseMsg}
-                  </p>
-                  <div className="pt-4 flex flex-col sm:flex-row justify-center gap-3">
-                    <button
-                      type="button"
-                      onClick={handleSendViaWhatsApp}
-                      className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider"
-                    >
-                      <MessageSquare className="w-4 h-4" />
-                      <span>Agilizar atendimento no WhatsApp</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setStatus('idle')}
-                      className="px-4 py-2.5 rounded-lg bg-[#181822] text-xs text-gray-300 hover:text-white"
-                    >
-                      Enviar outro formulário
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <form onSubmit={handleSubmit} noValidate className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {/* Nome */}
-                    <div>
-                      <label
-                        htmlFor="form-nome"
-                        className="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-1.5"
-                      >
-                        Seu Nome *
-                      </label>
-                      <div className="relative">
-                        <input
-                          id="form-nome"
-                          name="nome"
-                          type="text"
-                          value={formData.nome}
-                          onChange={handleChange}
-                          placeholder="Ex: Carlos Silva"
-                          className={`w-full bg-[#0B0B0F] border rounded-xl py-3 px-4 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#F8032D] ${
-                            errors.nome ? 'border-red-500' : 'border-[#262636]'
-                          }`}
-                        />
-                      </div>
-                      {errors.nome && (
-                        <p className="text-[11px] text-red-400 mt-1 flex items-center gap-1">
-                          <AlertCircle className="w-3 h-3" /> {errors.nome}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Empresa */}
-                    <div>
-                      <label
-                        htmlFor="form-empresa"
-                        className="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-1.5"
-                      >
-                        Nome da Empresa / Comércio *
-                      </label>
-                      <input
-                        id="form-empresa"
-                        name="empresa"
-                        type="text"
-                        value={formData.empresa}
-                        onChange={handleChange}
-                        placeholder="Ex: Padaria Central"
-                        className={`w-full bg-[#0B0B0F] border rounded-xl py-3 px-4 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#F8032D] ${
-                          errors.empresa ? 'border-red-500' : 'border-[#262636]'
-                        }`}
-                      />
-                      {errors.empresa && (
-                        <p className="text-[11px] text-red-400 mt-1 flex items-center gap-1">
-                          <AlertCircle className="w-3 h-3" /> {errors.empresa}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {/* WhatsApp */}
-                    <div>
-                      <label
-                        htmlFor="form-whatsapp"
-                        className="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-1.5"
-                      >
-                        WhatsApp com DDD *
-                      </label>
-                      <input
-                        id="form-whatsapp"
-                        name="whatsapp"
-                        type="tel"
-                        value={formData.whatsapp}
-                        onChange={handleChange}
-                        placeholder="(15) 99999-9999"
-                        className={`w-full bg-[#0B0B0F] border rounded-xl py-3 px-4 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#F8032D] ${
-                          errors.whatsapp ? 'border-red-500' : 'border-[#262636]'
-                        }`}
-                      />
-                      {errors.whatsapp && (
-                        <p className="text-[11px] text-red-400 mt-1 flex items-center gap-1">
-                          <AlertCircle className="w-3 h-3" /> {errors.whatsapp}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Email */}
-                    <div>
-                      <label
-                        htmlFor="form-email"
-                        className="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-1.5"
-                      >
-                        E-mail *
-                      </label>
-                      <input
-                        id="form-email"
-                        name="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        placeholder="contato@empresa.com.br"
-                        className={`w-full bg-[#0B0B0F] border rounded-xl py-3 px-4 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#F8032D] ${
-                          errors.email ? 'border-red-500' : 'border-[#262636]'
-                        }`}
-                      />
-                      {errors.email && (
-                        <p className="text-[11px] text-red-400 mt-1 flex items-center gap-1">
-                          <AlertCircle className="w-3 h-3" /> {errors.email}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {/* Segmento */}
-                    <div>
-                      <label
-                        htmlFor="form-segmento"
-                        className="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-1.5"
-                      >
-                        Segmento de Atuação *
-                      </label>
-                      <input
-                        id="form-segmento"
-                        name="segmento"
-                        type="text"
-                        value={formData.segmento}
-                        onChange={handleChange}
-                        placeholder="Ex: Restaurante, Clínica, Loja..."
-                        className={`w-full bg-[#0B0B0F] border rounded-xl py-3 px-4 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#F8032D] ${
-                          errors.segmento ? 'border-red-500' : 'border-[#262636]'
-                        }`}
-                      />
-                      {errors.segmento && (
-                        <p className="text-[11px] text-red-400 mt-1 flex items-center gap-1">
-                          <AlertCircle className="w-3 h-3" /> {errors.segmento}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Plano de Interesse */}
-                    <div>
-                      <label
-                        htmlFor="form-plano"
-                        className="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-1.5"
-                      >
-                        Plano de Interesse
-                      </label>
-                      <select
-                        id="form-plano"
-                        name="plano"
-                        value={formData.plano}
-                        onChange={handleChange}
-                        className="w-full bg-[#0B0B0F] border border-[#262636] rounded-xl py-3 px-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#F8032D]"
-                      >
-                        <option value="PLANO DESTAQUE (Mais Escolhido)">
-                          PLANO DESTAQUE (09 + 01 locais) — Mais Escolhido
-                        </option>
-                        <option value="PLANO START (05 locais)">
-                          PLANO START (05 locais)
-                        </option>
-                        <option value="PAINÉIS DE LED (Sob Medida)">
-                          PAINÉIS DE LED (Sob Medida)
-                        </option>
-                        <option value="OUTRO / TIRAR DÚVIDAS">
-                          Quero tirar dúvidas / atendimento personalizado
-                        </option>
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* Mensagem */}
-                  <div>
-                    <label
-                      htmlFor="form-mensagem"
-                      className="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-1.5"
-                    >
-                      Mensagem Adicional (Opcional)
-                    </label>
-                    <textarea
-                      id="form-mensagem"
-                      name="mensagem"
-                      rows={3}
-                      value={formData.mensagem}
-                      onChange={handleChange}
-                      placeholder="Conte-nos se você deseja focar em algum bairro ou período específico..."
-                      className="w-full bg-[#0B0B0F] border border-[#262636] rounded-xl py-3 px-4 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#F8032D] resize-none"
-                    />
-                  </div>
-
-                  {/* Submit Button */}
-                  <div className="pt-2">
-                    <button
-                      id="contact-submit-button"
-                      type="submit"
-                      disabled={status === 'submitting'}
-                      className="w-full flex items-center justify-center gap-3 py-4 rounded-xl bg-[#F8032D] hover:bg-[#B80024] disabled:bg-gray-700 text-white font-black text-sm uppercase tracking-wider transition-all duration-200 shadow-led-sm hover:shadow-led"
-                    >
-                      {status === 'submitting' ? (
-                        <span>ENVIANDO DADOS...</span>
-                      ) : (
-                        <>
-                          <span>QUERO ANUNCIAR</span>
-                          <Send className="w-4 h-4" />
-                        </>
-                      )}
-                    </button>
-                  </div>
-
-                  {/* LGPD Consent Notice */}
-                  <div className="pt-2 text-center text-[11px] text-gray-500">
-                    Seus dados serão utilizados exclusivamente para contato comercial pela VM MÍDIAS, de acordo com a LGPD.
-                  </div>
-                </form>
-              )}
+          <div className="lg:col-span-7 lg:pt-10">
+            <div className="mb-8 flex items-end justify-between gap-4 border-b border-white/10 pb-6">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#f40b36]">Mensagem rápida</p>
+                <h3 className="mt-2 text-2xl font-black tracking-[-0.03em] text-white sm:text-3xl">Fale direto com nosso time</h3>
+              </div>
+              <WhatsAppIcon className="hidden h-8 w-8 text-[#25D366] sm:block" />
             </div>
+
+            <form onSubmit={handleSubmit} noValidate className="space-y-7">
+              <div className="grid gap-7 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="form-nome" className="text-xs font-bold uppercase tracking-[0.14em] text-white/58">Seu nome</label>
+                  <input id="form-nome" name="nome" type="text" autoComplete="name" value={formData.nome} onChange={handleChange} placeholder="Como podemos chamar você?" className={`${fieldClass} ${errors.nome ? '!border-red-500' : ''}`} aria-invalid={Boolean(errors.nome)} />
+                  {errors.nome && <p className="mt-2 flex items-center gap-1 text-xs text-red-400"><AlertCircle className="h-3.5 w-3.5" />{errors.nome}</p>}
+                </div>
+                <div>
+                  <label htmlFor="form-empresa" className="text-xs font-bold uppercase tracking-[0.14em] text-white/58">Empresa <span className="font-normal normal-case text-white/30"></span></label>
+                  <input id="form-empresa" name="empresa" type="text" autoComplete="organization" value={formData.empresa} onChange={handleChange} placeholder="Nome do seu negócio" className={fieldClass} />
+                </div>
+              </div>
+
+              <fieldset>
+                <legend className="text-xs font-bold uppercase tracking-[0.14em] text-white/58">Qual é o seu interesse?</legend>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  {planOptions.map((option) => {
+                    const selected = formData.plano === option.value;
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => setFormData((current) => ({ ...current, plano: option.value }))}
+                        aria-pressed={selected}
+                        className={`min-h-16 rounded-md border px-3 py-3 text-left transition-colors ${selected ? 'border-[#f40b36] bg-[#f40b36]/10' : 'border-white/12 bg-white/[0.025] hover:border-white/28'}`}
+                      >
+                        <span className={`block text-sm font-black ${selected ? 'text-white' : 'text-white/68'}`}>{option.label}</span>
+                        <span className="mt-0.5 block text-[10px] uppercase tracking-wider text-white/32">{option.detail}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </fieldset>
+
+              <div>
+                <label htmlFor="form-mensagem" className="text-xs font-bold uppercase tracking-[0.14em] text-white/58">Sua mensagem</label>
+                <textarea id="form-mensagem" name="mensagem" rows={4} value={formData.mensagem} onChange={handleChange} placeholder="Conte brevemente o que você quer divulgar..." className={`${fieldClass} resize-y ${errors.mensagem ? '!border-red-500' : ''}`} aria-invalid={Boolean(errors.mensagem)} />
+                {errors.mensagem && <p className="mt-2 flex items-center gap-1 text-xs text-red-400"><AlertCircle className="h-3.5 w-3.5" />{errors.mensagem}</p>}
+              </div>
+
+              <button id="contact-submit-button" type="submit" className="group flex min-h-14 w-full items-center justify-center gap-3 rounded-md bg-[#25D366] px-6 py-4 text-sm font-black uppercase tracking-[0.12em] text-[#041108] transition-colors hover:bg-[#38e478] sm:w-auto sm:min-w-72">
+                <WhatsAppIcon className="h-5 w-5" />
+                Enviar pelo WhatsApp
+                <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+              </button>
+            </form>
           </div>
         </div>
       </div>

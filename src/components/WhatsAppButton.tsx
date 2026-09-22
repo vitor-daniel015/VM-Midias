@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { MessageSquare, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { siteConfig } from '../data/siteConfig';
+import { WhatsAppIcon } from './WhatsAppIcon';
 
 interface WhatsAppButtonProps {
   customMessage?: string;
@@ -56,7 +57,7 @@ export const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({ customMessage })
         {/* Radar ping animation */}
         <span className="absolute -inset-1 rounded-full bg-emerald-500/30 animate-ping pointer-events-none opacity-60" />
 
-        <MessageSquare className="w-7 h-7 fill-white/20 transition-transform group-hover:scale-110" />
+        <WhatsAppIcon className="w-7 h-7 transition-transform group-hover:scale-110" />
 
         {/* Online Status Badge */}
         <span className="absolute top-0 right-0 w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-[#0A0A0E]" />

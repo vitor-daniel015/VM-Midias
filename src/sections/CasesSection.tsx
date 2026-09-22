@@ -1,6 +1,7 @@
 import React from 'react';
 import { Sparkles, ArrowRight, Building2, MapPin, TrendingUp, Users, Star } from 'lucide-react';
 import { siteConfig } from '../data/siteConfig';
+import { SectionHeading } from '../components/BrandUI';
 
 export const CasesSection: React.FC = () => {
   const iconMap: Record<string, React.ElementType> = {
@@ -18,25 +19,17 @@ export const CasesSection: React.FC = () => {
   return (
     <section
       id="cases"
-      className="relative py-24 bg-[#09090D] border-b border-[#1C1C26] overflow-hidden"
+      className="relative py-24 lg:py-32 bg-[#08090d] border-b border-white/10 overflow-hidden"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1500px] mx-auto px-5 sm:px-8 lg:px-12">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#15151F] border border-[#262636] text-[#A9ACB3] text-xs font-semibold uppercase tracking-wider mb-4">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#F8032D]"></span>
-            <span>Credibilidade Local</span>
-          </div>
-
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight uppercase">
-            MARCAS QUE JÁ{' '}
-            <span className="text-[#F8032D] text-led-glow">CONFIAM NA VM MÍDIAS</span>
-          </h2>
-
-          <p className="text-base sm:text-lg text-[#A9ACB3] mt-3">
-            Negócios locais em destaque na nossa rede de telas em Capela do Alto.
-          </p>
-        </div>
+        <SectionHeading
+          eyebrow="Credibilidade local"
+          title="Marcas que já"
+          accent="confiam na VM Mídias"
+          description="Negócios locais em destaque na nossa rede de telas em Capela do Alto."
+          className="mb-16 lg:mb-20"
+        />
 
         {/* Conditional Cases Display:
             Strict briefing rule: "NÃO INVENTAR CLIENTES. Caso ainda não existam cases cadastrados, não mostrar depoimentos falsos. Pode exibir: 'Em breve, novos cases da nossa rede.'" */}
@@ -80,29 +73,18 @@ export const CasesSection: React.FC = () => {
             ))}
           </div>
         ) : (
-          /* Honest, elegant empty-state container as mandated */
-          <div className="max-w-2xl mx-auto p-10 rounded-3xl bg-[#101017] border border-[#222230] text-center shadow-2xl mb-16 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-48 h-48 bg-[#F8032D]/10 blur-3xl pointer-events-none" />
-
-            <div className="w-14 h-14 rounded-2xl bg-[#181824] border border-[#2A2A3E] flex items-center justify-center text-[#F8032D] mx-auto mb-5 shadow-inner">
-              <Sparkles className="w-7 h-7 animate-pulse" />
+          <div className="relative mb-16 overflow-hidden border-y border-white/10 py-14 lg:py-20">
+            <div className="absolute inset-y-0 right-0 hidden w-1/2 bg-indoor-space bg-cover bg-center opacity-20 lg:block" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#08090d] via-[#08090d]/95 to-[#08090d]/50" />
+            <div className="relative max-w-3xl">
+              <p className="mb-5 text-xs font-black uppercase tracking-[0.2em] text-[#F8032D]">Próximos capítulos</p>
+              <h3 className="max-w-2xl text-3xl font-black tracking-[-0.04em] text-white sm:text-5xl">Em breve, novos cases da nossa rede.</h3>
+              <p className="mt-5 max-w-xl text-sm leading-7 text-white/58">A VM MÍDIAS está ativando as primeiras cotas fundadoras de anunciantes em Capela do Alto. Garanta a prioridade da sua empresa nos pontos de maior audiência da cidade antes dos concorrentes.</p>
+              <a href="#contato" className="group mt-8 inline-flex items-center gap-2.5 border-b border-white/25 pb-2 text-xs font-black uppercase tracking-[0.14em] text-white transition-colors hover:border-[#F8032D] hover:text-[#F8032D]">
+                <span>Quero que minha marca também apareça</span>
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </a>
             </div>
-
-            <h3 className="text-2xl font-black text-white uppercase tracking-tight mb-3">
-              Em breve, novos cases da nossa rede.
-            </h3>
-
-            <p className="text-sm text-gray-300 leading-relaxed max-w-lg mx-auto mb-8">
-              A VM MÍDIAS está ativando as primeiras cotas fundadoras de anunciantes em Capela do Alto. Garanta a prioridade da sua empresa nos pontos de maior audiência da cidade antes dos concorrentes.
-            </p>
-
-            <a
-              href="#contato"
-              className="inline-flex items-center gap-2.5 px-8 py-4 rounded-xl bg-[#F8032D] hover:bg-[#B80024] text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-led-sm hover:shadow-led transition-all"
-            >
-              <span>QUERO QUE MINHA MARCA TAMBÉM APAREÇA</span>
-              <ArrowRight className="w-4 h-4" />
-            </a>
           </div>
         )}
 
