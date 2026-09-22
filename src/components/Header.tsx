@@ -4,27 +4,9 @@ import { Menu, X, ArrowRight } from "lucide-react";
 import { siteConfig } from "../data/siteConfig";
 import { WhatsAppIcon } from "./WhatsAppIcon";
 
-interface HeaderProps {
-  onOpenContactModal?: () => void;
-}
-
-export const Header: React.FC<HeaderProps> = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
+export const Header: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("inicio");
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 20) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   useEffect(() => {
     if (!mobileMenuOpen) return;
@@ -51,10 +33,8 @@ export const Header: React.FC<HeaderProps> = () => {
     const sectionIds = [
       "inicio",
       "onde-estamos",
-      "solucoes",
       "como-funciona",
       "planos",
-      "cases",
       "contato",
     ];
     const sections = sectionIds
@@ -89,11 +69,7 @@ export const Header: React.FC<HeaderProps> = () => {
     <>
       <header
         id="main-header"
-        className={`fixed left-0 top-0 z-50 h-[72px] w-full border-b transition-all duration-300 lg:h-auto ${
-          isScrolled || mobileMenuOpen
-            ? "border-white/10 bg-[#030406]/96 shadow-2xl shadow-black/40 backdrop-blur-xl lg:py-3"
-            : "border-transparent bg-gradient-to-b from-black/85 to-transparent lg:py-5"
-        }`}
+        className="fixed left-0 top-0 z-50 h-[72px] w-full border-b border-white/10 bg-[#030406]/96 shadow-2xl shadow-black/40 backdrop-blur-xl lg:h-[84px]"
       >
         <div className="mx-auto h-full max-w-[1500px] px-4 sm:px-8 lg:px-12">
           <div className="flex h-full items-center justify-between">

@@ -156,11 +156,6 @@ export const PlansSection: React.FC<PlansSectionProps> = ({ onSelectPlan }) => {
             );
           })}
         </div>
-
-        <p className="mx-auto mt-6 max-w-2xl text-center text-xs leading-5 text-white/35">
-          A criação da arte estática está incluída. Valores e cobertura
-          correspondem ao período selecionado acima.
-        </p>
       </div>
     </section>
   );

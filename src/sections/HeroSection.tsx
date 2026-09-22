@@ -1,12 +1,13 @@
 import React from "react";
-import { Eye, MapPin, TrendingUp, Users } from "lucide-react";
 import { BrandButton, BrandEyebrow } from "../components/BrandUI";
+import { HeroVideo } from "../components/HeroVideo";
+import { siteConfig } from "../data/siteConfig";
 
 export const HeroSection: React.FC = () => {
   return (
     <section
       id="inicio"
-      className="relative min-h-[100svh] overflow-hidden bg-black flex flex-col justify-end"
+      className="relative min-h-[100svh] overflow-hidden bg-black lg:h-[100svh]"
     >
       <div
         className="absolute inset-0 bg-hero-city hero-photo-motion"
@@ -25,33 +26,44 @@ export const HeroSection: React.FC = () => {
         aria-hidden="true"
       />
 
-      <div className="relative z-10 w-full max-w-[1500px] mx-auto px-5 sm:px-8 lg:px-12 pt-32 lg:pt-40 pb-8 lg:pb-12">
-        <div className="max-w-[860px] py-10 lg:py-20">
-          <BrandEyebrow>VM Mídias · Capela do Alto</BrandEyebrow>
+      <div className="relative z-10 mx-auto flex min-h-[100svh] w-full max-w-[1500px] items-center px-5 pb-10 pt-[104px] sm:px-8 lg:h-full lg:min-h-0 lg:px-12 lg:pb-6 lg:pt-[96px]">
+        <div className="grid w-full items-center gap-7 lg:grid-cols-12 lg:grid-rows-[auto_auto] lg:gap-x-12 lg:gap-y-6">
+          <div className="order-1 lg:col-span-7 lg:row-start-1 lg:self-end">
+            <BrandEyebrow>VM Mídias · Capela do Alto</BrandEyebrow>
 
-          <h1 className="max-w-[840px] text-[clamp(3rem,7.2vw,7rem)] font-black tracking-[-0.065em] leading-[0.88] uppercase text-white">
-            Seu negócio já é bom.
-            <span className="block mt-3 text-[#ff143f] text-led-glow">
-              Agora ele precisa aparecer.
-            </span>
-          </h1>
+            <h1 className="max-w-[820px] text-[clamp(2.8rem,12vw,4.6rem)] font-black uppercase leading-[0.88] tracking-[-0.065em] text-white lg:text-[clamp(4rem,5.5vw,6.2rem)]">
+              Seu negócio já é bom
+              <span className="mt-3 block text-[#ff143f] text-led-glow">
+                Agora ele precisa aparecer.
+              </span>
+            </h1>
+          </div>
 
-          <p className="mt-7 max-w-2xl text-base sm:text-xl lg:text-2xl text-[#d0d1d6] leading-relaxed">
-            Publicidade em telas estratégicas de Capela do Alto para sua empresa
-            ser vista, lembrada e escolhida.
-          </p>
+          <div className="order-2 lg:col-span-5 lg:col-start-8 lg:row-span-2 lg:row-start-1">
+            <HeroVideo
+              src={siteConfig.company.heroVideoUrl}
+              poster="/images/generated/vm-indoor-space.webp"
+            />
+          </div>
 
-          <div className="mt-9 flex flex-col sm:flex-row gap-3">
-            <BrandButton id="hero-primary-cta" href="#contato">
-              Colocar minha marca em destaque
-            </BrandButton>
-            <BrandButton
-              id="hero-secondary-cta"
-              href="#planos"
-              variant="outline"
-            >
-              Conhecer os planos
-            </BrandButton>
+          <div className="order-3 lg:col-span-7 lg:row-start-2 lg:self-start">
+            <p className="max-w-2xl text-base leading-relaxed text-[#d0d1d6] sm:text-xl lg:text-lg xl:text-xl">
+              Publicidade em telas estratégicas de Capela do Alto para sua
+              empresa ser vista, lembrada e escolhida.
+            </p>
+
+            <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+              <BrandButton id="hero-primary-cta" href="#contato">
+                Colocar minha marca em destaque
+              </BrandButton>
+              <BrandButton
+                id="hero-secondary-cta"
+                href="#planos"
+                variant="outline"
+              >
+                Conhecer os planos
+              </BrandButton>
+            </div>
           </div>
         </div>
       </div>

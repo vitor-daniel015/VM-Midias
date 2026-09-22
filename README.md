@@ -4,7 +4,7 @@ Site institucional e comercial da **VM Mídias**, empresa de mídia indoor e pai
 
 O projeto apresenta as soluções da empresa, locais de exibição, planos comerciais e um contato direto pelo WhatsApp. A interface foi desenvolvida com foco em clareza, identidade visual, desempenho e boa experiência em celulares.
 
-![Identidade visual da VM Mídias](public/images/2.png)
+![Identidade visual da VM Mídias](public/images/logo-VMmidias.png)
 
 ## Funcionalidades
 
@@ -232,7 +232,7 @@ Para preservar a consistência:
 
 Os arquivos oficiais ficam em `public/images`.
 
-- `2.png`: logo principal para fundos escuros;
+- `logo-VMmidias.png`: logo principal para fundos escuros;
 - `LOGO VM MÍDIAS.png`: variação transparente da marca;
 - `generated/vm-hero-city.webp`: imagem principal do hero;
 - `generated/vm-indoor-space.webp`: ambiente interno usado nas seções.

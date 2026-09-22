@@ -202,64 +202,13 @@
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.18'/%3E%3C/svg%3E");
 }
 
-.bg-led-grid-dense {
-  background-size: 16px 16px;
-  background-image: radial-gradient(
-    circle,
-    rgba(255, 255, 255, 0.04) 1px,
-    transparent 1px
-  );
-}
-
-.bg-digital-lines {
-  background-size: 100% 4px;
-  background-image: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0.02) 50%,
-    transparent 50%
-  );
-}
-
 /* Red LED Glow Utilities */
-.shadow-led {
-  box-shadow:
-    0 0 25px -3px rgba(248, 3, 45, 0.45),
-    0 0 10px -2px rgba(248, 3, 45, 0.3);
-}
-
 .shadow-led-sm {
   box-shadow: 0 0 15px -2px rgba(248, 3, 45, 0.35);
 }
 
-.shadow-led-subtle {
-  box-shadow: 0 4px 20px -2px rgba(248, 3, 45, 0.15);
-}
-
-.shadow-card-hover {
-  box-shadow:
-    0 10px 30px -5px rgba(0, 0, 0, 0.8),
-    0 0 0 1px rgba(248, 3, 45, 0.4);
-}
-
 .text-led-glow {
   text-shadow: 0 0 18px rgba(248, 3, 45, 0.24);
-}
-
-/* Smooth pulse animation for live screens and nodes */
-@keyframes led-pulse {
-  0%,
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.6;
-    transform: scale(1.05);
-  }
-}
-
-.animate-led-pulse {
-  animation: led-pulse 2.5s ease-in-out infinite;
 }
 
 @keyframes hero-breathe {
@@ -268,15 +217,6 @@
   }
   to {
     transform: scale(1.03);
-  }
-}
-
-@keyframes timeline-progress {
-  from {
-    transform: scaleY(0);
-  }
-  to {
-    transform: scaleY(1);
   }
 }
 

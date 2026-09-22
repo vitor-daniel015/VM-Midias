@@ -44,9 +44,6 @@ export const HowItWorksSection: React.FC = () => (
                 <p className="mt-3 text-sm font-semibold text-white/75">
                   {item.description}
                 </p>
-                <p className="mt-2 max-w-xl text-sm leading-6 text-white/45">
-                  {item.detail}
-                </p>
               </div>
             </article>
           ))}

@@ -111,7 +111,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
             <h2 className="brand-section-title !text-[clamp(3.4rem,7vw,7rem)]">
               Vamos
               <br />
-              conversar<span className="text-[#f40b36]">.</span>
+              conversar.
             </h2>
             <p className="mt-6 max-w-md text-base leading-7 text-white/58">
               Conte o que sua marca precisa. Ao enviar, abriremos o WhatsApp da
@@ -125,7 +125,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                 rel="noopener noreferrer"
                 className="group flex items-center gap-4 border-b border-white/10 py-5"
               >
-                <span className="flex h-10 w-10 items-center justify-center bg-[#25D366] text-white">
+                <span className="flex h-10 w-10 items-center justify-center border border-white/12 text-[#f40b36]">
                   <WhatsAppIcon className="h-5 w-5" />
                 </span>
                 <span className="flex-1">
@@ -164,7 +164,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                   Fale direto com nosso time
                 </h3>
               </div>
-              <WhatsAppIcon className="hidden h-8 w-8 text-[#25D366] sm:block" />
+              <WhatsAppIcon className="hidden h-8 w-8 sm:block" />
             </div>
 
             <form onSubmit={handleSubmit} noValidate className="space-y-7">

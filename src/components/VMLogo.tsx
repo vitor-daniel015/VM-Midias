@@ -2,7 +2,6 @@ import React from "react";
 
 interface VMLogoProps {
   size?: "sm" | "md" | "lg" | "xl";
-  showSubtitle?: boolean;
   className?: string;
   glow?: boolean;
 }
@@ -16,7 +15,6 @@ const sizeClasses = {
 
 export const VMLogo: React.FC<VMLogoProps> = ({
   size = "md",
-  showSubtitle = true,
   className = "",
   glow = true,
 }) => (
@@ -31,7 +29,7 @@ export const VMLogo: React.FC<VMLogoProps> = ({
       />
     )}
     <img
-      src={showSubtitle ? "/images/2.png" : "/images/LOGO VM MÍDIAS.png"}
+      src="/images/logo-VMmidias.png"
       alt="VM MÍDIAS"
       className={`${sizeClasses[size]} h-auto object-contain transition-transform duration-300 hover:scale-[1.02]`}
       loading="eager"

@@ -1,5 +1,4 @@
 import React from "react";
-import { ArrowRight, Sparkles, MapPin } from "lucide-react";
 import { VMLogo } from "../components/VMLogo";
 import { BrandButton, BrandEyebrow } from "../components/BrandUI";
 

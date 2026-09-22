@@ -1,4 +1,4 @@
-import { PlanItem, NetworkCategory, RealPoint, ClientCase, MetricItem } from '../types';
+import { PlanItem, Supporter } from '../types';
 
 export const siteConfig = {
   company: {
@@ -15,15 +15,12 @@ export const siteConfig = {
     url: 'https://www.vmmidias.com.br',
     
     // Contatos oficiais (configuráveis)
-    whatsappRaw: '551531650153', // Altere aqui para o número com DDD (ex: 5515998887777)
+    whatsappRaw: '551531650153',
     whatsappFormatted: '(15) 3165-0153',
     email: 'contato@vmmidias.com.br',
     instagramUrl: 'https://www.instagram.com/vmmidiasindoor',
     instagramHandle: '@vmmidias',
-
-    // Webhook opcional para automações (n8n, Make, Zapier, Supabase)
-    // Se vazio, os envios simulam salvamento local seguro e direcionam para o WhatsApp comercial
-    webhookUrl: '', 
+    heroVideoUrl: '/videos/Apresentacao-VMmidias.mp4',
   },
 
   plans: [
@@ -107,175 +104,54 @@ export const siteConfig = {
     },
   ] as PlanItem[],
 
-  networkCategories: [
+  supporters: [
     {
-      id: 'supermercados',
-      name: 'Supermercados',
-      locationScope: 'Regiões centrais e bairros',
-      description: 'Seu anúncio no dia a dia das famílias em momentos de compra recorrente.',
-      highlight: 'Audiência diversificada e constante',
-      iconName: 'ShoppingCart',
-      imageMockup: 'supermercado',
+      id: 'esquina-do-salgado',
+      name: 'Esquina do Salgado',
+      logoUrl: '/images/apoiadores/esquina-do-salgado.png',
     },
     {
-      id: 'restaurantes',
-      name: 'Restaurantes & Gastronomia',
-      locationScope: 'Centro e áreas comerciais',
-      description: 'Alcance um público qualificado e relaxado enquanto eles aproveitam momentos de refeição.',
-      highlight: 'Alto tempo de permanência diante da tela',
-      iconName: 'Utensils',
-      imageMockup: 'restaurante',
+      id: 'espetinho-do-vg',
+      name: 'Espetinho do VG',
+      logoUrl: '/images/apoiadores/espetinho-do-vg.png',
     },
     {
-      id: 'loterica',
-      name: 'Lotéricas & Serviços',
-      locationScope: 'Regiões de grande fluxo',
-      description: 'Visibilidade constante para sua marca no ponto onde toda a cidade circula.',
-      highlight: 'Fila de espera com atenção 100% voltada à tela',
-      iconName: 'Landmark',
-      imageMockup: 'loterica',
+      id: 'boteco-do-gordao',
+      name: 'Boteco do Gordão',
+      logoUrl: '/images/apoiadores/boteco-do-gordao.png',
     },
     {
-      id: 'academias',
-      name: 'Academias & Fitness',
-      locationScope: 'Pontos estratégicos da cidade',
-      description: 'Conecte-se com um público ativo, preocupado com saúde, estética e bem-estar.',
-      highlight: 'Público com alto poder decisório e rotina fixa',
-      iconName: 'Dumbbell',
-      imageMockup: 'academia',
+      id: 'mg-sampaio-iperozinho',
+      name: 'MG Sampaio Iperózinho',
+      logoUrl: '/images/apoiadores/mg-sampaio.jpg',
     },
     {
-      id: 'comercios',
-      name: 'Comércios & Varejo',
-      locationScope: 'Polos e vias movimentadas',
-      description: 'Presença no corredor comercial com pessoas em atitude ativa de consumo.',
-      highlight: 'Proximidade imediata com o ponto de venda',
-      iconName: 'Store',
-      imageMockup: 'comercio',
+      id: 'mg-sampaio-culaus',
+      name: 'MG Sampaio Culaus',
+      logoUrl: '/images/apoiadores/mg-sampaio.jpg',
     },
-    {
-      id: 'clinicas',
-      name: 'Clínicas & Consultórios',
-      locationScope: 'Áreas médicas e especialidades',
-      description: 'Tempo de espera receptivo em ambientes tranquilos e de alta credibilidade.',
-      highlight: 'Visualização atenta em salas de espera',
-      iconName: 'HeartPulse',
-      imageMockup: 'clinica',
-    },
-  ] as NetworkCategory[],
-
-  // Pontos reais cadastrados:
-  // Conforme o briefing: "Não criar pontos fictícios. Se nenhum endereço real estiver cadastrado, exibir apenas: 'Nossa rede está crescendo em Capela do Alto.'"
-  // Adicione estabelecimentos confirmados neste array abaixo para exibi-los no mapa e na lista:
-  realPoints: [] as RealPoint[],
-
-  // Cases reais:
-  // Conforme o briefing: "NÃO INVENTAR CLIENTES. NÃO INVENTAR LOGOS... Se ainda não existirem cases cadastrados, não mostrar depoimentos falsos. Pode exibir: 'Em breve, novos cases da nossa rede.'"
-  realCases: [] as ClientCase[],
-
-  // Métricas oficiais:
-  // Conforme o briefing: "NUNCA inventar os números. Todas as métricas deverão vir de um arquivo/configuração ou CMS. Se o valor não existir, esconder a métrica."
-  // Defina os números reais aqui quando disponíveis. Strings vazias são automaticamente ocultadas no layout.
-  metrics: [
-    {
-      id: 'pontos',
-      label: 'Pontos Ativos',
-      value: '', // ex: '+20' (oculto se vazio)
-      sublabel: 'Em Capela do Alto e região',
-      iconName: 'MapPin',
-    },
-    {
-      id: 'impactos',
-      label: 'Impactos Mensais',
-      value: '', // ex: '+2 Milhões' (oculto se vazio)
-      sublabel: 'Nas telas da nossa rede',
-      iconName: 'TrendingUp',
-    },
-    {
-      id: 'marcas',
-      label: 'Marcas Parceiras',
-      value: '', // ex: '+150' (oculto se vazio)
-      sublabel: 'De diversos segmentos locais',
-      iconName: 'Users',
-    },
-    {
-      id: 'satisfacao',
-      label: 'De Satisfação',
-      value: '', // ex: '95%' (oculto se vazio)
-      sublabel: 'Entre nossos anunciantes',
-      iconName: 'Star',
-    },
-  ] as MetricItem[],
-
-  solutions: [
-    {
-      id: 'midia-indoor',
-      title: 'MÍDIA INDOOR',
-      subtitle: 'VISIBILIDADE ONDE SEU PÚBLICO ESTÁ',
-      description: 'Sua marca exibida em telas digitais instaladas em locais estratégicos de circulação de Capela do Alto.',
-      badge: 'Solução Principal',
-      iconName: 'Tv',
-      highlights: [
-        'Telas Full HD estrategicamente posicionadas',
-        'Ambientes com alto tempo de permanência',
-        'Exibição diária constante durante o horário comercial',
-        'Impacto visual direto sem depender de algoritmos online',
-      ],
-    },
-    {
-      id: 'paineis-led',
-      title: 'PAINÉIS DE LED',
-      subtitle: 'GRANDE IMPACTO NA SUA MARCA',
-      description: 'Comunicação visual moderna, impactante e em movimento para campanhas que precisam de máximo destaque.',
-      badge: 'Alto Impacto',
-      iconName: 'Grid',
-      highlights: [
-        'Brilho e contraste superiores para visibilidade nítida',
-        'Destaque no tráfego e corredores comerciais',
-        'Formato dinâmico que atrai o olhar involuntário',
-        'Associação imediata da sua marca com tecnologia e porte',
-      ],
-    },
-    {
-      id: 'criacao-campanhas',
-      title: 'CRIAÇÃO DE CAMPANHAS',
-      subtitle: 'IDEIAS QUE GERAM RESULTADOS',
-      description: 'A VM MÍDIAS transforma as informações da sua empresa em peças preparadas e otimizadas para nossas telas.',
-      badge: 'Suporte Completo',
-      iconName: 'Sparkles',
-      highlights: [
-        'Adaptação de logo, fotos e textos comerciais',
-        'Design profissional formatado para a proporção das telas',
-        'Opção de animação dinâmica para captar mais atenção',
-        'Agilidade para colocar sua campanha no ar',
-      ],
-    },
-  ],
+  ] as Supporter[],
 
   howItWorksSteps: [
     {
       step: '01',
       title: 'ESCOLHA SEU PLANO',
-      description: 'Selecione entre START (05 locais) ou DESTAQUE (09 locais + 01 bônus) e a duração contratual.',
-      detail: 'O plano ideal para o tamanho e momento do seu negócio.',
+      description: 'Selecione entre START (05 locais) ou DESTAQUE (09 locais + 01 bônus) e a duração contratual.'
     },
     {
       step: '02',
       title: 'ENVIE SUAS INFORMAÇÕES',
-      description: 'Compartilhe pelo WhatsApp seu logo, fotos do seu produto/serviço e sua mensagem principal.',
-      detail: 'Rápido, prático e sem formulários complicados.',
+      description: 'Compartilhe pelo WhatsApp seu logo, fotos do seu produto/serviço e sua mensagem principal.'
     },
     {
       step: '03',
       title: 'CRIAMOS SUA CAMPANHA',
-      description: 'Nossa equipe cria a arte publicitária especialmente ajustada para impacto visual nas telas.',
-      detail: 'Desenvolvimento de arte já incluso no seu plano.',
+      description: 'Nossa equipe cria a arte publicitária especialmente ajustada para impacto visual nas telas.'
     },
     {
       step: '04',
       title: 'SUA MARCA ENTRA NO AR',
-      description: 'Sua empresa começa a ser transmitida nos pontos comerciais mais movimentados de Capela do Alto.',
-      detail: 'Pronto! Sua marca em destaque para milhares de pessoas.',
+      description: 'Sua empresa começa a ser transmitida nos pontos comerciais mais movimentados de Capela do Alto.'
     },
   ],
 

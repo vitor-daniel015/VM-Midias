@@ -86,14 +86,6 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPrivacyModal }) => {
               </li>
               <li>
                 <a
-                  href="#solucoes"
-                  className="hover:text-white transition-colors"
-                >
-                  Soluções
-                </a>
-              </li>
-              <li>
-                <a
                   href="#como-funciona"
                   className="hover:text-white transition-colors"
                 >
@@ -106,11 +98,6 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPrivacyModal }) => {
                   className="hover:text-white transition-colors"
                 >
                   Planos
-                </a>
-              </li>
-              <li>
-                <a href="#cases" className="hover:text-white transition-colors">
-                  Cases & Clientes
                 </a>
               </li>
               <li>
@@ -135,15 +122,15 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPrivacyModal }) => {
                 <span>{siteConfig.company.locationShort} — Brasil</span>
               </li>
               <li className="flex items-start gap-2.5">
-                <Globe className="w-4 h-4 text-gray-400 shrink-0 mt-0.5" />
+                <Globe className="w-4 h-4 text-[#F8032D] shrink-0 mt-0.5" />
                 <span>{siteConfig.company.domain}</span>
               </li>
               <li className="flex items-start gap-2.5">
-                <Mail className="w-4 h-4 text-gray-400 shrink-0 mt-0.5" />
+                <Mail className="w-4 h-4 text-[#F8032D] shrink-0 mt-0.5" />
                 <span>{siteConfig.company.email}</span>
               </li>
               <li className="flex items-start gap-2.5">
-                <WhatsAppIcon className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                <WhatsAppIcon className="w-4 h-4 text-[#F8032D] shrink-0 mt-0.5" />
                 <span>Atendimento comercial via WhatsApp</span>
               </li>
             </ul>
