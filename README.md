@@ -347,10 +347,10 @@ Parâmetros:
 
 - `view`: escolhe `noticias`, `hora-dolar` ou `clima`.
 - `screen`: identifica a televisão ou o ponto de exibição. Use letras, números, hífen ou sublinhado e crie um identificador exclusivo para cada aparelho.
-- `troca`: intervalo das notícias em segundos. Aceita valores de 20 a 1800; o padrão é 60.
+- `troca`: janela usada para escolher a próxima notícia quando a tela é aberta ou reativada. Aceita valores de 20 a 1800; o padrão é 60. A notícia escolhida permanece fixa durante toda a exibição.
 - `interval`: nome alternativo de `troca`.
 
-Não é necessário adicionar um parâmetro `v` à URL. A notícia exibida é calculada pelo horário atual, por isso continua alternando mesmo quando o player não oferece `localStorage` ou recria a WebView.
+Não é necessário adicionar um parâmetro `v` à URL. A notícia é escolhida ao abrir ou reativar a tela e não muda enquanto os 20 segundos de exibição estiverem em andamento. Quando o player voltar à URL depois da sequência de publicidade, uma nova notícia será selecionada.
 
 ## Instalação rápida em cPanel, Apache ou hospedagem comum
 
@@ -480,7 +480,7 @@ O feed precisa ser público e compatível com o serviço RSS2JSON. Mantenha a es
 
 - O relógio é atualizado localmente a cada segundo.
 - As notícias são escolhidas pelo horário atual e pelo identificador `screen`, sem depender de estado salvo no aparelho.
-- A lista de notícias é renovada periodicamente enquanto a página permanecer aberta.
+- A lista de notícias é renovada periodicamente enquanto a página permanecer aberta, sem substituir a matéria que já está sendo exibida.
 - As imagens de notícias recebem uma versão baseada na data da publicação para aproveitar o cache do player sem prender a tela na primeira notícia.
 - Clima e dólar podem guardar a última resposta quando o navegador permite armazenamento local, mas continuam tentando atualizar pela internet.
 
@@ -496,7 +496,7 @@ Antes de cadastrar o link definitivo no player:
 
 1. Abra as três telas em um navegador comum.
 2. Confirme que a logo aparece.
-3. Deixe a tela de notícias aberta por pelo menos dois intervalos e confira a troca.
+3. Deixe a tela de notícias aberta durante os 20 segundos e confirme que a matéria não muda; depois saia e volte à URL para conferir a próxima notícia.
 4. Verifique se clima e cotações carregam.
 5. Teste no formato vertical usado pela televisão.
 6. Cadastre um `screen` exclusivo para cada ponto.
@@ -516,9 +516,9 @@ Confira se `VM/images/vm-midias-logo.png` foi enviado e se letras maiúsculas e 
 
 O servidor está redirecionando todas as URLs para o `index.html` do React. Crie uma exceção para `/VM/` ou garanta que arquivos reais sejam atendidos antes do redirecionamento da SPA.
 
-### A notícia não muda
+### A próxima notícia não aparece quando a playlist retorna
 
-Use `troca=20` para um teste rápido, confirme que a URL não foi truncada no `&` e aguarde mais de um ciclo. Exemplo:
+Confirme que o player recarrega a URL ou reativa a WebView ao voltar da sequência de publicidade. O parâmetro `troca=20` não troca a matéria durante a exibição; ele apenas participa da seleção feita na abertura ou reativação. Exemplo:
 
 ```text
 https://SEU-DOMINIO/VM/index.html?view=noticias&screen=teste-01&troca=20
