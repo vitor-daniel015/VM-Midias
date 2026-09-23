@@ -314,3 +314,216 @@ As credenciais nunca devem ser adicionadas ao workflow, ao README ou a qualquer 
 ## Licença e uso
 
 Projeto proprietário da **VM Mídias**. Imagens, marca, conteúdo comercial e código não devem ser reutilizados sem autorização.
+
+
+# VM Mídias Indoor — pacote de implantação
+
+Este pacote contém a versão portátil do VM Mídias Indoor. Ele foi preparado para ser instalado em outro site ou servidor sem depender do projeto React da Rádio Braba.
+
+## O que está incluído
+
+```text
+Passar VM/
+├── README.md
+└── VM/
+    ├── index.html
+    └── images/
+        └── vm-midias-logo.png
+```
+
+O arquivo `VM/index.html` reúne HTML, CSS e JavaScript em um único lugar. A única dependência local é a imagem da marca. Não é necessário instalar Node.js, React, banco de dados ou pacotes npm para publicar esta versão.
+
+## Telas disponíveis
+
+Depois da publicação, use uma destas URLs:
+
+```text
+https://SEU-DOMINIO/VM/index.html?view=noticias&screen=cliente-01&troca=60
+https://SEU-DOMINIO/VM/index.html?view=hora-dolar&screen=cliente-01
+https://SEU-DOMINIO/VM/index.html?view=clima&screen=cliente-01
+```
+
+Parâmetros:
+
+- `view`: escolhe `noticias`, `hora-dolar` ou `clima`.
+- `screen`: identifica a televisão ou o ponto de exibição. Use letras, números, hífen ou sublinhado e crie um identificador exclusivo para cada aparelho.
+- `troca`: intervalo das notícias em segundos. Aceita valores de 20 a 1800; o padrão é 60.
+- `interval`: nome alternativo de `troca`.
+
+Não é necessário adicionar um parâmetro `v` à URL. A notícia exibida é calculada pelo horário atual, por isso continua alternando mesmo quando o player não oferece `localStorage` ou recria a WebView.
+
+## Instalação rápida em cPanel, Apache ou hospedagem comum
+
+1. Abra a pasta pública do domínio, normalmente `public_html` ou `www`.
+2. Copie a pasta `VM` inteira para dentro dela.
+3. Confirme que estes dois endereços abrem sem erro:
+
+```text
+https://SEU-DOMINIO/VM/index.html
+https://SEU-DOMINIO/VM/images/vm-midias-logo.png
+```
+
+4. Cadastre no exibidor uma das URLs da seção “Telas disponíveis”.
+
+Em servidores Linux, use normalmente permissão `755` nas pastas e `644` nos arquivos.
+
+## Instalação em um projeto React/Vite
+
+Copie a pasta `VM` para a pasta pública do projeto:
+
+```text
+seu-projeto/
+└── public/
+    └── VM/
+        ├── index.html
+        └── images/
+            └── vm-midias-logo.png
+```
+
+Faça o build normalmente. O Vite copiará a pasta para `dist/VM`. Acesse diretamente `/VM/index.html`; não é necessário criar uma rota no React Router.
+
+## Instalação em Node.js com Express
+
+Coloque `VM` dentro de uma pasta pública, por exemplo `public/VM`, e publique os arquivos estáticos:
+
+```js
+const express = require('express');
+const path = require('path');
+
+const app = express();
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.listen(process.env.PORT || 3000);
+```
+
+A tela ficará disponível em:
+
+```text
+http://localhost:3000/VM/index.html?view=noticias&screen=teste-01&troca=60
+```
+
+## Instalação no Netlify
+
+Coloque a pasta `VM` dentro da pasta publicada pelo Netlify. Se o diretório de publicação for `dist`, a estrutura final deverá ser:
+
+```text
+dist/
+└── VM/
+    ├── index.html
+    └── images/
+        └── vm-midias-logo.png
+```
+
+Não crie um redirecionamento genérico do caminho `/VM/*` para o `index.html` do React, pois isso impediria o carregamento do HTML próprio do VM.
+
+## Fontes de dados
+
+A versão portátil consulta diretamente serviços públicos pela internet:
+
+- notícias: feeds RSS do G1 convertidos por RSS2JSON;
+- clima: Open-Meteo;
+- dólar: AwesomeAPI;
+- petróleo Brent e soja: Commodity Origins/World Bank;
+- PETR4/B3: brapi.
+
+Petróleo e soja são referências mensais. Dólar e PETR4 são atualizados com maior frequência. As cotações são apenas informativas.
+
+O aparelho precisa ter acesso à internet e permitir JavaScript. Publique o conteúdo por HTTP ou HTTPS; abrir o HTML diretamente como arquivo local (`file://`) pode bloquear as consultas externas.
+
+## Personalização para outro cliente
+
+Faça uma cópia de segurança antes de editar `VM/index.html`.
+
+### Trocar a marca
+
+Substitua `VM/images/vm-midias-logo.png` por outra imagem mantendo o mesmo nome. Para usar outro nome, procure no HTML por:
+
+```text
+./images/vm-midias-logo.png
+```
+
+O título “VM MÍDIAS” e os textos dos rodapés também podem ser localizados diretamente no HTML.
+
+### Trocar cores
+
+No início do CSS existem variáveis como `--red`, `--pink`, `--black` e `--white`. Altere esses valores para aplicar a identidade visual do novo projeto.
+
+### Trocar cidade do clima
+
+Procure por `function directWeather()` no HTML. Dentro da URL do Open-Meteo, altere:
+
+```text
+latitude=-23.47
+longitude=-47.73
+timezone=America%2FSao_Paulo
+```
+
+Na mesma função, troque o texto:
+
+```text
+city: 'Capela do Alto'
+```
+
+Use coordenadas e fuso horário correspondentes à nova cidade.
+
+### Trocar fontes de notícias
+
+Procure por `var RSS_SOURCES`. Cada fonte possui nome, categoria e URL de feed RSS:
+
+```js
+{ name: 'Nome da fonte', category: 'Categoria', url: 'https://exemplo.com/feed.xml' }
+```
+
+O feed precisa ser público e compatível com o serviço RSS2JSON. Mantenha a estrutura do objeto e separe múltiplas fontes por vírgula.
+
+## Cache e funcionamento no player
+
+- O relógio é atualizado localmente a cada segundo.
+- As notícias são escolhidas pelo horário atual e pelo identificador `screen`, sem depender de estado salvo no aparelho.
+- A lista de notícias é renovada periodicamente enquanto a página permanecer aberta.
+- As imagens de notícias recebem uma versão baseada na data da publicação para aproveitar o cache do player sem prender a tela na primeira notícia.
+- Clima e dólar podem guardar a última resposta quando o navegador permite armazenamento local, mas continuam tentando atualizar pela internet.
+
+Se o aplicativo recriar a WebView entre as passagens da playlist, a tela ainda escolhe a notícia correspondente ao horário atual ao carregar novamente.
+
+## Rotas discretas e segurança
+
+O VM não precisa aparecer no menu do site. Basta usar diretamente a URL `/VM/index.html`. Isso deixa a rota fora da navegação, mas não a transforma em uma área privada. Quem conhecer o endereço poderá acessá-la. Para restringir acesso, configure autenticação no servidor ou no painel da hospedagem.
+
+## Checklist de entrega
+
+Antes de cadastrar o link definitivo no player:
+
+1. Abra as três telas em um navegador comum.
+2. Confirme que a logo aparece.
+3. Deixe a tela de notícias aberta por pelo menos dois intervalos e confira a troca.
+4. Verifique se clima e cotações carregam.
+5. Teste no formato vertical usado pela televisão.
+6. Cadastre um `screen` exclusivo para cada ponto.
+7. Evite reutilizar a mesma URL de identificação em aparelhos diferentes.
+
+## Solução de problemas
+
+### A página abre, mas os dados ficam vazios
+
+Confirme a conexão com a internet, o suporte a JavaScript e se o player permite requisições HTTPS externas. Teste a mesma URL no navegador do aparelho.
+
+### A logo não aparece
+
+Confira se `VM/images/vm-midias-logo.png` foi enviado e se letras maiúsculas e minúsculas do caminho estão corretas.
+
+### O site React aparece no lugar do VM
+
+O servidor está redirecionando todas as URLs para o `index.html` do React. Crie uma exceção para `/VM/` ou garanta que arquivos reais sejam atendidos antes do redirecionamento da SPA.
+
+### A notícia não muda
+
+Use `troca=20` para um teste rápido, confirme que a URL não foi truncada no `&` e aguarde mais de um ciclo. Exemplo:
+
+```text
+https://SEU-DOMINIO/VM/index.html?view=noticias&screen=teste-01&troca=20
+```
+
+### Erro 404 em `/vm-api`
+
+A versão deste pacote não precisa de `/vm-api`. Remova qualquer parâmetro `api` da URL. A URL padrão deve conter apenas `view`, `screen` e, na tela de notícias, opcionalmente `troca`.

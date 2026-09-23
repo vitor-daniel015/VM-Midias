@@ -17,10 +17,10 @@ export const siteConfig = {
     // Contatos oficiais (configuráveis)
     whatsappRaw: '551531650153',
     whatsappFormatted: '(15) 3165-0153',
-    email: 'contato@vmmidias.com.br',
+    email: 'fredericolopescorrea@hotmail.com',
     instagramUrl: 'https://www.instagram.com/vmmidiasindoor',
     instagramHandle: '@vmmidias',
-    heroVideoUrl: '/videos/Apresentacao-VMmidias.mp4',
+    heroVideoUrl: '/videos/apresentacao-VMmidias.mp4',
   },
 
   plans: [

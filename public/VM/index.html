@@ -1,0 +1,954 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>VM MÍDIAS · Conteúdo</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --vm: #f8032d;
+      --pink: #ff087b;
+      --ink: #050507;
+      --panel: #111116;
+      --muted: #a9acb3
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: #000;
+      color: #fff;
+      font-family: Arial, Helvetica, sans-serif
+    }
+
+    body {
+      position: relative
+    }
+
+    .screen {
+      display: none;
+      width: 100%;
+      height: 100%
+    }
+
+    .screen.active {
+      display: block
+    }
+
+    .top {
+      height: 13vh;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.4vh 4vw;
+      background: #000;
+      border-bottom: .65vh solid var(--vm)
+    }
+
+    .logo-crop {
+      position: relative;
+      width: 19vw;
+      aspect-ratio: 1.72;
+      overflow: hidden;
+      flex: 0 0 auto
+    }
+
+    .logo-crop img {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: fill;
+      transform: scale(1.78, 2.2) translateY(8%)
+    }
+
+    .top-copy {
+      text-align: right
+    }
+
+    .top-copy strong {
+      display: block;
+      color: #fff;
+      font-size: 2.3vw;
+      letter-spacing: .12em
+    }
+
+    .top-copy span {
+      display: block;
+      margin-top: .8vh;
+      color: var(--muted);
+      font-size: .9vw;
+      letter-spacing: .22em
+    }
+
+    .bar {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 5.5vh;
+      padding: 0 4vw;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #050507;
+      border-top: 1px solid #26262d;
+      color: var(--muted);
+      font-size: 1vw;
+      letter-spacing: .08em
+    }
+
+    .bar strong {
+      color: #fff
+    }
+
+    .accent {
+      color: var(--vm)
+    }
+
+    #news-main {
+      position: relative;
+      height: 100vh;
+      background: #030305;
+      overflow: hidden
+    }
+
+    .news-media {
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 60%;
+      overflow: hidden;
+      background: #111116
+    }
+
+    .news-photo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover
+    }
+
+    .news-shade {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(0, 0, 0, .42) 0%, transparent 32%, rgba(0, 0, 0, .2) 68%, #030305 100%), linear-gradient(180deg, rgba(0, 0, 0, .72) 0%, transparent 24%, rgba(0, 0, 0, .18) 100%)
+    }
+
+    .news-brand {
+      position: absolute;
+      z-index: 2;
+      top: 4vh;
+      left: 4vw;
+      width: 20vw;
+      max-height: 15vh;
+      object-fit: contain;
+      object-position: left top;
+      filter: drop-shadow(0 1.2vh 2.4vh rgba(0, 0, 0, .6))
+    }
+
+    .news-copy {
+      position: absolute;
+      z-index: 2;
+      right: 0;
+      top: 0;
+      width: 44%;
+      height: 100%;
+      padding: 8vh 4vw 5vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center
+    }
+
+    .kicker {
+      font-weight: 900;
+      font-size: 1vw;
+      letter-spacing: .2em;
+      color: var(--vm);
+      text-transform: uppercase
+    }
+
+    .news-copy h1 {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 4;
+      max-height: 4.12em;
+      font-size: 3.15vw;
+      line-height: 1.03;
+      letter-spacing: -.045em;
+      margin: 2.2vh 0 0;
+      overflow: hidden;
+      overflow-wrap: break-word;
+      word-wrap: break-word
+    }
+
+    .news-rule {
+      display: block;
+      width: 10vw;
+      height: .55vh;
+      margin-top: 2.5vh;
+      background: linear-gradient(90deg, #f8034b 0 28%, #86152f 28% 65%, #33121d 65%)
+    }
+
+    .news-copy p {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 4;
+      max-height: 6em;
+      font-size: 1.2vw;
+      line-height: 1.5;
+      color: #d2d2d7;
+      margin: 5.5vh 0 0;
+      overflow: hidden
+    }
+
+    .credit {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5vw;
+      margin-top: 5vh;
+      padding-top: 2.2vh;
+      border-top: 1px solid #393941;
+      font-size: .95vw;
+      color: var(--muted)
+    }
+
+    .credit-brand,
+    .credit-detail {
+      display: flex;
+      align-items: center;
+      gap: .8vw
+    }
+
+    .credit-brand {
+      flex: 0 0 auto;
+      color: #fff
+    }
+
+    .credit-mark {
+      width: 2.8vw;
+      height: .55vh;
+      background: var(--vm)
+    }
+
+    .credit-detail {
+      min-width: 0;
+      justify-content: flex-end
+    }
+
+    .credit-detail span:first-child {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap
+    }
+
+    .clock-main,
+    .weather-main {
+      height: 81.5vh;
+      padding: 4vh 4vw;
+      overflow: hidden
+    }
+
+    .clock-main {
+      background: radial-gradient(circle at 16% 25%, #370713 0, #100106 30%, transparent 55%), #050507
+    }
+
+    .time-panel {
+      float: left;
+      width: 34%;
+      height: 100%;
+      padding: 8vh 3vw 0 0;
+      border-right: 1px solid #3a2229
+    }
+
+    .clock-time {
+      font-size: 6.4vw;
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: -.065em;
+      font-variant-numeric: tabular-nums
+    }
+
+    .clock-date {
+      margin-top: 2.2vh;
+      font-size: 1.25vw;
+      text-transform: capitalize;
+      color: #d2d2d7
+    }
+
+    .market {
+      margin-left: 38%;
+      padding: 1vh 0 0
+    }
+
+    .market-heading {
+      margin-bottom: 2vh;
+      overflow: hidden
+    }
+
+    .market-heading span {
+      float: right;
+      color: #8e8e98;
+      font-size: .75vw;
+      letter-spacing: .14em
+    }
+
+    .market-heading .kicker {
+      float: left
+    }
+
+    .market-grid {
+      overflow: hidden
+    }
+
+    .market-card {
+      float: left;
+      width: 47.5%;
+      min-height: 27vh;
+      margin: 0 2.5% 2.5vh 0;
+      padding: 2.5vh 1.7vw;
+      background: #111116;
+      border-top: 3px solid #f8032d;
+      border-radius: 12px
+    }
+
+    .market-card span,
+    .market-card small,
+    .market-card strong,
+    .market-card em {
+      display: block
+    }
+
+    .market-card span {
+      font-size: 1.05vw;
+      font-weight: 900;
+      letter-spacing: .12em
+    }
+
+    .market-card small {
+      margin-top: .8vh;
+      color: #92949c;
+      font-size: .75vw;
+      letter-spacing: .08em
+    }
+
+    .market-card strong {
+      margin: 2.2vh 0 1vh;
+      font-size: 2.6vw;
+      line-height: 1;
+      letter-spacing: -.04em
+    }
+
+    .market-card em {
+      min-height: 1.2em;
+      color: #f8032d;
+      font-size: 1.05vw;
+      font-style: normal;
+      font-weight: 700
+    }
+
+    .market-card em.positive {
+      color: #55d68b
+    }
+
+    .weather-main {
+      position: relative;
+      padding-top: 3vh;
+      background: radial-gradient(circle at 78% 8%, rgba(248, 3, 45, .38) 0, rgba(248, 3, 45, .08) 24%, transparent 48%), linear-gradient(145deg, #26030b 0, #0b0b10 45%, #08080c 100%)
+    }
+
+    .weather-now {
+      float: left;
+      width: 34%;
+      height: 100%;
+      padding: 5vh 2vw 0 1vw;
+      text-align: center
+    }
+
+    .weather-location {
+      color: #ff4767;
+      font-size: .9vw;
+      font-weight: 900;
+      letter-spacing: .18em
+    }
+
+    .city {
+      margin: 1.5vh 0 1vh;
+      font-size: 2.6vw
+    }
+
+    .weather-reading {
+      white-space: nowrap
+    }
+
+    .weather-symbol {
+      display: inline-block;
+      margin-right: .6vw;
+      color: #ffcf33;
+      font-size: 4vw;
+      vertical-align: 35%
+    }
+
+    .temperature {
+      display: inline-block;
+      font-size: 8.5vw;
+      line-height: .95;
+      font-weight: 300;
+      letter-spacing: -.07em
+    }
+
+    .condition {
+      margin: 1.5vh 0;
+      font-size: 1.55vw;
+      font-weight: 700
+    }
+
+    .weather-facts {
+      color: #d5d5dc;
+      font-size: .95vw;
+      line-height: 1.8
+    }
+
+    .weather-facts span {
+      display: block
+    }
+
+    .forecast {
+      margin-left: 36%;
+      height: 100%;
+      padding: 0 0 0 2vw
+    }
+
+    .forecast h2 {
+      margin: 0 0 1.5vh;
+      font-size: .9vw;
+      color: #ff7890;
+      letter-spacing: .18em;
+      font-weight: 800
+    }
+
+    .forecast-card {
+      margin-bottom: 2.2vh;
+      padding: 2.3vh 2vw;
+      background: rgba(255, 255, 255, .075);
+      border: 1px solid rgba(255, 255, 255, .1);
+      border-radius: 16px
+    }
+
+    .weather-summary {
+      margin: 0 0 2vh;
+      color: #d7d7dd;
+      font-size: 1vw
+    }
+
+    .hours {
+      display: table;
+      width: 100%;
+      table-layout: fixed
+    }
+
+    .hour {
+      display: table-cell;
+      padding: 0 .5vw;
+      text-align: center;
+      vertical-align: top
+    }
+
+    .hour span,
+    .hour strong,
+    .hour small,
+    .hour em {
+      display: block
+    }
+
+    .hour span {
+      color: #f4f4f6;
+      font-size: .85vw;
+      font-weight: 700
+    }
+
+    .hour em {
+      height: 3.8vh;
+      margin: 1vh 0 .5vh;
+      color: #ffcf33;
+      font-size: 2vw;
+      font-style: normal
+    }
+
+    .hour strong {
+      font-size: 1.3vw
+    }
+
+    .hour small {
+      margin-top: .5vh;
+      color: #aeb0b8;
+      font-size: .7vw
+    }
+
+    .day-row {
+      min-height: 4.3vh;
+      padding: 1vh .4vw;
+      border-top: 1px solid rgba(255, 255, 255, .09);
+      font-size: .9vw;
+      text-transform: capitalize
+    }
+
+    .day-row:first-child {
+      border-top: 0
+    }
+
+    .day-row span {
+      display: inline-block;
+      width: 31%
+    }
+
+    .day-row strong {
+      display: inline-block;
+      width: 36%;
+      text-align: center
+    }
+
+    .day-row em {
+      display: inline-block;
+      width: 31%;
+      color: #d8d8de;
+      font-style: normal;
+      text-align: right
+    }
+
+    @media(orientation:portrait) {
+      .top {
+        height: 13.5vh;
+        padding: 1.5vh 5vw;
+        border-bottom: .8vh solid var(--vm)
+      }
+
+      .logo-crop {
+        width: 35vw
+      }
+
+      .top-copy strong {
+        font-size: 4.1vw
+      }
+
+      .top-copy span {
+        font-size: 1.8vw;
+        line-height: 1.35
+      }
+
+      .bar {
+        height: 4.5vh;
+        padding: 0 5vw;
+        font-size: 2vw
+      }
+
+      #news-main {
+        height: 100vh
+      }
+
+      .news-media {
+        width: 100%;
+        height: 57%;
+        bottom: auto
+      }
+
+      .news-shade {
+        background: linear-gradient(180deg, rgba(0, 0, 0, .82) 0%, transparent 20%, transparent 70%, #030305 100%)
+      }
+
+      .news-brand {
+        top: 2.7vh;
+        left: 50%;
+        width: 43vw;
+        max-height: 10vh;
+        transform: translateX(-50%);
+        object-position: center top
+      }
+
+      .news-copy {
+        left: 0;
+        right: 0;
+        top: 54%;
+        bottom: 0;
+        width: 100%;
+        height: 46%;
+        padding: 3.2vh 6vw 2.6vh;
+        justify-content: flex-start;
+        background: #030305
+      }
+
+      .news-copy .kicker {
+        font-size: 2.2vw;
+        letter-spacing: .22em
+      }
+
+      .news-copy h1 {
+        -webkit-line-clamp: 3;
+        max-height: 3.03em;
+        margin: 1.2vh 0 0;
+        color: #fff;
+        font-size: 7.3vw;
+        line-height: 1.01
+      }
+
+      .news-rule {
+        width: 37vw;
+        height: .45vh;
+        margin-top: 1.5vh
+      }
+
+      .news-copy p {
+        -webkit-line-clamp: 3;
+        max-height: 4.35em;
+        margin-top: 3.3vh;
+        font-size: 3.3vw;
+        line-height: 1.45;
+        color: #e5e5e9
+      }
+
+      .credit {
+        position: absolute;
+        left: 6vw;
+        right: 6vw;
+        bottom: 2.6vh;
+        width: auto;
+        justify-content: space-between;
+        margin-top: 0;
+        padding-top: 1.8vh;
+        font-size: 2.35vw;
+        color: #aeb0b8
+      }
+
+      .credit-brand,
+      .credit-detail {
+        gap: 1.5vw
+      }
+
+      .credit-mark {
+        width: 5vw;
+        height: .5vh
+      }
+
+      .credit-detail {
+        max-width: 54%
+      }
+
+      .clock-main,
+      .weather-main {
+        height: 82vh;
+        padding: 2.5vh 5vw;
+        display: block
+      }
+
+      .time-panel {
+        float: none;
+        width: 100%;
+        height: 23%;
+        padding: 1.5vh 0 2.5vh;
+        border-right: 0;
+        border-bottom: 1px solid #3a2229;
+        text-align: center
+      }
+
+      .clock-time {
+        font-size: 12vw
+      }
+
+      .clock-date {
+        margin-top: 1.2vh;
+        font-size: 2.7vw;
+        line-height: 1.3
+      }
+
+      .market {
+        margin-left: 0;
+        padding: 2vh 0 0
+      }
+
+      .market-heading {
+        margin-bottom: 1.5vh
+      }
+
+      .market-heading span {
+        font-size: 1.65vw
+      }
+
+      .market-heading .kicker {
+        display: block;
+        font-size: 2.2vw
+      }
+
+      .market-card {
+        width: 47.5%;
+        min-height: 19vh;
+        margin: 0 2.5% 1.8vh 0;
+        padding: 2vh 3vw;
+        border-radius: 9px
+      }
+
+      .market-card span {
+        font-size: 2.65vw
+      }
+
+      .market-card small {
+        margin-top: .65vh;
+        font-size: 1.8vw
+      }
+
+      .market-card strong {
+        margin: 1.8vh 0 .8vh;
+        font-size: 6.3vw
+      }
+
+      .market-card em {
+        font-size: 2.5vw
+      }
+
+      .weather-main {
+        padding: 1.5vh 4.5vw 2vh
+      }
+
+      .weather-now {
+        float: none;
+        width: 100%;
+        height: 28vh;
+        padding: 2vh 0 1.5vh
+      }
+
+      .weather-location {
+        font-size: 2vw
+      }
+
+      .city {
+        margin: .6vh 0 0;
+        font-size: 6.2vw
+      }
+
+      .weather-symbol {
+        margin-right: 1vw;
+        font-size: 11vw
+      }
+
+      .temperature {
+        font-size: 21vw
+      }
+
+      .condition {
+        margin: .5vh 0;
+        font-size: 4.2vw
+      }
+
+      .weather-facts {
+        font-size: 2.15vw;
+        line-height: 1.4
+      }
+
+      .weather-facts span {
+        display: inline-block;
+        width: 32%
+      }
+
+      .forecast {
+        height: auto;
+        margin-left: 0;
+        padding: 0
+      }
+
+      .forecast-card {
+        margin-bottom: 1.3vh;
+        padding: 2.2vh 3vw;
+        border-radius: 11px
+      }
+
+      .hourly-card {
+        min-height: 24vh
+      }
+
+      .daily-card {
+        min-height: 15vh
+      }
+
+      .forecast h2 {
+        margin-bottom: .8vh;
+        font-size: 2.15vw
+      }
+
+      .weather-summary {
+        margin: 0 0 1.2vh;
+        font-size: 2.35vw
+      }
+
+      .hour {
+        padding: 0 .6vw
+      }
+
+      .hour span,
+      .hour small {
+        font-size: 1.85vw
+      }
+
+      .hour em {
+        height: 4.5vh;
+        margin: 1.2vh 0 .5vh;
+        font-size: 6vw
+      }
+
+      .hour strong {
+        font-size: 3.2vw
+      }
+
+      .day-row {
+        min-height: 4.5vh;
+        padding: 1.2vh .5vw;
+        font-size: 2.15vw
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+  <section id="news" class="screen">
+    <main id="news-main">
+      <div class="news-media">
+        <img id="news-image" class="news-photo" alt="">
+        <div class="news-shade"></div>
+        <img class="news-brand" src="../images/braba-news.png" alt="BRABA NEWS">
+      </div>
+      <article class="news-copy">
+        <div id="category" class="kicker">GIRO DE NOTÍCIAS</div>
+        <h1 id="title">Informação perto de você.</h1>
+        <span class="news-rule" aria-hidden="true"></span>
+        <p id="summary">As principais notícias da região de Sorocaba, do Brasil e do mundo.</p>
+        <div class="credit">
+          <div class="credit-brand"><span class="credit-mark"></span><strong>BRABA NEWS</strong></div>
+          <div class="credit-detail"><span id="source">Fonte</span><span id="published"></span></div>
+        </div>
+      </article>
+    </main>
+  </section>
+  <section id="clock-view" class="screen">
+    <header class="top">
+      <div class="logo-crop"><img src="../images/logo-VMmidias.png" alt="VM MÍDIAS"></div>
+      <div class="top-copy"><strong>HORA & MERCADO</strong><span>INFORMAÇÃO EM TEMPO REAL</span></div>
+    </header>
+    <main class="clock-main">
+      <section class="time-panel">
+        <div class="kicker">HORA CERTA · BRASÍLIA</div>
+        <div id="clock" class="clock-time">--:--:--</div>
+        <div id="date" class="clock-date">Horário de Brasília</div>
+      </section>
+      <section class="market">
+        <div class="market-heading"><div class="kicker">MERCADO EM RESUMO</div><span>COTAÇÕES INFORMATIVAS</span></div>
+        <div class="market-grid">
+          <article class="market-card"><span>DÓLAR</span><small>USD / BRL</small><strong id="rate">R$ —</strong><em id="change">—</em><small id="quote-time">Aguardando</small></article>
+          <article class="market-card"><span>PETRÓLEO</span><small>BRENT · USD/BARRIL</small><strong id="oil-rate">US$ —</strong><em id="oil-change">—</em><small id="oil-time">Referência mensal</small></article>
+          <article class="market-card"><span>SOJA</span><small>USD / TONELADA</small><strong id="soy-rate">US$ —</strong><em id="soy-change">—</em><small id="soy-time">Referência mensal</small></article>
+          <article class="market-card"><span>BOLSA · PETR4</span><small>B3 · BRL</small><strong id="stock-rate">R$ —</strong><em id="stock-change">—</em><small id="stock-time">Aguardando</small></article>
+        </div>
+      </section>
+    </main>
+    <footer class="bar"><strong>VM MÍDIAS · MERCADO</strong><span>AwesomeAPI · World Bank · brapi</span></footer>
+  </section>
+  <section id="weather-view" class="screen">
+    <header class="top">
+      <div class="logo-crop"><img src="../images/logo-VMmidias.png" alt="VM MÍDIAS"></div>
+      <div class="top-copy"><strong>CLIMA NA REGIÃO</strong><span>PREVISÃO ATUALIZADA</span></div>
+    </header>
+    <main class="weather-main">
+      <section class="weather-now">
+        <div class="weather-location">● AGORA</div>
+        <h1 id="city" class="city">Clima local</h1>
+        <div class="weather-reading"><span id="weather-symbol" class="weather-symbol">●</span><div id="temperature" class="temperature">—°</div></div>
+        <div id="condition" class="condition">Previsão sendo preparada</div>
+        <div class="weather-facts"><span id="feels">Sensação —</span><span id="range">— mín. / — máx.</span><span id="rain">Chuva —</span></div>
+      </section>
+      <section class="forecast">
+        <article class="forecast-card hourly-card"><h2>PREVISÃO POR HORÁRIO</h2><p id="weather-summary" class="weather-summary">Condições previstas para as próximas horas.</p><div id="hours" class="hours"></div></article>
+        <article class="forecast-card daily-card"><h2>PRÓXIMOS DIAS</h2><div id="days" class="days"></div></article>
+      </section>
+    </main>
+    <footer class="bar"><strong>VM MÍDIAS · CLIMA</strong><span id="weather-time">Fonte: Open-Meteo</span></footer>
+  </section>
+  <script>
+    (function () {
+      'use strict';
+      function queryValue(name) { var match = new RegExp('[?&]' + name + '=([^&]*)').exec(location.search); return match ? decodeURIComponent(match[1].replace(/\+/g, ' ')) : '' }
+      var rawScreen = queryValue('screen'), screen = /^[a-zA-Z0-9_-]{2,100}$/.test(rawScreen) ? rawScreen : 'tv-01';
+      var view = (queryValue('view') || 'noticias').toLowerCase(), views = { noticias: 'news', news: 'news', 'hora-dolar': 'clock-view', hora: 'clock-view', dolar: 'clock-view', clima: 'weather-view' };
+      var activeId = views[view] || 'news', page = activeId === 'news' ? 'noticias' : activeId === 'clock-view' ? 'hora-dolar' : 'clima';
+      var apiParam = queryValue('api'), API = /^(\/|https:\/\/)/i.test(apiParam) ? apiParam.replace(/\/$/, '') : '';
+      var rotationParam = parseInt(queryValue('troca') || queryValue('interval') || '60', 10), rotationSeconds = isFinite(rotationParam) ? Math.min(1800, Math.max(20, rotationParam)) : 60;
+      function newsRotationSlot() { return Math.floor(new Date().getTime() / (rotationSeconds * 1000)) }
+      document.getElementById(activeId).classList.add('active');
+      function uuid() { return 'vm-' + new Date().getTime() + '-' + Math.floor(Math.random() * 1000000) }
+      function request(path, body) { if (!API) return Promise.reject(new Error('API externa não configurada')); return fetch(API + path + (path.indexOf('?') >= 0 ? '&' : '?') + 'screen_id=' + encodeURIComponent(screen), { method: body ? 'POST' : 'GET', headers: body ? { 'Content-Type': 'application/json' } : undefined, body: body ? JSON.stringify(body) : undefined, cache: 'no-store' }).then(function (r) { if (!r.ok) { var e = new Error('Serviço indisponível'); e.status = r.status; throw e } return r.json() }) }
+      function text(id, value) { var el = document.getElementById(id); if (el) el.textContent = value }
+      function date(value, options) { var settings = { timeZone: 'America/Sao_Paulo' }, key; for (key in options) if (options.hasOwnProperty(key)) settings[key] = options[key]; return new Intl.DateTimeFormat('pt-BR', settings).format(new Date(value)) }
+      function cacheGet(key) { try { return JSON.parse(localStorage.getItem('vm:' + screen + ':' + key)) } catch (e) { return null } }
+      function cacheSet(key, value) { try { localStorage.setItem('vm:' + screen + ':' + key, JSON.stringify(value)) } catch (e) { } }
+      var sessionId = uuid(), activationId = '', events = 0, impressions = 0, lastEvent = 'inicial', armed = true, hidden = document.visibilityState === 'hidden', pageHidden = false, activationConfig = { useVisibility: true, usePageShow: true, useFocus: false };
+      function playerEvent(event) { events++; lastEvent = event; if (!API) return; var payload = { screen_id: screen, session_id: sessionId, page: page, event: event, visibility_state: hidden ? 'hidden' : 'visible', timestamp_client: new Date().toISOString(), user_agent: navigator.userAgent || '' }; var body = JSON.stringify(payload), sent = false; if ((event === 'pagehide' || event === 'visibility_hidden') && navigator.sendBeacon) { try { sent = navigator.sendBeacon(API + '/player-event', new Blob([body], { type: 'application/json' })) } catch (e) { } } if (!sent) request('/player-event', payload).catch(function () { }) }
+      function canActivate() { return armed && !(activationConfig.useVisibility && hidden) && !(activationConfig.usePageShow && pageHidden) }
+      function activate(trigger) { if (page === 'noticias' && !API) { loadLegacyNews(); return } if (!canActivate()) return; armed = false; activationId = uuid(); if (page === 'noticias') activateNews({ screen_id: screen, session_id: sessionId, activation_id: activationId, trigger: trigger || 'initial' }, 0) }
+      function signal(event) { if (event === 'visibility_hidden') { hidden = true; if (activationConfig.useVisibility) armed = true } if (event === 'visibility_visible') hidden = false; if (event === 'pagehide') { pageHidden = true; if (activationConfig.usePageShow) armed = true } if (event === 'pageshow') pageHidden = false; playerEvent(event); if (event === 'visibility_visible' || event === 'pageshow' || event === 'load' || event === 'online') activate(event) }
+      document.addEventListener('visibilitychange', function () { signal(document.visibilityState === 'hidden' ? 'visibility_hidden' : 'visibility_visible') });['pagehide', 'pageshow', 'online', 'offline'].forEach(function (name) { addEventListener(name, function () { signal(name) }) });
+      function fallback() { return 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920"><rect width="1080" height="1920" fill="#09090d"/><circle cx="540" cy="840" r="330" fill="#f8032d" opacity=".14"/><text x="540" y="850" text-anchor="middle" fill="#f8032d" font-family="Arial" font-weight="900" font-size="180">VM</text><text x="540" y="970" text-anchor="middle" fill="white" font-family="Arial" font-size="58" letter-spacing="18">MÍDIAS</text></svg>') }
+      function fitTitle() { var el = document.getElementById('title'); if (!el || !window.matchMedia || !window.matchMedia('(orientation:portrait)').matches) return; el.style.fontSize = ''; var size = parseFloat(window.getComputedStyle(el).fontSize); while (el.scrollHeight > el.clientHeight + 1 && size > 34) { size--; el.style.fontSize = size + 'px' } }
+      function versionedNewsImage(n) { var url = n && n.image_url ? String(n.image_url) : ''; if (!/^https?:\/\//i.test(url)) return fallback(); var hash = '', hashAt = url.indexOf('#'); if (hashAt >= 0) { hash = url.substring(hashAt); url = url.substring(0, hashAt) } return url + (url.indexOf('?') >= 0 ? '&' : '?') + 'vmv=' + encodeURIComponent(String(n.published_at || n.id || '1')) + hash }
+      function paintNews(n) { if (!n || !n.title) return; text('title', n.title); text('summary', n.summary || ''); text('source', n.source || 'VM MÍDIAS'); text('category', n.category || 'INFORMAÇÃO'); text('published', n.published_at ? date(n.published_at, { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : ''); var img = document.getElementById('news-image'); img.onerror = function () { this.onerror = null; this.src = fallback() }; img.src = versionedNewsImage(n); fitTitle() }
+      var RSS_PROXY = 'https://api.rss2json.com/v1/api.json?rss_url=';
+      var RSS_SOURCES = [
+        { name: 'G1 Sorocaba', category: 'Regional', url: 'https://g1.globo.com/dynamo/sp/sorocaba-jundiai/rss2.xml' },
+        { name: 'G1 São Paulo', category: 'São Paulo', url: 'https://g1.globo.com/dynamo/sp/sao-paulo/rss2.xml' },
+        { name: 'G1 Brasil', category: 'Brasil', url: 'https://g1.globo.com/dynamo/rss2.xml' },
+        { name: 'G1 Economia', category: 'Economia', url: 'https://g1.globo.com/dynamo/economia/rss2.xml' },
+        { name: 'G1 Tecnologia', category: 'Tecnologia', url: 'https://g1.globo.com/dynamo/tecnologia/rss2.xml' },
+        { name: 'G1 Política', category: 'Política', url: 'https://g1.globo.com/dynamo/politica/rss2.xml' },
+        { name: 'G1 Mundo', category: 'Mundo', url: 'https://g1.globo.com/rss/g1/mundo/' }
+      ];
+      var NEWS_MAX_AGE = 7 * 24 * 60 * 60 * 1000;
+      function plain(value) { var el = document.createElement('div'); el.innerHTML = String(value || ''); return (el.textContent || '').replace(/\s+/g, ' ').trim() }
+      function normalized(value) { var clean = plain(value); return clean.normalize ? clean.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase() : clean.toLowerCase() }
+      function isBroadcastPromo(title) { var value = normalized(title), program = /\b(jornal|telejornal|eptv|sptv|bom dia|jornal hoje|jornal nacional|link vanguarda|jac\s?1|mg\s?1|rj\s?1|df\s?1|globonews)\b/, invitation = /\b(assista|acompanhe|ao vivo|esta no ar|agora no ar)\b/; return program.test(value) && invitation.test(value) }
+      function newsImage(item) { var enclosure = item && item.enclosure || {}, html = String(item && (item.content || item.description) || ''), match = html.match(/<img[^>]+src\s*=\s*["']([^"']+)/i), value = item && item.thumbnail || enclosure.link || enclosure.url || (match && match[1]) || ''; return /^https?:\/\//i.test(value) && !/logo|favicon|spacer|pixel/i.test(value) ? value : '' }
+      function screenSeed() { var value = 0; for (var i = 0; i < screen.length; i++) value = (value * 31 + screen.charCodeAt(i)) >>> 0; return value }
+      var legacyNewsItems = [], legacyNewsLoading = false, legacyNewsLastSlot = -1, legacyNewsLoadedAt = 0, legacyNewsSeed = screenSeed();
+      function legacyNewsFromResponse(data, source) { var result = [], items = data && data.items ? data.items : []; for (var i = 0; i < items.length; i++) { var item = items[i], title = plain(item.title); if (!title || isBroadcastPromo(title)) continue; var published = Date.parse(String(item.pubDate || '').replace(' ', 'T') + 'Z'); if (isFinite(published) && new Date().getTime() - published > NEWS_MAX_AGE) continue; result.push({ id: item.guid || item.link || title, title: title, summary: plain(item.description || item.content).slice(0, 320), source: source.name, category: source.category, image_url: newsImage(item), published_at: isFinite(published) ? published : new Date().getTime() }) } return result }
+      function legacyRssRequest(source, done) { var xhr = new XMLHttpRequest(), finished = false; function finish(items) { if (finished) return; finished = true; done(items || []) } xhr.onreadystatechange = function () { if (xhr.readyState !== 4) return; if (xhr.status >= 200 && xhr.status < 300) { try { var data = JSON.parse(xhr.responseText); finish(data && data.status === 'ok' ? legacyNewsFromResponse(data, source) : []) } catch (e) { finish([]) } } else finish([]) }; xhr.onerror = function () { finish([]) }; xhr.ontimeout = function () { finish([]) }; xhr.open('GET', RSS_PROXY + encodeURIComponent(source.url) + '&_=' + new Date().getTime(), true); xhr.timeout = 15000; xhr.send(null) }
+      function runLegacyNews() { if (!legacyNewsItems.length) return; var slot = newsRotationSlot(); if (slot === legacyNewsLastSlot) return; var usable = [], i; for (i = 0; i < legacyNewsItems.length; i++) if (legacyNewsItems[i].image_url) usable.push(legacyNewsItems[i]); if (usable.length < 2) usable = legacyNewsItems; if (!usable.length) return; var index = Math.abs(slot + legacyNewsSeed) % usable.length; legacyNewsLastSlot = slot; impressions++; paintNews(usable[index]) }
+      function loadLegacyNews() { if (legacyNewsLoading) return; var now = new Date().getTime(); if (legacyNewsItems.length > 1 && now - legacyNewsLoadedAt < 20 * 60000) { runLegacyNews(); return } legacyNewsLoading = true; var remaining = RSS_SOURCES.length, batches = []; function received(index, items) { batches[index] = items; remaining--; if (remaining > 0) return; legacyNewsLoading = false; var combined = [], seen = {}; for (var sourceIndex = 0; sourceIndex < batches.length; sourceIndex++) { var batch = batches[sourceIndex] || []; for (var itemIndex = 0; itemIndex < batch.length; itemIndex++) { var item = batch[itemIndex], key = normalized(item.title); if (!key || seen[key]) continue; seen[key] = true; combined.push(item) } } combined.sort(function (a, b) { return b.published_at - a.published_at }); if (combined.length > 1) { legacyNewsItems = combined; legacyNewsLoadedAt = new Date().getTime() } runLegacyNews() } for (var i = 0; i < RSS_SOURCES.length; i++) (function (index) { legacyRssRequest(RSS_SOURCES[index], function (items) { received(index, items) }) })(i) }
+      var pending = ''; function activateNews(payload, retry) { pending = payload.activation_id; request('/news/activate', payload).then(function (result) { if (pending !== payload.activation_id) return; pending = ''; impressions++; cacheSet('news', result.news); paintNews(result.news) }).catch(function () { pending = ''; var old = cacheGet('news'); if (old) paintNews(old); if (retry < 2) setTimeout(function () { if (!hidden && !pageHidden && activationId === payload.activation_id) activateNews(payload, retry + 1) }, 5000 * (retry + 1)) }) }
+      function runClock() { text('clock', date(Date.now(), { hour: '2-digit', minute: '2-digit', second: '2-digit' })); text('date', date(Date.now(), { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })) }
+      function compactNumber(value, digits) { return Number(value).toLocaleString('pt-BR', { minimumFractionDigits: digits, maximumFractionDigits: digits }) }
+      function monthYear(value) { return date(String(value).substring(0, 10) + 'T12:00:00', { month: 'short', year: 'numeric' }) }
+      function marketChange(id, value, suffix) { var el = document.getElementById(id), number = Number(value) || 0; if (!el) return; el.className = number >= 0 ? 'positive' : ''; el.textContent = (number > 0 ? '+' : '') + compactNumber(number, 2) + '%' + (suffix || '') }
+      function renderExchange(v) { if (!v || !v.data) return; var q = v.data; text('rate', 'R$ ' + compactNumber(q.rate, 2)); marketChange('change', q.change_percent, ' no dia'); text('quote-time', date(q.quoted_at, { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) + (v.stale ? ' · última disponível' : '')) }
+      function loadExchange() { var source = API ? request('/exchange') : fetch('https://economia.awesomeapi.com.br/json/last/USD-BRL', { cache: 'no-store' }).then(function (r) { if (!r.ok) throw new Error('Cotação indisponível'); return r.json() }).then(function (j) { var q = j.USDBRL, rate = Number(q && q.bid), ts = Number(q && q.timestamp); if (!Number.isFinite(rate) || !Number.isFinite(ts)) throw new Error('Cotação inválida'); return { data: { rate: rate, change_percent: Number(q.pctChange) || 0, quoted_at: new Date(ts * 1000).toISOString() } } }); source.then(function (v) { if (v.data) { cacheSet('exchange', v); renderExchange(v) } }).catch(function () { var v = cacheGet('exchange'); if (v) { v.stale = true; renderExchange(v) } }) }
+      function legacyJson(url, done) { var xhr = new XMLHttpRequest(), finished = false; function finish(data) { if (finished) return; finished = true; done(data) } xhr.onreadystatechange = function () { if (xhr.readyState !== 4) return; if (xhr.status >= 200 && xhr.status < 300) { try { finish(JSON.parse(xhr.responseText)) } catch (e) { finish(null) } } else finish(null) }; xhr.onerror = function () { finish(null) }; xhr.ontimeout = function () { finish(null) }; xhr.open('GET', url + (url.indexOf('?') >= 0 ? '&' : '?') + '_=' + new Date().getTime(), true); xhr.timeout = 15000; xhr.send(null) }
+      function loadMarketExtras() { legacyJson('https://commodityorigins.com/data/prices.json', function (data) { var series = data && data.series ? data.series : [], oil = null, soy = null; for (var i = 0; i < series.length; i++) { if (series[i].series_code === 'CRUDE_BRENT') oil = series[i]; if (series[i].series_code === 'SOYBEANS') soy = series[i] } if (oil) { text('oil-rate', 'US$ ' + compactNumber(oil.latest_value, 2)); marketChange('oil-change', oil.chg_1m, ' no mês'); text('oil-time', monthYear(oil.latest_date) + ' · ref. mensal') } if (soy) { text('soy-rate', 'US$ ' + compactNumber(soy.latest_value, 0)); marketChange('soy-change', soy.chg_1m, ' no mês'); text('soy-time', monthYear(soy.latest_date) + ' · ref. mensal') } }); legacyJson('https://brapi.dev/api/quote/PETR4', function (data) { var stock = data && data.results && data.results[0]; if (!stock) return; text('stock-rate', 'R$ ' + compactNumber(stock.regularMarketPrice, 2)); marketChange('stock-change', stock.regularMarketChangePercent, ' no dia'); text('stock-time', 'B3 · ' + date(stock.regularMarketTime, { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })) }) }
+      function weatherSymbol(code) { code = Number(code); if (!isFinite(code)) return '●'; if (code === 0) return '☀'; if (code <= 3) return '⛅'; if (code <= 48) return '≋'; if (code <= 67) return '☂'; if (code <= 77) return '❄'; if (code <= 82) return '☔'; if (code <= 86) return '❄'; return 'ϟ' }
+      function clearElement(el) { while (el && el.firstChild) el.removeChild(el.firstChild) }
+      function renderWeather(v) { if (!v || !v.data) return; var w = v.data; text('city', w.city); text('temperature', Math.round(w.temperature) + '°'); text('weather-symbol', weatherSymbol(w.code)); text('condition', w.condition); text('feels', 'Sensação ' + Math.round(w.feels_like) + '°'); text('range', Math.round(w.min) + '° mín. / ' + Math.round(w.max) + '° máx.'); text('rain', 'Chuva ' + w.rain + '%'); if (w.hourly.length) text('weather-summary', w.hourly[0].condition + ' agora; chance de chuva de ' + w.hourly[0].rain + '%.'); var hours = document.getElementById('hours'); clearElement(hours); for (var i = 0; i < w.hourly.length; i++) { var h = w.hourly[i], el = document.createElement('div'), time = document.createElement('span'), icon = document.createElement('em'), temp = document.createElement('strong'), rain = document.createElement('small'); el.className = 'hour'; time.textContent = i === 0 ? 'Agora' : date(h.time, { hour: '2-digit', minute: '2-digit' }); icon.textContent = weatherSymbol(h.code); temp.textContent = Math.round(h.temperature) + '°'; rain.textContent = h.rain + '% chuva'; el.appendChild(time); el.appendChild(icon); el.appendChild(temp); el.appendChild(rain); hours.appendChild(el) } var days = document.getElementById('days'); clearElement(days); for (var dIndex = 1; dIndex < w.daily.length; dIndex++) { var d = w.daily[dIndex], row = document.createElement('div'), day = document.createElement('span'), state = document.createElement('strong'), range = document.createElement('em'); row.className = 'day-row'; day.textContent = date(d.time, { weekday: 'long' }); state.textContent = weatherSymbol(d.code) + ' ' + d.condition; range.textContent = Math.round(d.min) + '° / ' + Math.round(d.max) + '°'; row.appendChild(day); row.appendChild(state); row.appendChild(range); days.appendChild(row) } text('weather-time', 'Open-Meteo · ' + date(w.observed_at, { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) + (v.stale ? ' · última disponível' : '')) }
+      function weatherCondition(code) { if (code === 0) return 'Céu limpo'; if (code <= 3) return 'Parcialmente nublado'; if (code <= 48) return 'Nevoeiro'; if (code <= 57) return 'Garoa'; if (code <= 67) return 'Chuva'; if (code <= 77) return 'Neve'; if (code <= 82) return 'Pancadas de chuva'; if (code <= 86) return 'Pancadas de neve'; return 'Trovoadas' }
+      function directWeather() { var url = 'https://api.open-meteo.com/v1/forecast?latitude=-23.47&longitude=-47.73&timezone=America%2FSao_Paulo&timeformat=unixtime&forecast_days=3&current=temperature_2m%2Capparent_temperature%2Cweather_code&hourly=temperature_2m%2Cprecipitation_probability%2Cweather_code&daily=temperature_2m_max%2Ctemperature_2m_min%2Cprecipitation_probability_max%2Cweather_code'; return fetch(url, { cache: 'no-store' }).then(function (r) { if (!r.ok) throw new Error('Clima indisponível'); return r.json() }).then(function (j) { var current = j.current, daily = j.daily.time.map(function (t, i) { return { time: t * 1000, min: j.daily.temperature_2m_min[i], max: j.daily.temperature_2m_max[i], rain: j.daily.precipitation_probability_max[i], code: j.daily.weather_code[i], condition: weatherCondition(j.daily.weather_code[i]) } }), hourly = j.hourly.time.map(function (t, i) { return { time: t * 1000, temperature: j.hourly.temperature_2m[i], rain: j.hourly.precipitation_probability[i], code: j.hourly.weather_code[i], condition: weatherCondition(j.hourly.weather_code[i]) } }).filter(function (h) { return h.time >= current.time * 1000 }).slice(0, 6); return { data: { city: 'Capela do Alto', temperature: current.temperature_2m, feels_like: current.apparent_temperature, code: current.weather_code, condition: weatherCondition(current.weather_code), observed_at: new Date(current.time * 1000).toISOString(), min: daily[0].min, max: daily[0].max, rain: daily[0].rain, hourly: hourly, daily: daily, source: 'Open-Meteo' } } }) }
+      function loadWeather() { var source = API ? request('/weather') : directWeather(); source.then(function (v) { if (v.data) { cacheSet('weather', v); renderWeather(v) } }).catch(function () { var v = cacheGet('weather'); if (v) { v.stale = true; renderWeather(v) } }) }
+      if (page === 'noticias') { addEventListener('resize', fitTitle); setInterval(runLegacyNews, 1000); setInterval(loadLegacyNews, 60000) }
+      if (page === 'hora-dolar') { runClock(); renderExchange(cacheGet('exchange')); loadExchange(); loadMarketExtras(); setInterval(runClock, 1000); setInterval(loadExchange, 60000); setInterval(loadMarketExtras, 600000) }
+      if (page === 'clima') { renderWeather(cacheGet('weather')); loadWeather(); setInterval(loadWeather, 60000) }
+      if (API) request('/config').then(function (c) { activationConfig = Object.assign(activationConfig, c.activation || {}); if (page === 'clima' && c.weatherCity) text('city', c.weatherCity); activate('initial') }).catch(function () { activate('initial') }); else activate('initial');
+      playerEvent('init_ready');
+    })();
+  </script>
+</body>
+
+</html>
