@@ -12,8 +12,24 @@ import { Footer } from "./components/Footer";
 import { WhatsAppButton } from "./components/WhatsAppButton";
 import { PrivacyModal } from "./components/PrivacyModal";
 import { PlanCycle } from "./types";
+import { ArtRequestPage } from "./pages/ArtRequestPage";
+import { PrivacyPolicyPage } from "./pages/PrivacyPolicyPage";
 
 export default function App() {
+  const path = window.location.pathname.replace(/\/+$/, "") || "/";
+
+  if (path === "/solicitar-arte") {
+    return <ArtRequestPage />;
+  }
+
+  if (path === "/politica-de-privacidade") {
+    return <PrivacyPolicyPage />;
+  }
+
+  return <HomePage />;
+}
+
+function HomePage() {
   const [privacyModalOpen, setPrivacyModalOpen] = useState(false);
   const [selectedPlanName, setSelectedPlanName] = useState<string>("DESTAQUE");
   const [selectedPlanCycle, setSelectedPlanCycle] =

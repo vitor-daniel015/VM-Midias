@@ -1,6 +1,6 @@
 import React from "react";
 import { X, ShieldCheck } from "lucide-react";
-import { siteConfig } from "../data/siteConfig";
+import { PrivacyPolicyContent } from "./PrivacyPolicyContent";
 
 interface PrivacyModalProps {
   isOpen: boolean;
@@ -21,7 +21,7 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({
       aria-modal="true"
       aria-labelledby="privacy-modal-title"
     >
-      <div className="relative w-full max-w-2xl max-h-[85vh] bg-[#111116] border border-[#22222E] rounded-2xl p-6 sm:p-8 shadow-2xl overflow-y-auto">
+      <div className="relative w-full max-w-3xl max-h-[85vh] bg-[#111116] border border-[#22222E] rounded-2xl p-6 sm:p-8 shadow-2xl overflow-y-auto">
         {/* Close Button */}
         <button
           type="button"
@@ -45,77 +45,13 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({
               Política de Privacidade & LGPD
             </h3>
             <p className="text-xs text-gray-400">
-              {siteConfig.company.name} • Atualizado em 2026.
+              Atualizado em 24 de setembro de 2026.
             </p>
           </div>
         </div>
 
         {/* Modal Content */}
-        <div className="text-sm text-gray-300 space-y-4 leading-relaxed">
-          <p>
-            A <strong>{siteConfig.company.name}</strong> valoriza a
-            transparência e a privacidade de seus anunciantes, parceiros e
-            visitantes deste site oficial ({siteConfig.company.domain}), em
-            conformidade com a Lei Geral de Proteção de Dados (Lei nº
-            13.709/2018 - LGPD).
-          </p>
-
-          <h4 className="font-bold text-white text-base pt-2">
-            1. Coleta de Dados no Formulário
-          </h4>
-          <p>
-            Coletamos apenas as informações voluntariamente fornecidas através
-            dos nossos formulários de contato e canais de WhatsApp: nome, nome
-            da empresa, WhatsApp/telefone, e-mail, segmento de atuação e plano
-            de interesse.
-          </p>
-
-          <h4 className="font-bold text-white text-base pt-2">
-            2. Finalidade do Tratamento
-          </h4>
-          <p>Os dados coletados são utilizados estritamente para:</p>
-          <ul className="list-disc pl-5 space-y-1 text-gray-400">
-            <li>
-              Apresentar propostas comerciais e orçamentos para veiculação de
-              anúncios na rede de telas;
-            </li>
-            <li>Esclarecer dúvidas sobre os planos START e DESTAQUE;</li>
-            <li>
-              Formalizar contratos de veiculação e suporte técnico operacional
-              em Capela do Alto - SP.
-            </li>
-          </ul>
-
-          <h4 className="font-bold text-white text-base pt-2">
-            3. Compartilhamento e Segurança
-          </h4>
-          <p>
-            A {siteConfig.company.name} não comercializa, não aluga e não
-            repassa informações de contato a terceiros para fins de marketing.
-            Seus dados são armazenados de maneira segura e acessados
-            exclusivamente por nossa equipe comercial.
-          </p>
-
-          <h4 className="font-bold text-white text-base pt-2">
-            4. Cookies e Rastreamento
-          </h4>
-          <p>
-            Este site não utiliza cookies invasivos de terceiros que exijam
-            banners intrusivos. Empregamos apenas recursos técnicos essenciais
-            para a navegação fluida, preservação de preferências e envio seguro
-            de formulários.
-          </p>
-
-          <h4 className="font-bold text-white text-base pt-2">
-            5. Seus Direitos
-          </h4>
-          <p>
-            Você pode solicitar a qualquer momento a confirmação, atualização ou
-            exclusão de seus dados de nossa base de contatos comerciais através
-            do e-mail <strong>{siteConfig.company.email}</strong> ou pelo
-            WhatsApp oficial.
-          </p>
-        </div>
+        <PrivacyPolicyContent />
 
         {/* Modal Footer */}
         <div className="mt-8 pt-4 border-t border-[#22222E] flex justify-end">

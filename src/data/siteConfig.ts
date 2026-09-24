@@ -20,7 +20,7 @@ export const siteConfig = {
     email: 'fredericolopescorrea@hotmail.com',
     instagramUrl: 'https://www.instagram.com/vmmidiasindoor',
     instagramHandle: '@vmmidias',
-    heroVideoUrl: '/videos/apresentacao-VMmidias.mp4',
+    heroVideoUrl: '/videos/Apresentacao-VMmidias.mp4',
   },
 
   plans: [

@@ -15,7 +15,7 @@ export const HeroVideo: React.FC<HeroVideoProps> = ({ src, poster }) => (
         poster={poster}
         aria-label="Conheça a VM Mídias"
       >
-        <source src={src} />
+        <source src={src} type="video/mp4" />
       </video>
   </div>
 );
