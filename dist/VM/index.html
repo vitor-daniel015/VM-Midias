@@ -819,6 +819,592 @@
       }
     }
 
+    /* Painéis VM — composição final baseada no layout vertical aprovado */
+    #clock-view,
+    #weather-view {
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 17% 5%, rgba(235, 9, 66, .42), transparent 29%),
+        linear-gradient(154deg, #1a1118 0 18%, #2a1720 18% 31%, #101015 31% 100%)
+    }
+
+    #clock-view::before,
+    #weather-view::before,
+    #clock-view::after,
+    #weather-view::after {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      pointer-events: none
+    }
+
+    #clock-view::before,
+    #weather-view::before {
+      inset: 0 0 auto 0;
+      height: 38%;
+      background:
+        linear-gradient(118deg, rgba(246, 7, 64, .36) 0 24%, transparent 24%),
+        linear-gradient(64deg, transparent 0 54%, rgba(83, 25, 42, .4) 54% 75%, transparent 75%);
+      clip-path: polygon(0 0, 100% 0, 100% 76%, 71% 86%, 51% 64%, 25% 88%, 0 75%)
+    }
+
+    #clock-view::after,
+    #weather-view::after {
+      left: -9%;
+      right: -12%;
+      top: 17%;
+      height: 18%;
+      transform: rotate(-7deg);
+      background: linear-gradient(90deg, rgba(65, 25, 38, .86), rgba(25, 20, 27, .75) 60%, rgba(93, 24, 43, .62));
+      clip-path: polygon(0 35%, 35% 0, 68% 36%, 100% 2%, 100% 78%, 71% 100%, 39% 71%, 0 100%)
+    }
+
+    #clock-view .top,
+    #weather-view .top {
+      position: relative;
+      z-index: 2;
+      height: 15vh;
+      justify-content: center;
+      padding: 3.2vh 0 0;
+      background: transparent;
+      border: 0
+    }
+
+    #clock-view .logo-crop,
+    #weather-view .logo-crop {
+      width: 25vw;
+      max-width: 230px;
+      height: 11vh
+    }
+
+    #clock-view .clock-main,
+    #weather-view .weather-main {
+      position: relative;
+      z-index: 2;
+      height: 85vh;
+      padding: 0 7vw 6vh;
+      overflow: hidden;
+      background: transparent
+    }
+
+    .panel-title,
+    #weather-view .city {
+      margin: 0;
+      color: #fff;
+      font-size: clamp(32px, 6.4vw, 74px);
+      line-height: 1;
+      letter-spacing: -.065em;
+      font-weight: 800;
+      text-align: center
+    }
+
+    #clock-view .time-panel {
+      float: none;
+      width: 100%;
+      height: auto;
+      padding: 0;
+      border: 0;
+      text-align: center
+    }
+
+    #clock-view .clock-reading {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      margin-top: 4.2vh;
+      white-space: nowrap
+    }
+
+    #clock-view .clock-time {
+      font-size: clamp(92px, 24vw, 270px);
+      line-height: .72;
+      letter-spacing: -.085em;
+      font-weight: 900
+    }
+
+    #clock-view .clock-seconds {
+      margin-left: 1vw;
+      font-size: clamp(40px, 10vw, 112px);
+      line-height: 1;
+      letter-spacing: -.07em;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums
+    }
+
+    .clock-dashboard {
+      margin-top: 6.2vh
+    }
+
+    .clock-info-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      padding: 3.2vh 0 2.8vh;
+      border-top: .5vh solid var(--vm)
+    }
+
+    .clock-info-item {
+      position: relative;
+      min-width: 0;
+      min-height: 14vh;
+      padding: 0 2vw;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      text-align: center
+    }
+
+    .clock-info-item + .clock-info-item::before,
+    #weather-view .weather-facts > span + span::before,
+    #weather-view .hour + .hour::before,
+    #weather-view .day-row + .day-row::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: rgba(255, 255, 255, .78)
+    }
+
+    .line-icon,
+    .fact-icon {
+      height: 4.8vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--vm);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: clamp(28px, 6.5vw, 68px);
+      line-height: 1;
+      font-style: normal;
+      font-weight: 700
+    }
+
+    .line-icon svg,
+    .fact-icon svg {
+      width: 1em;
+      height: 1em;
+      overflow: visible;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round
+    }
+
+    .clock-info-item small,
+    #weather-view .weather-facts small {
+      margin-top: 1vh;
+      color: #fff;
+      font-size: clamp(11px, 2.4vw, 26px);
+      line-height: 1.1;
+      font-weight: 800
+    }
+
+    .clock-info-item strong {
+      margin-top: .7vh;
+      color: #fff;
+      font-size: clamp(30px, 7.2vw, 80px);
+      line-height: .95;
+      font-weight: 900;
+      letter-spacing: -.045em
+    }
+
+    .clock-secondary-row .clock-info-item strong {
+      font-size: clamp(28px, 6.6vw, 72px)
+    }
+
+    .clock-info-item em {
+      margin-top: .7vh;
+      color: #fff;
+      font-size: clamp(10px, 2.15vw, 23px);
+      line-height: 1.1;
+      font-style: normal;
+      font-weight: 700;
+      text-transform: uppercase
+    }
+
+    #change.positive,
+    #change.negative {
+      color: #fff
+    }
+
+    #weather-view .weather-main {
+      padding-top: 0
+    }
+
+    #weather-view .weather-now {
+      float: none;
+      width: 100%;
+      height: auto;
+      padding: 0;
+      text-align: center
+    }
+
+    #weather-view .weather-reading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2.3vh
+    }
+
+    #weather-view .temperature {
+      display: block;
+      font-size: clamp(106px, 27vw, 300px);
+      line-height: .72;
+      letter-spacing: -.09em;
+      font-weight: 900
+    }
+
+    #weather-view .weather-symbol {
+      display: block;
+      margin: 0 0 0 2vw;
+      color: #fff;
+      font-family: "Segoe UI Symbol", Arial, sans-serif;
+      font-size: clamp(74px, 18vw, 200px);
+      line-height: .75;
+      filter: grayscale(1) brightness(4)
+    }
+
+    #weather-view .condition {
+      margin: 2.5vh 0 0;
+      color: #fff;
+      font-size: clamp(24px, 5vw, 58px);
+      line-height: 1;
+      font-weight: 800
+    }
+
+    #weather-view .weather-facts {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 4vh;
+      color: #fff;
+      line-height: 1
+    }
+
+    #weather-view .weather-facts > span {
+      position: relative;
+      min-height: 8vh;
+      padding: 0 2vw;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      grid-template-rows: auto auto;
+      align-items: center;
+      text-align: left
+    }
+
+    #weather-view .weather-facts .fact-icon {
+      grid-row: 1 / 3;
+      height: auto;
+      margin-right: 1.4vw;
+      font-size: clamp(29px, 6.5vw, 72px)
+    }
+
+    #weather-view .weather-facts small {
+      align-self: end;
+      margin: 0;
+      font-size: clamp(9px, 1.9vw, 21px)
+    }
+
+    #weather-view .weather-facts strong {
+      align-self: start;
+      margin-top: .6vh;
+      color: #fff;
+      font-size: clamp(22px, 5vw, 56px);
+      line-height: 1;
+      white-space: nowrap
+    }
+
+    #weather-view .forecast {
+      height: auto;
+      margin: 3.8vh 0 0;
+      padding: 0
+    }
+
+    #weather-view .forecast-card {
+      margin: 0 0 2.5vh;
+      padding: 2.2vh 0 0;
+      background: transparent;
+      border: 0;
+      border-top: .45vh solid var(--vm);
+      border-radius: 0
+    }
+
+    #weather-view .forecast h2 {
+      position: relative;
+      width: max-content;
+      margin: 0 0 2.1vh;
+      color: #fff;
+      font-size: clamp(13px, 2.6vw, 29px);
+      line-height: 1;
+      letter-spacing: 0;
+      font-weight: 900
+    }
+
+    #weather-view .forecast h2::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -.65vh;
+      height: .35vh;
+      background: var(--vm)
+    }
+
+    #weather-view .hours,
+    #weather-view .days {
+      display: grid;
+      width: 100%;
+      grid-template-columns: repeat(4, minmax(0, 1fr))
+    }
+
+    #weather-view .days {
+      grid-template-columns: repeat(3, minmax(0, 1fr))
+    }
+
+    #weather-view .hour,
+    #weather-view .day-row {
+      position: relative;
+      display: flex;
+      min-width: 0;
+      min-height: 11vh;
+      padding: 0 1.7vw;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      border: 0;
+      text-align: center;
+      text-transform: none
+    }
+
+    #weather-view .hour span,
+    #weather-view .day-row span {
+      display: block;
+      width: auto;
+      color: #fff;
+      font-size: clamp(11px, 2.15vw, 24px);
+      line-height: 1.1;
+      font-weight: 700;
+      text-transform: capitalize
+    }
+
+    #weather-view .hour em,
+    #weather-view .day-icon {
+      display: block;
+      width: auto;
+      height: auto;
+      margin: 1vh 0 .4vh;
+      color: #fff;
+      font-family: "Segoe UI Symbol", Arial, sans-serif;
+      font-size: clamp(27px, 6vw, 66px);
+      line-height: 1;
+      font-style: normal;
+      filter: grayscale(1) brightness(4)
+    }
+
+    #weather-view .hour strong,
+    #weather-view .day-row strong {
+      display: block;
+      width: auto;
+      color: #fff;
+      font-size: clamp(19px, 4.2vw, 48px);
+      line-height: 1;
+      font-weight: 900;
+      text-align: center
+    }
+
+    #weather-view .hour small,
+    #weather-view .day-row em:last-child {
+      display: block;
+      width: auto;
+      margin-top: .7vh;
+      color: var(--vm);
+      font-size: clamp(9px, 1.9vw, 21px);
+      line-height: 1;
+      font-style: normal;
+      font-weight: 800;
+      text-align: center
+    }
+
+    #weather-view .day-row em:last-child {
+      color: #fff;
+      font-weight: 600
+    }
+
+    #weather-view .hour:nth-child(n+5),
+    #weather-view .day-row:nth-child(n+4) {
+      display: none
+    }
+
+    .panel-update {
+      position: absolute;
+      z-index: 3;
+      left: 7vw;
+      right: 7vw;
+      bottom: 2.4vh;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 3vw;
+      color: #6d6970;
+      text-align: center
+    }
+
+    .panel-update > span {
+      display: block;
+      height: 1px;
+      background: #77737a
+    }
+
+    .panel-update small {
+      font-size: clamp(8px, 1.5vw, 17px);
+      line-height: 1;
+      white-space: nowrap
+    }
+
+    @media (orientation: landscape) {
+      #clock-view .top,
+      #weather-view .top {
+        height: 17vh;
+        padding-top: 2vh
+      }
+
+      #clock-view .logo-crop,
+      #weather-view .logo-crop {
+        width: 11vw;
+        height: 13vh
+      }
+
+      #clock-view .clock-main,
+      #weather-view .weather-main {
+        height: 83vh;
+        padding-left: 15vw;
+        padding-right: 15vw
+      }
+
+      .panel-title,
+      #weather-view .city {
+        font-size: 4vw
+      }
+
+      #clock-view .clock-reading {
+        margin-top: 2vh
+      }
+
+      #clock-view .clock-time {
+        font-size: 12vw
+      }
+
+      #clock-view .clock-seconds {
+        font-size: 5vw
+      }
+
+      .clock-dashboard {
+        margin-top: 4vh
+      }
+
+      .clock-info-row {
+        padding: 2vh 0 1.6vh
+      }
+
+      .clock-info-item {
+        min-height: 10vh
+      }
+
+      .line-icon,
+      .fact-icon {
+        height: 3.5vh;
+        font-size: 3.2vw
+      }
+
+      .clock-info-item small,
+      #weather-view .weather-facts small {
+        font-size: 1.15vw
+      }
+
+      .clock-info-item strong,
+      .clock-secondary-row .clock-info-item strong {
+        font-size: 3.4vw
+      }
+
+      .clock-info-item em {
+        font-size: 1vw
+      }
+
+      #weather-view .weather-reading {
+        margin-top: 1vh
+      }
+
+      #weather-view .temperature {
+        font-size: 11vw
+      }
+
+      #weather-view .weather-symbol {
+        font-size: 8vw
+      }
+
+      #weather-view .condition {
+        margin-top: 1vh;
+        font-size: 2.3vw
+      }
+
+      #weather-view .weather-facts {
+        margin-top: 2vh
+      }
+
+      #weather-view .weather-facts > span {
+        min-height: 6vh
+      }
+
+      #weather-view .weather-facts strong {
+        font-size: 2.4vw
+      }
+
+      #weather-view .forecast {
+        margin-top: 2.4vh
+      }
+
+      #weather-view .forecast-card {
+        margin-bottom: 1.5vh;
+        padding-top: 1.2vh
+      }
+
+      #weather-view .forecast h2 {
+        margin-bottom: 1.2vh;
+        font-size: 1.2vw
+      }
+
+      #weather-view .hour,
+      #weather-view .day-row {
+        min-height: 7vh
+      }
+
+      #weather-view .hour span,
+      #weather-view .day-row span {
+        font-size: 1vw
+      }
+
+      #weather-view .hour em,
+      #weather-view .day-icon {
+        margin: .5vh 0 .2vh;
+        font-size: 2.6vw
+      }
+
+      #weather-view .hour strong,
+      #weather-view .day-row strong {
+        font-size: 1.8vw
+      }
+
+      #weather-view .hour small,
+      #weather-view .day-row em:last-child {
+        margin-top: .35vh;
+        font-size: .85vw
+      }
+    }
+
   </style>
 </head>
 
@@ -845,45 +1431,48 @@
   <section id="clock-view" class="screen">
     <header class="top">
       <div class="logo-crop"><img src="../images/logo-VMmidias.png" alt="VM MÍDIAS"></div>
-      <div class="top-copy"><strong>HORA & MERCADO</strong><span>INFORMAÇÃO EM TEMPO REAL</span></div>
     </header>
     <main class="clock-main">
       <section class="time-panel">
-        <div class="kicker">HORA CERTA · BRASÍLIA</div>
-        <div id="clock" class="clock-time">--:--:--</div>
-        <div id="date" class="clock-date">Horário de Brasília</div>
+        <h1 class="panel-title">Horário de Brasília</h1>
+        <div class="clock-reading"><span id="clock" class="clock-time">--:--</span><span id="seconds" class="clock-seconds">:--</span></div>
       </section>
-      <section class="market">
-        <div class="market-heading"><div class="kicker">MERCADO EM RESUMO</div><span>COTAÇÕES INFORMATIVAS</span></div>
-        <div class="market-grid">
-          <article class="market-card"><span>DÓLAR</span><small>USD / BRL</small><strong id="rate">R$ —</strong><em id="change">—</em><small id="quote-time">Aguardando</small></article>
-          <article class="market-card"><span>PETRÓLEO</span><small>BRENT · USD/BARRIL</small><strong id="oil-rate">US$ —</strong><em id="oil-change">—</em><small id="oil-time">Referência mensal</small></article>
-          <article class="market-card"><span>SOJA</span><small>USD / TONELADA</small><strong id="soy-rate">US$ —</strong><em id="soy-change">—</em><small id="soy-time">Referência mensal</small></article>
-          <article class="market-card"><span>BOLSA · PETR4</span><small>B3 · BRL</small><strong id="stock-rate">R$ —</strong><em id="stock-change">—</em><small id="stock-time">Aguardando</small></article>
+      <section class="clock-dashboard">
+        <div class="clock-info-row clock-primary-row">
+          <article class="clock-info-item"><span class="line-icon calendar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg></span><small>HOJE</small><strong id="today-date">-- ---</strong><em id="today-weekday">—</em></article>
+          <article class="clock-info-item"><span class="line-icon calendar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg></span><small>SEMANA</small><strong id="week-number">—</strong><em id="current-year">—</em></article>
+          <article class="clock-info-item"><span class="line-icon money-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M16 8.5c-.8-1-2-1.5-3.6-1.5-2 0-3.4 1-3.4 2.5 0 4 7 1.5 7 5.3 0 1.4-1.4 2.4-3.5 2.4-1.8 0-3.3-.6-4.2-1.8M12 4.5v15"/></svg></span><small>DÓLAR</small><strong id="rate">R$ —</strong><em id="change">—</em></article>
+        </div>
+        <div class="clock-info-row clock-secondary-row">
+          <article class="clock-info-item"><span class="line-icon sun-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42"/></svg></span><small>NASCER DO SOL</small><strong id="sunrise">--:--</strong></article>
+          <article class="clock-info-item"><span class="line-icon moon-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg></span><small>PÔR DO SOL</small><strong id="sunset">--:--</strong></article>
+          <article class="clock-info-item"><span class="line-icon thermometer-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 14.8V5a2 2 0 0 0-4 0v9.8a4 4 0 1 0 4 0zM12 12v6"/></svg></span><small>AGORA</small><strong id="clock-temperature">—°C</strong></article>
         </div>
       </section>
     </main>
-    <footer class="bar"><strong>VM MÍDIAS · MERCADO</strong><span>AwesomeAPI · World Bank · brapi</span></footer>
+    <footer class="panel-update"><span></span><small id="clock-updated">Atualizado agora</small><span></span></footer>
   </section>
   <section id="weather-view" class="screen">
     <header class="top">
       <div class="logo-crop"><img src="../images/logo-VMmidias.png" alt="VM MÍDIAS"></div>
-      <div class="top-copy"><strong>CLIMA NA REGIÃO</strong><span>PREVISÃO ATUALIZADA</span></div>
     </header>
     <main class="weather-main">
       <section class="weather-now">
-        <div class="weather-location">● AGORA</div>
-        <h1 id="city" class="city">Clima local</h1>
-        <div class="weather-reading"><span id="weather-symbol" class="weather-symbol">●</span><div id="temperature" class="temperature">—°</div></div>
+        <h1 id="city" class="city">Capela do Alto</h1>
+        <div class="weather-reading"><div id="temperature" class="temperature">—°</div><span id="weather-symbol" class="weather-symbol">●</span></div>
         <div id="condition" class="condition">Previsão sendo preparada</div>
-        <div class="weather-facts"><span id="feels">Sensação —</span><span id="range">— mín. / — máx.</span><span id="rain">Chuva —</span></div>
+        <div class="weather-facts">
+          <span><b class="fact-icon"><svg viewBox="0 0 24 24"><path d="M14 14.8V5a2 2 0 0 0-4 0v9.8a4 4 0 1 0 4 0zM12 12v6"/></svg></b><small>SENSAÇÃO</small><strong id="feels">—°</strong></span>
+          <span><b class="fact-icon"><svg viewBox="0 0 24 24"><path d="M12 2s7 7 7 13a7 7 0 0 1-14 0C5 9 12 2 12 2z"/></svg></b><small>CHUVA</small><strong id="rain">—%</strong></span>
+          <span><b class="fact-icon"><svg viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h7"/></svg></b><small>VENTO</small><strong id="wind">— km/h</strong></span>
+        </div>
       </section>
       <section class="forecast">
-        <article class="forecast-card hourly-card"><h2>PREVISÃO POR HORÁRIO</h2><p id="weather-summary" class="weather-summary">Condições previstas para as próximas horas.</p><div id="hours" class="hours"></div></article>
-        <article class="forecast-card daily-card"><h2>PRÓXIMOS DIAS</h2><div id="days" class="days"></div></article>
+        <article class="forecast-card hourly-card"><h2>PRÓXIMAS HORAS:</h2><div id="hours" class="hours"></div></article>
+        <article class="forecast-card daily-card"><h2>PRÓXIMOS DIAS:</h2><div id="days" class="days"></div></article>
       </section>
     </main>
-    <footer class="bar"><strong>VM MÍDIAS · CLIMA</strong><span id="weather-time">Fonte: Open-Meteo</span></footer>
+    <footer class="panel-update"><span></span><small id="weather-time">Atualizando previsão</small><span></span></footer>
   </section>
   <script>
     (function () {
@@ -934,22 +1523,25 @@
       function runLegacyNews() { if (legacyNewsLocked || hidden || pageHidden || !legacyNewsItems.length) return; var slot = newsRotationSlot(), usable = [], i; for (i = 0; i < legacyNewsItems.length; i++) if (legacyNewsItems[i].image_url) usable.push(legacyNewsItems[i]); if (usable.length < 2) usable = legacyNewsItems; if (!usable.length) return; var index = Math.abs(slot + legacyNewsSeed) % usable.length; legacyNewsLastSlot = slot; legacyNewsLocked = true; impressions++; paintNews(usable[index]) }
       function loadLegacyNews() { if (legacyNewsLoading) return; var now = new Date().getTime(); if (legacyNewsItems.length > 1 && now - legacyNewsLoadedAt < 20 * 60000) { runLegacyNews(); return } legacyNewsLoading = true; var remaining = RSS_SOURCES.length, batches = []; function received(index, items) { batches[index] = items; remaining--; if (remaining > 0) return; legacyNewsLoading = false; var combined = [], seen = {}; for (var sourceIndex = 0; sourceIndex < batches.length; sourceIndex++) { var batch = batches[sourceIndex] || []; for (var itemIndex = 0; itemIndex < batch.length; itemIndex++) { var item = batch[itemIndex], key = normalized(item.title); if (!key || seen[key]) continue; seen[key] = true; combined.push(item) } } combined.sort(function (a, b) { return b.published_at - a.published_at }); if (combined.length > 1) { legacyNewsItems = combined; legacyNewsLoadedAt = new Date().getTime() } runLegacyNews() } for (var i = 0; i < RSS_SOURCES.length; i++) (function (index) { legacyRssRequest(RSS_SOURCES[index], function (items) { received(index, items) }) })(i) }
       var pending = ''; function activateNews(payload, retry) { pending = payload.activation_id; request('/news/activate', payload).then(function (result) { if (pending !== payload.activation_id) return; pending = ''; impressions++; cacheSet('news', result.news); paintNews(result.news) }).catch(function () { pending = ''; var old = cacheGet('news'); if (old) paintNews(old); if (retry < 2) setTimeout(function () { if (!hidden && !pageHidden && activationId === payload.activation_id) activateNews(payload, retry + 1) }, 5000 * (retry + 1)) }) }
-      function runClock() { text('clock', date(Date.now(), { hour: '2-digit', minute: '2-digit', second: '2-digit' })); text('date', date(Date.now(), { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })) }
+      function isoWeek(value) { var day = new Date(value); day.setUTCHours(0, 0, 0, 0); day.setUTCDate(day.getUTCDate() + 4 - (day.getUTCDay() || 7)); var year = new Date(Date.UTC(day.getUTCFullYear(), 0, 1)); return Math.ceil((((day - year) / 86400000) + 1) / 7) }
+      function runClock() { var now = new Date(), month = date(now, { month: 'short' }).replace('.', '').toUpperCase(); text('clock', date(now, { hour: '2-digit', minute: '2-digit' })); text('seconds', ':' + date(now, { second: '2-digit' })); text('today-date', date(now, { day: '2-digit' }) + ' ' + month); text('today-weekday', date(now, { weekday: 'long' }).toUpperCase()); text('week-number', String(isoWeek(now)).padStart(2, '0')); text('current-year', 'DE ' + date(now, { year: 'numeric' })); text('clock-updated', 'Atualizado às ' + date(now, { hour: '2-digit', minute: '2-digit' })) }
       function compactNumber(value, digits) { return Number(value).toLocaleString('pt-BR', { minimumFractionDigits: digits, maximumFractionDigits: digits }) }
       function monthYear(value) { return date(String(value).substring(0, 10) + 'T12:00:00', { month: 'short', year: 'numeric' }) }
-      function marketChange(id, value, suffix) { var el = document.getElementById(id), number = Number(value) || 0; if (!el) return; el.className = number >= 0 ? 'positive' : ''; el.textContent = (number > 0 ? '+' : '') + compactNumber(number, 2) + '%' + (suffix || '') }
-      function renderExchange(v) { if (!v || !v.data) return; var q = v.data; text('rate', 'R$ ' + compactNumber(q.rate, 2)); marketChange('change', q.change_percent, ' no dia'); text('quote-time', date(q.quoted_at, { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) + (v.stale ? ' · última disponível' : '')) }
+      function marketChange(id, value, suffix) { var el = document.getElementById(id), number = Number(value) || 0; if (!el) return; el.className = number >= 0 ? 'positive' : 'negative'; el.textContent = (number >= 0 ? '▲ +' : '▼ ') + compactNumber(number, 2) + '%' + (suffix || '') }
+      function renderExchange(v) { if (!v || !v.data) return; var q = v.data; text('rate', 'R$' + compactNumber(q.rate, 2)); marketChange('change', q.change_percent, '') }
       function loadExchange() { var source = API ? request('/exchange') : fetch('https://economia.awesomeapi.com.br/json/last/USD-BRL', { cache: 'no-store' }).then(function (r) { if (!r.ok) throw new Error('Cotação indisponível'); return r.json() }).then(function (j) { var q = j.USDBRL, rate = Number(q && q.bid), ts = Number(q && q.timestamp); if (!Number.isFinite(rate) || !Number.isFinite(ts)) throw new Error('Cotação inválida'); return { data: { rate: rate, change_percent: Number(q.pctChange) || 0, quoted_at: new Date(ts * 1000).toISOString() } } }); source.then(function (v) { if (v.data) { cacheSet('exchange', v); renderExchange(v) } }).catch(function () { var v = cacheGet('exchange'); if (v) { v.stale = true; renderExchange(v) } }) }
       function legacyJson(url, done) { var xhr = new XMLHttpRequest(), finished = false; function finish(data) { if (finished) return; finished = true; done(data) } xhr.onreadystatechange = function () { if (xhr.readyState !== 4) return; if (xhr.status >= 200 && xhr.status < 300) { try { finish(JSON.parse(xhr.responseText)) } catch (e) { finish(null) } } else finish(null) }; xhr.onerror = function () { finish(null) }; xhr.ontimeout = function () { finish(null) }; xhr.open('GET', url + (url.indexOf('?') >= 0 ? '&' : '?') + '_=' + new Date().getTime(), true); xhr.timeout = 15000; xhr.send(null) }
       function loadMarketExtras() { legacyJson('https://commodityorigins.com/data/prices.json', function (data) { var series = data && data.series ? data.series : [], oil = null, soy = null; for (var i = 0; i < series.length; i++) { if (series[i].series_code === 'CRUDE_BRENT') oil = series[i]; if (series[i].series_code === 'SOYBEANS') soy = series[i] } if (oil) { text('oil-rate', 'US$ ' + compactNumber(oil.latest_value, 2)); marketChange('oil-change', oil.chg_1m, ' no mês'); text('oil-time', monthYear(oil.latest_date) + ' · ref. mensal') } if (soy) { text('soy-rate', 'US$ ' + compactNumber(soy.latest_value, 0)); marketChange('soy-change', soy.chg_1m, ' no mês'); text('soy-time', monthYear(soy.latest_date) + ' · ref. mensal') } }); legacyJson('https://brapi.dev/api/quote/PETR4', function (data) { var stock = data && data.results && data.results[0]; if (!stock) return; text('stock-rate', 'R$ ' + compactNumber(stock.regularMarketPrice, 2)); marketChange('stock-change', stock.regularMarketChangePercent, ' no dia'); text('stock-time', 'B3 · ' + date(stock.regularMarketTime, { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })) }) }
       function weatherSymbol(code) { code = Number(code); if (!isFinite(code)) return '●'; if (code === 0) return '☀'; if (code <= 3) return '⛅'; if (code <= 48) return '≋'; if (code <= 67) return '☂'; if (code <= 77) return '❄'; if (code <= 82) return '☔'; if (code <= 86) return '❄'; return 'ϟ' }
       function clearElement(el) { while (el && el.firstChild) el.removeChild(el.firstChild) }
-      function renderWeather(v) { if (!v || !v.data) return; var w = v.data; text('city', w.city); text('temperature', Math.round(w.temperature) + '°'); text('weather-symbol', weatherSymbol(w.code)); text('condition', w.condition); text('feels', 'Sensação ' + Math.round(w.feels_like) + '°'); text('range', Math.round(w.min) + '° mín. / ' + Math.round(w.max) + '° máx.'); text('rain', 'Chuva ' + w.rain + '%'); if (w.hourly.length) text('weather-summary', w.hourly[0].condition + ' agora; chance de chuva de ' + w.hourly[0].rain + '%.'); var hours = document.getElementById('hours'); clearElement(hours); for (var i = 0; i < w.hourly.length; i++) { var h = w.hourly[i], el = document.createElement('div'), time = document.createElement('span'), icon = document.createElement('em'), temp = document.createElement('strong'), rain = document.createElement('small'); el.className = 'hour'; time.textContent = i === 0 ? 'Agora' : date(h.time, { hour: '2-digit', minute: '2-digit' }); icon.textContent = weatherSymbol(h.code); temp.textContent = Math.round(h.temperature) + '°'; rain.textContent = h.rain + '% chuva'; el.appendChild(time); el.appendChild(icon); el.appendChild(temp); el.appendChild(rain); hours.appendChild(el) } var days = document.getElementById('days'); clearElement(days); for (var dIndex = 1; dIndex < w.daily.length; dIndex++) { var d = w.daily[dIndex], row = document.createElement('div'), day = document.createElement('span'), state = document.createElement('strong'), range = document.createElement('em'); row.className = 'day-row'; day.textContent = date(d.time, { weekday: 'long' }); state.textContent = weatherSymbol(d.code) + ' ' + d.condition; range.textContent = Math.round(d.min) + '° / ' + Math.round(d.max) + '°'; row.appendChild(day); row.appendChild(state); row.appendChild(range); days.appendChild(row) } text('weather-time', 'Open-Meteo · ' + date(w.observed_at, { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) + (v.stale ? ' · última disponível' : '')) }
+      function renderWeather(v) { if (!v || !v.data) return; var w = v.data; text('city', w.city); text('temperature', Math.round(w.temperature) + '°'); text('weather-symbol', weatherSymbol(w.code)); text('condition', w.condition); text('feels', Math.round(w.feels_like) + '°'); text('rain', w.rain + '%'); text('wind', Math.round(w.wind || 0) + ' km/h'); var hours = document.getElementById('hours'); clearElement(hours); for (var i = 0; i < Math.min(4, w.hourly.length); i++) { var h = w.hourly[i], el = document.createElement('div'), time = document.createElement('span'), icon = document.createElement('em'), temp = document.createElement('strong'), rain = document.createElement('small'); el.className = 'hour'; time.textContent = i === 0 ? 'Agora' : date(h.time, { hour: '2-digit', minute: '2-digit' }); icon.textContent = weatherSymbol(h.code); temp.textContent = Math.round(h.temperature) + '°'; rain.textContent = '♢ ' + h.rain + '%'; el.appendChild(time); el.appendChild(icon); el.appendChild(temp); el.appendChild(rain); hours.appendChild(el) } var days = document.getElementById('days'); clearElement(days); for (var dIndex = 0; dIndex < Math.min(3, w.daily.length); dIndex++) { var d = w.daily[dIndex], row = document.createElement('div'), day = document.createElement('span'), iconDay = document.createElement('b'), range = document.createElement('strong'), state = document.createElement('em'); row.className = 'day-row'; day.textContent = date(d.time, { weekday: 'long' }); iconDay.className = 'day-icon'; iconDay.textContent = weatherSymbol(d.code); range.textContent = Math.round(d.min) + '°/' + Math.round(d.max) + '°'; state.textContent = d.condition; row.appendChild(day); row.appendChild(iconDay); row.appendChild(range); row.appendChild(state); days.appendChild(row) } text('weather-time', 'Atualizado às ' + date(w.observed_at, { hour: '2-digit', minute: '2-digit' }) + (v.stale ? ' · última disponível' : '')) }
       function weatherCondition(code) { if (code === 0) return 'Céu limpo'; if (code <= 3) return 'Parcialmente nublado'; if (code <= 48) return 'Nevoeiro'; if (code <= 57) return 'Garoa'; if (code <= 67) return 'Chuva'; if (code <= 77) return 'Neve'; if (code <= 82) return 'Pancadas de chuva'; if (code <= 86) return 'Pancadas de neve'; return 'Trovoadas' }
-      function directWeather() { var url = 'https://api.open-meteo.com/v1/forecast?latitude=-23.47&longitude=-47.73&timezone=America%2FSao_Paulo&timeformat=unixtime&forecast_days=3&current=temperature_2m%2Capparent_temperature%2Cweather_code&hourly=temperature_2m%2Cprecipitation_probability%2Cweather_code&daily=temperature_2m_max%2Ctemperature_2m_min%2Cprecipitation_probability_max%2Cweather_code'; return fetch(url, { cache: 'no-store' }).then(function (r) { if (!r.ok) throw new Error('Clima indisponível'); return r.json() }).then(function (j) { var current = j.current, daily = j.daily.time.map(function (t, i) { return { time: t * 1000, min: j.daily.temperature_2m_min[i], max: j.daily.temperature_2m_max[i], rain: j.daily.precipitation_probability_max[i], code: j.daily.weather_code[i], condition: weatherCondition(j.daily.weather_code[i]) } }), hourly = j.hourly.time.map(function (t, i) { return { time: t * 1000, temperature: j.hourly.temperature_2m[i], rain: j.hourly.precipitation_probability[i], code: j.hourly.weather_code[i], condition: weatherCondition(j.hourly.weather_code[i]) } }).filter(function (h) { return h.time >= current.time * 1000 }).slice(0, 6); return { data: { city: 'Capela do Alto', temperature: current.temperature_2m, feels_like: current.apparent_temperature, code: current.weather_code, condition: weatherCondition(current.weather_code), observed_at: new Date(current.time * 1000).toISOString(), min: daily[0].min, max: daily[0].max, rain: daily[0].rain, hourly: hourly, daily: daily, source: 'Open-Meteo' } } }) }
+      function directWeather() { var url = 'https://api.open-meteo.com/v1/forecast?latitude=-23.47&longitude=-47.73&timezone=America%2FSao_Paulo&timeformat=unixtime&forecast_days=3&current=temperature_2m%2Capparent_temperature%2Cweather_code%2Cwind_speed_10m&hourly=temperature_2m%2Cprecipitation_probability%2Cweather_code&daily=temperature_2m_max%2Ctemperature_2m_min%2Cprecipitation_probability_max%2Cweather_code%2Csunrise%2Csunset'; return fetch(url, { cache: 'no-store' }).then(function (r) { if (!r.ok) throw new Error('Clima indisponível'); return r.json() }).then(function (j) { var current = j.current, daily = j.daily.time.map(function (t, i) { return { time: t * 1000, min: j.daily.temperature_2m_min[i], max: j.daily.temperature_2m_max[i], rain: j.daily.precipitation_probability_max[i], code: j.daily.weather_code[i], condition: weatherCondition(j.daily.weather_code[i]), sunrise: j.daily.sunrise[i] * 1000, sunset: j.daily.sunset[i] * 1000 } }), hourly = j.hourly.time.map(function (t, i) { return { time: t * 1000, temperature: j.hourly.temperature_2m[i], rain: j.hourly.precipitation_probability[i], code: j.hourly.weather_code[i], condition: weatherCondition(j.hourly.weather_code[i]) } }).filter(function (h) { return h.time >= current.time * 1000 }).slice(0, 4); return { data: { city: 'Capela do Alto', temperature: current.temperature_2m, feels_like: current.apparent_temperature, wind: current.wind_speed_10m, code: current.weather_code, condition: weatherCondition(current.weather_code), observed_at: new Date(current.time * 1000).toISOString(), min: daily[0].min, max: daily[0].max, rain: daily[0].rain, hourly: hourly, daily: daily, source: 'Open-Meteo' } } }) }
       function loadWeather() { var source = API ? request('/weather') : directWeather(); source.then(function (v) { if (v.data) { cacheSet('weather', v); renderWeather(v) } }).catch(function () { var v = cacheGet('weather'); if (v) { v.stale = true; renderWeather(v) } }) }
+      function renderClockWeather(v) { if (!v || !v.data) return; var w = v.data, today = w.daily && w.daily[0]; text('clock-temperature', Math.round(w.temperature) + '°C'); if (today && today.sunrise) text('sunrise', date(today.sunrise, { hour: '2-digit', minute: '2-digit' })); if (today && today.sunset) text('sunset', date(today.sunset, { hour: '2-digit', minute: '2-digit' })) }
+      function loadClockWeather() { var source = API ? request('/weather') : directWeather(); source.then(function (v) { if (v.data) { cacheSet('weather', v); renderClockWeather(v) } }).catch(function () { renderClockWeather(cacheGet('weather')) }) }
       if (page === 'noticias') { addEventListener('resize', fitTitle); setInterval(loadLegacyNews, 60000) }
-      if (page === 'hora-dolar') { runClock(); renderExchange(cacheGet('exchange')); loadExchange(); loadMarketExtras(); setInterval(runClock, 1000); setInterval(loadExchange, 60000); setInterval(loadMarketExtras, 600000) }
+      if (page === 'hora-dolar') { runClock(); renderExchange(cacheGet('exchange')); renderClockWeather(cacheGet('weather')); loadExchange(); loadClockWeather(); setInterval(runClock, 1000); setInterval(loadExchange, 60000); setInterval(loadClockWeather, 600000) }
       if (page === 'clima') { renderWeather(cacheGet('weather')); loadWeather(); setInterval(loadWeather, 60000) }
       if (API) request('/config').then(function (c) { activationConfig = Object.assign(activationConfig, c.activation || {}); if (page === 'clima' && c.weatherCity) text('city', c.weatherCity); activate('initial') }).catch(function () { activate('initial') }); else activate('initial');
       playerEvent('init_ready');
