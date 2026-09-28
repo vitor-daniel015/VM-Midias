@@ -43,7 +43,7 @@ export function PrivacyPolicyPage() {
                 Política de Privacidade
               </h1>
               <p className="mt-2 text-xs text-white/40">
-                Atualizada em 24 de setembro de 2026.
+                Atualizada em 28 de setembro de 2026.
               </p>
             </div>
           </header>

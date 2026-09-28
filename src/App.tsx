@@ -12,14 +12,22 @@ import { Footer } from "./components/Footer";
 import { WhatsAppButton } from "./components/WhatsAppButton";
 import { PrivacyModal } from "./components/PrivacyModal";
 import { PlanCycle } from "./types";
-import { ArtRequestPage } from "./pages/ArtRequestPage";
+import { VideoRequestPage } from "./pages/VideoRequestPage";
 import { PrivacyPolicyPage } from "./pages/PrivacyPolicyPage";
 
 export default function App() {
   const path = window.location.pathname.replace(/\/+$/, "") || "/";
 
-  if (path === "/solicitar-arte") {
-    return <ArtRequestPage />;
+  if (path === "/solicitar-video/cliente-atual") {
+    return <VideoRequestPage requestKind="existing_client" />;
+  }
+
+  if (
+    path === "/solicitar-video/novo-cliente" ||
+    path === "/solicitar-video" ||
+    path === "/solicitar-arte"
+  ) {
+    return <VideoRequestPage requestKind="new_client" />;
   }
 
   if (path === "/politica-de-privacidade") {

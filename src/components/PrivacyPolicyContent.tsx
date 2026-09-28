@@ -28,8 +28,8 @@ export const PrivacyPolicyContent: React.FC = () => (
         chamada para ação e informações que deverão aparecer na campanha;
       </li>
       <li>
-        links de materiais compartilhados pelo próprio cliente, como pastas do
-        Drive, Canva ou Dropbox;
+        arquivos enviados para criação de vídeos, como logos, fotos, referências,
+        documentos e vídeos, além de links do Drive, Canva ou Dropbox;
       </li>
       <li>
         protocolo, situação do atendimento e datas de criação e atualização do
@@ -76,7 +76,10 @@ export const PrivacyPolicyContent: React.FC = () => (
     </p>
     <ul className={listClass}>
       <li>HostGator, responsável pela hospedagem do site;</li>
-      <li>Supabase, utilizado para registrar e organizar solicitações;</li>
+      <li>
+        Supabase, utilizado para registrar solicitações e armazenar de forma
+        privada os materiais enviados para produção;
+      </li>
       <li>n8n, quando utilizado para automatizar o fluxo interno de atendimento;</li>
       <li>
         WhatsApp/Meta, quando o visitante decide iniciar atendimento por esse

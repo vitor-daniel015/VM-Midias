@@ -45,7 +45,7 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({
               Política de Privacidade & LGPD
             </h3>
             <p className="text-xs text-gray-400">
-              Atualizado em 24 de setembro de 2026.
+              Atualizado em 28 de setembro de 2026.
             </p>
           </div>
         </div>
