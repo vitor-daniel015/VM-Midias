@@ -21,7 +21,10 @@ create table if not exists public.video_requests (
   visual_references text,
   video_idea text not null check (char_length(video_idea) between 30 and 2400),
   uploaded_assets jsonb not null default '[]'::jsonb
-    check (jsonb_typeof(uploaded_assets) = 'array'),
+    check (
+      jsonb_typeof(uploaded_assets) = 'array'
+      and jsonb_array_length(uploaded_assets) <= 5
+    ),
   video_format text not null default 'vertical_9_16'
     check (video_format = 'vertical_9_16'),
   duration_seconds smallint not null default 20 check (duration_seconds = 20),

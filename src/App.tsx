@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Route, Routes } from "react-router-dom";
 import { Header } from "./components/Header";
 import { HeroSection } from "./sections/HeroSection";
 import { WhereItAppearsSection } from "./sections/WhereItAppearsSection";
@@ -12,29 +13,31 @@ import { Footer } from "./components/Footer";
 import { WhatsAppButton } from "./components/WhatsAppButton";
 import { PrivacyModal } from "./components/PrivacyModal";
 import { PlanCycle } from "./types";
-import { VideoRequestPage } from "./pages/VideoRequestPage";
 import { PrivacyPolicyPage } from "./pages/PrivacyPolicyPage";
+import { AdminRequestsPage } from "./pages/AdminRequestsPage";
+import {
+  BusinessDetailPage,
+  BusinessDirectoryPage,
+  BusinessRegistrationPage,
+} from "./pages/BusinessPortalPage";
 
 export default function App() {
-  const path = window.location.pathname.replace(/\/+$/, "") || "/";
-
-  if (path === "/solicitar-video/cliente-atual") {
-    return <VideoRequestPage requestKind="existing_client" />;
-  }
-
-  if (
-    path === "/solicitar-video/novo-cliente" ||
-    path === "/solicitar-video" ||
-    path === "/solicitar-arte"
-  ) {
-    return <VideoRequestPage requestKind="new_client" />;
-  }
-
-  if (path === "/politica-de-privacidade") {
-    return <PrivacyPolicyPage />;
-  }
-
-  return <HomePage />;
+  return (
+    <Routes>
+      <Route path="/admin" element={<AdminRequestsPage />} />
+      <Route path="/admin/solicitacoes" element={<AdminRequestsPage />} />
+      <Route path="/solicitar-video" element={<BusinessDirectoryPage />} />
+      <Route path="/solicitar-video/novo-negocio" element={<BusinessRegistrationPage />} />
+      <Route path="/solicitar-video/negocio/:businessId" element={<BusinessDetailPage />} />
+      <Route path="/solicitar-video/novo-comercio" element={<BusinessRegistrationPage />} />
+      <Route path="/solicitar-video/comercio/:businessId" element={<BusinessDetailPage />} />
+      <Route path="/solicitar-video/novo-cliente" element={<BusinessRegistrationPage />} />
+      <Route path="/solicitar-video/cliente-atual" element={<BusinessDirectoryPage />} />
+      <Route path="/solicitar-arte" element={<BusinessDirectoryPage />} />
+      <Route path="/politica-de-privacidade" element={<PrivacyPolicyPage />} />
+      <Route path="*" element={<HomePage />} />
+    </Routes>
+  );
 }
 
 function HomePage() {

@@ -37,6 +37,9 @@ jobs:
 
       - name: Gerar site de produção
         run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
 
       - name: Publicar na HostGator por FTPS
         uses: SamKirkland/FTP-Deploy-Action@v4.4.0
