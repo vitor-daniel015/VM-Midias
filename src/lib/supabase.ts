@@ -1,11 +1,21 @@
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL?.trim();
-const supabasePublishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY?.trim();
-
-if (!supabaseUrl || !supabasePublishableKey) {
-  throw new Error(
-    "Configuração do Supabase ausente. Defina VITE_SUPABASE_URL e VITE_SUPABASE_PUBLISHABLE_KEY no arquivo .env.",
-  );
+function requireEnvironmentValue(value: string | undefined, variableName: string): string {
+  const normalized = value?.trim();
+  if (!normalized) {
+    throw new Error(
+      `Configuração do Supabase ausente. Defina ${variableName} no arquivo .env.`,
+    );
+  }
+  return normalized;
 }
+
+const supabaseUrl = requireEnvironmentValue(
+  import.meta.env.VITE_SUPABASE_URL,
+  "VITE_SUPABASE_URL",
+);
+const supabasePublishableKey = requireEnvironmentValue(
+  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+  "VITE_SUPABASE_PUBLISHABLE_KEY",
+);
 
 const VIDEO_ASSETS_BUCKET = "video-request-assets";
 const BUSINESS_ASSETS_BUCKET = "business-assets";
@@ -168,7 +178,7 @@ export function publicBusinessAssetUrl(path: string) {
   return `${supabaseUrl}/storage/v1/object/public/${BUSINESS_ASSETS_BUCKET}/${encodeStoragePath(path)}`;
 }
 
-export async function createBusiness(payload: BusinessPayload, editPin: string) {
+export async function createBusiness(payload: BusinessPayload) {
   const response = await fetch(`${supabaseUrl}/rest/v1/rpc/create_business_secure`, {
     method: "POST",
     headers: {
@@ -185,7 +195,6 @@ export async function createBusiness(payload: BusinessPayload, editPin: string) 
       p_description: payload.description,
       p_assets: payload.assets,
       p_consent: payload.consent,
-      p_edit_pin: editPin,
     }),
   });
   if (!response.ok) throw new Error("Não foi possível cadastrar o negócio agora.");
@@ -204,7 +213,6 @@ export async function listBusinessesPublic() {
 
 export async function updateBusiness(
   id: string,
-  editPin: string,
   payload: Partial<Omit<BusinessPayload, "id" | "assets" | "consent">>,
   newAssets: UploadedAsset[],
 ) {
@@ -217,7 +225,6 @@ export async function updateBusiness(
     },
     body: JSON.stringify({
       p_business_id: id,
-      p_edit_pin: editPin,
       p_name: payload.name,
       p_whatsapp: payload.whatsapp,
       p_address: payload.address,
@@ -228,37 +235,12 @@ export async function updateBusiness(
   });
   if (!response.ok) {
     const details = await response.text();
-    if (/PIN_INVALIDO/i.test(details)) throw new Error("PIN incorreto. Confira os quatro números.");
-    if (/PIN_NAO_CONFIGURADO/i.test(details)) throw new Error("Este negócio ainda não possui PIN. Peça ao administrador para defini-lo.");
     if (/LIMITE_IMAGENS/i.test(details)) throw new Error("O negócio pode possuir no máximo 10 imagens.");
     throw new Error("Não foi possível atualizar as informações do negócio.");
   }
 }
 
-export async function verifyBusinessPin(id: string, editPin: string) {
-  const response = await fetch(`${supabaseUrl}/rest/v1/rpc/verify_business_pin`, {
-    method: "POST",
-    headers: {
-      apikey: supabasePublishableKey,
-      Authorization: `Bearer ${supabasePublishableKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ p_business_id: id, p_edit_pin: editPin }),
-  });
-  if (!response.ok) throw new Error("Não foi possível validar o PIN agora.");
-  if ((await response.json()) !== true) throw new Error("PIN incorreto ou ainda não configurado. Confira os quatro números ou fale com a VM MÍDIAS.");
-}
-
-export async function setBusinessPinAdmin(accessToken: string, businessId: string, pin: string) {
-  const response = await fetch(`${supabaseUrl}/rest/v1/rpc/set_business_pin_admin`, {
-    method: "POST",
-    headers: { ...authenticatedHeaders(accessToken), "Content-Type": "application/json" },
-    body: JSON.stringify({ p_business_id: businessId, p_edit_pin: pin }),
-  });
-  if (!response.ok) throw new Error("Não foi possível definir o PIN deste negócio.");
-}
-
-export async function createVideoRequest(payload: VideoRequestPayload, editPin: string) {
+export async function createVideoRequest(payload: VideoRequestPayload) {
   const response = await fetch(`${supabaseUrl}/rest/v1/rpc/create_video_request_secure`, {
     method: "POST",
     headers: {
@@ -275,14 +257,12 @@ export async function createVideoRequest(payload: VideoRequestPayload, editPin: 
       p_video_idea: payload.video_idea,
       p_uploaded_assets: payload.uploaded_assets,
       p_consent: payload.consent,
-      p_edit_pin: editPin,
     }),
   });
 
   if (!response.ok) {
     const message = await response.text();
     console.error("Falha ao registrar solicitação de vídeo:", message);
-    if (/PIN_INVALIDO/i.test(message)) throw new Error("PIN incorreto. Confira os quatro números.");
     throw new Error("Não foi possível registrar sua solicitação agora.");
   }
 }

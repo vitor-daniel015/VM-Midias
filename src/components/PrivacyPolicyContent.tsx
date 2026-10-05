@@ -7,15 +7,16 @@ const listClass = "list-disc space-y-1.5 pl-5 text-white/58";
 export const PrivacyPolicyContent: React.FC = () => (
   <div className="space-y-4 text-sm leading-7 text-white/68">
     <p>
-      Esta Política explica como a <strong className="text-white">{siteConfig.company.legalName}</strong>{" "}
+      Esta Política explica como a{" "}
+      <strong className="text-white">{siteConfig.company.legalName}</strong>{" "}
       (“VM MÍDIAS”), na qualidade de controladora, trata dados pessoais de
-      visitantes, interessados, clientes e representantes de empresas que usam
-      o site {siteConfig.company.domain} e seus canais de atendimento.
+      visitantes, interessados, clientes e representantes de empresas que usam o
+      site {siteConfig.company.domain} e seus canais de atendimento.
     </p>
     <p>
       O tratamento observa a Lei nº 13.709/2018 (Lei Geral de Proteção de Dados
-      Pessoais — LGPD) e os princípios de finalidade, necessidade, transparência,
-      segurança e prevenção.
+      Pessoais — LGPD) e os princípios de finalidade, necessidade,
+      transparência, segurança e prevenção.
     </p>
 
     <h4 className={headingClass}>1. Dados que podemos coletar</h4>
@@ -28,8 +29,9 @@ export const PrivacyPolicyContent: React.FC = () => (
         chamada para ação e informações que deverão aparecer na campanha;
       </li>
       <li>
-        arquivos enviados para criação de vídeos, como logos, fotos, referências,
-        documentos e vídeos, além de links do Drive, Canva ou Dropbox;
+        arquivos enviados para criação de vídeos, como logos, fotos,
+        referências, documentos e vídeos, além de links do Drive, Canva ou
+        Dropbox;
       </li>
       <li>
         protocolo, situação do atendimento e datas de criação e atualização do
@@ -52,7 +54,8 @@ export const PrivacyPolicyContent: React.FC = () => (
       <li>responder contatos, dúvidas e solicitações de orçamento;</li>
       <li>apresentar planos, propostas e condições comerciais;</li>
       <li>
-        organizar, criar, revisar, aprovar e programar artes e vídeos contratados;
+        organizar, criar, revisar, aprovar e programar artes e vídeos
+        contratados;
       </li>
       <li>acompanhar o histórico e o andamento de cada solicitação;</li>
       <li>prevenir abuso, fraude, spam e incidentes de segurança;</li>
@@ -61,11 +64,11 @@ export const PrivacyPolicyContent: React.FC = () => (
 
     <h4 className={headingClass}>3. Bases legais</h4>
     <p>
-      Conforme o contexto, o tratamento poderá ocorrer com base no consentimento,
-      na execução de contrato ou de procedimentos preliminares solicitados pelo
-      titular, no cumprimento de obrigação legal ou regulatória e no legítimo
-      interesse da VM MÍDIAS, sempre respeitando os direitos e as expectativas do
-      titular.
+      Conforme o contexto, o tratamento poderá ocorrer com base no
+      consentimento, na execução de contrato ou de procedimentos preliminares
+      solicitados pelo titular, no cumprimento de obrigação legal ou regulatória
+      e no legítimo interesse da VM MÍDIAS, sempre respeitando os direitos e as
+      expectativas do titular.
     </p>
 
     <h4 className={headingClass}>4. Armazenamento e compartilhamento</h4>
@@ -80,7 +83,9 @@ export const PrivacyPolicyContent: React.FC = () => (
         Supabase, utilizado para registrar solicitações e armazenar de forma
         privada os materiais enviados para produção;
       </li>
-      <li>n8n, quando utilizado para automatizar o fluxo interno de atendimento;</li>
+      <li>
+        n8n, quando utilizado para automatizar o fluxo interno de atendimento;
+      </li>
       <li>
         WhatsApp/Meta, quando o visitante decide iniciar atendimento por esse
         canal;
@@ -99,13 +104,16 @@ export const PrivacyPolicyContent: React.FC = () => (
 
     <h4 className={headingClass}>5. Prazo de conservação</h4>
     <p>
-      Mantemos os dados somente pelo tempo necessário para atender a solicitação,
-      executar a relação comercial, preservar o histórico de criação e cumprir
-      obrigações legais. Depois desse período, eles poderão ser eliminados ou
-      anonimizados, salvo quando a conservação for permitida ou exigida por lei.
+      Mantemos os dados somente pelo tempo necessário para atender a
+      solicitação, executar a relação comercial, preservar o histórico de
+      criação e cumprir obrigações legais. Depois desse período, eles poderão
+      ser eliminados ou anonimizados, salvo quando a conservação for permitida
+      ou exigida por lei.
     </p>
 
-    <h4 className={headingClass}>6. Cookies, recursos técnicos e links externos</h4>
+    <h4 className={headingClass}>
+      6. Cookies, recursos técnicos e links externos
+    </h4>
     <p>
       O site utiliza recursos técnicos necessários para navegação, segurança e
       envio dos formulários. Não utilizamos os dados dos formulários para vender
@@ -134,10 +142,11 @@ export const PrivacyPolicyContent: React.FC = () => (
     <h4 className={headingClass}>9. Como falar sobre seus dados</h4>
     <p>
       Para exercer direitos ou esclarecer dúvidas sobre privacidade, entre em
-      contato pelo e-mail <strong className="text-white">{siteConfig.company.email}</strong>{" "}
-      ou pelo WhatsApp oficial {siteConfig.company.whatsappFormatted}. Podemos
-      solicitar informações adicionais para confirmar a identidade do
-      solicitante e proteger os dados envolvidos.
+      contato pelo e-mail{" "}
+      <strong className="text-white">{siteConfig.company.email}</strong> ou pelo
+      WhatsApp oficial {siteConfig.company.whatsappFormatted}. Podemos solicitar
+      informações adicionais para confirmar a identidade do solicitante e
+      proteger os dados envolvidos.
     </p>
 
     <h4 className={headingClass}>10. Atualizações desta Política</h4>

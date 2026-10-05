@@ -18,6 +18,9 @@ jobs:
     name: Gerar e publicar site
     runs-on: ubuntu-latest
     environment: production
+    env:
+      VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || secrets.SUPABASE_URL || vars.VITE_SUPABASE_URL }}
+      VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY || secrets.SUPABASE_PUBLISHABLE_KEY || secrets.VITE_SUPABASE_ANON_KEY || secrets.SUPABASE_ANON_KEY || vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
 
     steps:
       - name: Baixar o código
@@ -35,11 +38,14 @@ jobs:
       - name: Verificar TypeScript
         run: npm run lint
 
+      - name: Validar configuração do Supabase
+        shell: bash
+        run: |
+          test -n "$VITE_SUPABASE_URL" || { echo "VITE_SUPABASE_URL não configurada nos Secrets ou Variables do GitHub."; exit 1; }
+          test -n "$VITE_SUPABASE_PUBLISHABLE_KEY" || { echo "VITE_SUPABASE_PUBLISHABLE_KEY não configurada nos Secrets ou Variables do GitHub."; exit 1; }
+
       - name: Gerar site de produção
         run: npm run build
-        env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
 
       - name: Publicar na HostGator por FTPS
         uses: SamKirkland/FTP-Deploy-Action@v4.4.0

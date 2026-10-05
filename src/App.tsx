@@ -27,12 +27,30 @@ export default function App() {
       <Route path="/admin" element={<AdminRequestsPage />} />
       <Route path="/admin/solicitacoes" element={<AdminRequestsPage />} />
       <Route path="/solicitar-video" element={<BusinessDirectoryPage />} />
-      <Route path="/solicitar-video/novo-negocio" element={<BusinessRegistrationPage />} />
-      <Route path="/solicitar-video/negocio/:businessId" element={<BusinessDetailPage />} />
-      <Route path="/solicitar-video/novo-comercio" element={<BusinessRegistrationPage />} />
-      <Route path="/solicitar-video/comercio/:businessId" element={<BusinessDetailPage />} />
-      <Route path="/solicitar-video/novo-cliente" element={<BusinessRegistrationPage />} />
-      <Route path="/solicitar-video/cliente-atual" element={<BusinessDirectoryPage />} />
+      <Route
+        path="/solicitar-video/novo-negocio"
+        element={<BusinessRegistrationPage />}
+      />
+      <Route
+        path="/solicitar-video/negocio/:businessId"
+        element={<BusinessDetailPage />}
+      />
+      <Route
+        path="/solicitar-video/novo-comercio"
+        element={<BusinessRegistrationPage />}
+      />
+      <Route
+        path="/solicitar-video/comercio/:businessId"
+        element={<BusinessDetailPage />}
+      />
+      <Route
+        path="/solicitar-video/novo-cliente"
+        element={<BusinessRegistrationPage />}
+      />
+      <Route
+        path="/solicitar-video/cliente-atual"
+        element={<BusinessDirectoryPage />}
+      />
       <Route path="/solicitar-arte" element={<BusinessDirectoryPage />} />
       <Route path="/politica-de-privacidade" element={<PrivacyPolicyPage />} />
       <Route path="*" element={<HomePage />} />

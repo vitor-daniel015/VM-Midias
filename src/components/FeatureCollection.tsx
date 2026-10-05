@@ -56,7 +56,9 @@ export const FeatureCollection: React.FC<FeatureCollectionProps> = ({
 
   const goTo = (index: number) => {
     const nextIndex = Math.max(0, Math.min(items.length - 1, index));
-    const target = trackRef.current?.children[nextIndex] as HTMLElement | undefined;
+    const target = trackRef.current?.children[nextIndex] as
+      | HTMLElement
+      | undefined;
 
     target?.scrollIntoView({
       behavior: "smooth",
@@ -109,7 +111,10 @@ export const FeatureCollection: React.FC<FeatureCollectionProps> = ({
           <ChevronLeft className="h-5 w-5" />
         </button>
 
-        <div className="flex items-center gap-2" aria-label="Posição do carrossel">
+        <div
+          className="flex items-center gap-2"
+          aria-label="Posição do carrossel"
+        >
           {items.map((item, index) => (
             <button
               key={item.id}

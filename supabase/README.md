@@ -8,10 +8,11 @@
 4. Em instalações existentes, execute `migrations/202609300002_limit_video_request_assets.sql` para limitar novos pedidos a cinco arquivos.
 5. Execute `migrations/202610010001_business_portal.sql` para criar os comércios, os vínculos dos pedidos e o bucket de imagens comerciais.
 6. Execute `migrations/202610010002_cleanup_video_requests.sql` para migrar pedidos antigos e remover as colunas que não pertencem mais ao novo formulário.
-7. Execute `migrations/202610010003_secure_business_access.sql` para ativar PIN, funções seguras e remover a atualização pública direta.
-8. Teste `/solicitar-video`, `/solicitar-video/novo-negocio` e a página de um negócio.
-9. Confira os registros em **Table Editor → businesses** e **Table Editor → video_requests**.
-10. Confira os arquivos em **Storage → business-assets** e **Storage → video-request-assets**.
+7. Execute `migrations/202610010003_secure_business_access.sql` para instalar as funções validadas do portal.
+8. Execute `migrations/202610050001_remove_business_pin.sql` para remover o PIN dos fluxos de cadastro, edição e solicitação.
+9. Teste `/solicitar-video`, `/solicitar-video/novo-negocio` e a página de um negócio.
+10. Confira os registros em **Table Editor → businesses** e **Table Editor → video_requests**.
+11. Confira os arquivos em **Storage → business-assets** e **Storage → video-request-assets**.
 
 ## Variáveis de ambiente
 
@@ -79,16 +80,12 @@ business-assets/negocios/<uuid-do-negocio>/
 Cada arquivo aceita no máximo 25 MB. O cadastro e cada alteração permitem até
 cinco imagens PNG, JPG, WEBP ou SVG. Um negócio pode manter até dez imagens.
 
-## Segurança das alterações
+## Alterações dos negócios
 
-Cada novo negócio cria um PIN numérico de quatro dígitos. O Supabase armazena
-somente o hash bcrypt desse PIN. A página pública não recebe o hash e não possui
-permissão para atualizar diretamente a tabela. As alterações passam pela função
-`update_business_secure`, que valida o PIN dentro do banco. Novas solicitações
-também passam por `create_video_request_secure` e exigem o mesmo PIN.
-
-Negócios cadastrados antes da migração de segurança não possuem PIN. O
-administrador deve abrir o negócio no painel e usar **Salvar PIN** uma vez.
+O fluxo público não utiliza PIN. Cadastros, alterações e novas solicitações passam
+por funções do banco que validam os campos obrigatórios, a quantidade de imagens
+e a existência do negócio relacionado. O painel administrativo continua protegido
+por autenticação do Supabase.
 
 ## Segurança e n8n
 
