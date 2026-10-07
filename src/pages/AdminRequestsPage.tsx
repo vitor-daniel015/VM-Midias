@@ -178,7 +178,11 @@ export function AdminRequestsPage() {
           ? reason.message
           : "Não foi possível carregar o painel.";
       setError(message);
-      if (message.includes("sessão")) {
+      if (
+        message.includes("sessão") ||
+        message.includes("administrativ") ||
+        message.includes("permissão")
+      ) {
         clearAdminSession();
         setSession(null);
       }

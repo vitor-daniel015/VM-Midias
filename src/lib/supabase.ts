@@ -286,6 +286,32 @@ export function clearAdminSession() {
   localStorage.removeItem(ADMIN_SESSION_KEY);
 }
 
+async function assertAdminAccess(accessToken: string) {
+  const response = await fetch(`${supabaseUrl}/rest/v1/rpc/is_vm_admin`, {
+    method: "POST",
+    headers: {
+      apikey: supabasePublishableKey,
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: "{}",
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    if (response.status === 404) {
+      throw new Error(
+        "A proteção administrativa ainda não foi instalada no Supabase.",
+      );
+    }
+    throw new Error("Não foi possível verificar a permissão administrativa.");
+  }
+
+  if ((await response.json()) !== true) {
+    throw new Error("Este usuário não possui acesso administrativo.");
+  }
+}
+
 export async function signInAdmin(email: string, password: string) {
   const response = await fetch(
     `${supabaseUrl}/auth/v1/token?grant_type=password`,
@@ -320,6 +346,7 @@ export async function signInAdmin(email: string, password: string) {
     expires_at: Math.floor(Date.now() / 1000) + Number(result.expires_in || 3600),
     user: result.user,
   };
+  await assertAdminAccess(session.access_token);
   localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(session));
   return session;
 }
@@ -349,12 +376,16 @@ export async function refreshAdminSession(session: AdminSession) {
     expires_at: Math.floor(Date.now() / 1000) + Number(result.expires_in || 3600),
     user: result.user,
   };
+  await assertAdminAccess(refreshed.access_token);
   localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(refreshed));
   return refreshed;
 }
 
 export async function ensureAdminSession(session: AdminSession) {
-  if (session.expires_at > Math.floor(Date.now() / 1000) + 60) return session;
+  if (session.expires_at > Math.floor(Date.now() / 1000) + 60) {
+    await assertAdminAccess(session.access_token);
+    return session;
+  }
   return refreshAdminSession(session);
 }
 

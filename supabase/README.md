@@ -12,9 +12,10 @@
 8. Execute `migrations/202610050001_remove_business_pin.sql` para remover o PIN dos fluxos de cadastro, edição e solicitação.
 9. Execute `migrations/202610060001_delete_business_assets_admin.sql` para permitir a exclusão autenticada de imagens antigas pelo painel.
 10. Execute `migrations/202610060002_add_business_instagram.sql` para adicionar o Instagram aos dados do negócio.
-11. Teste `/solicitar-video`, `/solicitar-video/novo-negocio` e a página de um negócio.
-12. Confira os registros em **Table Editor → businesses** e **Table Editor → video_requests**.
-13. Confira os arquivos em **Storage → business-assets** e **Storage → video-request-assets**.
+11. Execute `migrations/202610070001_harden_admin_access.sql` para restringir o painel aos administradores autorizados.
+12. Teste `/solicitar-video`, `/solicitar-video/novo-negocio` e a página de um negócio.
+13. Confira os registros em **Table Editor → businesses** e **Table Editor → video_requests**.
+14. Confira os arquivos em **Storage → business-assets** e **Storage → video-request-assets**.
 
 ## Variáveis de ambiente
 
@@ -43,6 +44,16 @@ Para ativá-lo:
 2. Em **Authentication → Users**, crie o usuário administrador com e-mail e senha.
 3. Em **Authentication → Providers → Email**, mantenha desativado o cadastro público de novos usuários.
 4. Entre no painel usando esse usuário.
+
+A migração `202610070001_harden_admin_access.sql` adiciona à lista administrativa
+os usuários que já existem no momento em que ela é executada. Para autorizar um
+novo usuário criado posteriormente, execute no SQL Editor:
+
+```sql
+insert into public.admin_users (user_id)
+select id from auth.users where email = 'email-do-administrador@exemplo.com'
+on conflict (user_id) do nothing;
+```
 
 O navegador usa apenas a chave publicável. O login gera uma sessão de usuário
 autenticado e a leitura continua protegida pelas políticas RLS. A `service_role`
