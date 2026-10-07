@@ -11,10 +11,12 @@ import {
   LogOut,
   RefreshCw,
   Search,
+  Trash2,
 } from "lucide-react";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { VMLogo } from "../components/VMLogo";
 import VIDEO_CREATION_PROMPT from "../data/videoCreationPrompt.txt?raw";
+import VISUAL_KEY_PROMPT from "../data/visualKeyPrompt.txt?raw";
 import {
   AdminSession,
   BusinessRecord,
@@ -23,6 +25,7 @@ import {
   businessAssetsBucket,
   clearAdminSession,
   createSignedAssetUrl,
+  deleteBusinessAsset,
   ensureAdminSession,
   getStoredAdminSession,
   listBusinessesAdmin,
@@ -83,6 +86,7 @@ function requestJson(
       id: business.id,
       nome: business.name,
       whatsapp: business.whatsapp,
+      instagram: business.instagram,
       endereco: business.address,
       segmento: business.segment,
       descricao: business.description,
@@ -115,6 +119,28 @@ function requestJson(
       solicitado_em: request.created_at,
     },
     prompt_para_ia: VIDEO_CREATION_PROMPT.trim(),
+  });
+}
+
+function visualKeyJson(business: BusinessRecord) {
+  return compact({
+    negocio: {
+      id: business.id,
+      nome: business.name,
+      whatsapp: business.whatsapp,
+      instagram: business.instagram,
+      endereco: business.address,
+      segmento: business.segment,
+      descricao: business.description,
+      imagens: business.assets.map((asset) => ({
+        nome: asset.name,
+        caminho_bucket: `${businessAssetsBucket}/${asset.path}`,
+        url: publicBusinessAssetUrl(asset.path),
+        tipo: asset.mime_type,
+      })),
+      cadastrado_em: business.created_at,
+    },
+    prompt_para_visual_key: VISUAL_KEY_PROMPT.trim(),
   });
 }
 
@@ -299,6 +325,13 @@ export function AdminRequestsPage() {
             group={selected}
             session={session}
             onBack={() => setSelectedId("")}
+            onBusinessUpdated={(updated) =>
+              setBusinesses((current) =>
+                current.map((business) =>
+                  business.id === updated.id ? updated : business,
+                ),
+              )
+            }
           />
         )}
       </main>
@@ -353,12 +386,55 @@ function BusinessAdminDetail({
   group,
   session,
   onBack,
+  onBusinessUpdated,
 }: {
   group: BusinessGroup;
   session: AdminSession;
   onBack: () => void;
+  onBusinessUpdated: (business: BusinessRecord) => void;
 }) {
   const business = group.business;
+  const [visualKeyCopied, setVisualKeyCopied] = useState(false);
+  const [visualKeyError, setVisualKeyError] = useState("");
+  const [deletingAssetPath, setDeletingAssetPath] = useState("");
+  const [assetDeleteError, setAssetDeleteError] = useState("");
+  const copyVisualKeyJson = async () => {
+    setVisualKeyError("");
+    try {
+      await navigator.clipboard.writeText(
+        JSON.stringify(visualKeyJson(business), null, 2),
+      );
+      setVisualKeyCopied(true);
+      window.setTimeout(() => setVisualKeyCopied(false), 1800);
+    } catch {
+      setVisualKeyError("Não foi possível copiar o JSON para a área de transferência.");
+    }
+  };
+  const removeAsset = async (asset: UploadedAsset) => {
+    const confirmed = window.confirm(
+      `Deseja realmente excluir a imagem “${asset.name}”? Esta ação não poderá ser desfeita.`,
+    );
+    if (!confirmed) return;
+
+    setDeletingAssetPath(asset.path);
+    setAssetDeleteError("");
+    try {
+      await deleteBusinessAsset(session.access_token, business.id, asset.path);
+      onBusinessUpdated({
+        ...business,
+        assets: business.assets.filter((item) => item.path !== asset.path),
+        updated_at: new Date().toISOString(),
+      });
+    } catch (reason) {
+      setAssetDeleteError(
+        reason instanceof Error
+          ? reason.message
+          : "Não foi possível excluir esta imagem.",
+      );
+    } finally {
+      setDeletingAssetPath("");
+    }
+  };
   return (
     <section className="mt-7">
       <button
@@ -369,38 +445,63 @@ function BusinessAdminDetail({
         Todos os negócios
       </button>
       <div className="mt-5 rounded-2xl border border-white/12 bg-[#0c0e12] p-5 sm:p-7">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-          <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-black/30">
-            {business.assets[0] ? (
-              <img
-                src={publicBusinessAssetUrl(business.assets[0].path)}
-                alt=""
-                className="h-full w-full object-contain p-2"
-              />
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+            <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-black/30">
+              {business.assets[0] ? (
+                <img
+                  src={publicBusinessAssetUrl(business.assets[0].path)}
+                  alt=""
+                  className="h-full w-full object-contain p-2"
+                />
+              ) : (
+                <Building2 className="h-8 w-8 text-white/30" />
+              )}
+            </div>
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-[#ff3155]">
+                Negócio
+              </p>
+              <h2 className="mt-1 text-3xl font-black sm:text-4xl">
+                {business.name}
+              </h2>
+              <p className="mt-2 text-sm text-white/50">
+                {[business.segment, business.whatsapp, business.instagram, business.address]
+                  .filter(Boolean)
+                  .join(" · ")}
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => void copyVisualKeyJson()}
+            className="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-lg bg-[#f40b36] px-5 text-center text-xs font-black uppercase leading-tight tracking-[0.08em] transition hover:bg-[#ff3155]"
+          >
+            {visualKeyCopied ? (
+              <Check className="h-4 w-4" />
             ) : (
-              <Building2 className="h-8 w-8 text-white/30" />
+              <Clipboard className="h-4 w-4" />
             )}
-          </div>
-          <div>
-            <p className="text-xs font-black uppercase tracking-[0.16em] text-[#ff3155]">
-              Negócio
-            </p>
-            <h2 className="mt-1 text-3xl font-black sm:text-4xl">
-              {business.name}
-            </h2>
-            <p className="mt-2 text-sm text-white/50">
-              {[business.segment, business.whatsapp, business.address]
-                .filter(Boolean)
-                .join(" · ")}
-            </p>
-          </div>
+            {visualKeyCopied ? "JSON copiado" : "Copiar JSON para Visual Key"}
+          </button>
         </div>
+        {visualKeyError && (
+          <p className="mt-4 text-sm text-red-300">{visualKeyError}</p>
+        )}
         {business.description && (
           <p className="mt-6 border-t border-white/10 pt-5 text-sm leading-7 text-white/60">
             {business.description}
           </p>
         )}
-        <AssetGallery assets={business.assets} publicAssets />
+        <AssetGallery
+          assets={business.assets}
+          publicAssets
+          deletingPath={deletingAssetPath}
+          onDelete={(asset) => void removeAsset(asset)}
+        />
+        {assetDeleteError && (
+          <p className="mt-4 text-sm text-red-300">{assetDeleteError}</p>
+        )}
       </div>
       <h3 className="mt-8 text-2xl font-black">Solicitações deste negócio</h3>
       {group.requests.length ? (
@@ -527,10 +628,14 @@ function AssetGallery({
   assets,
   accessToken,
   publicAssets = false,
+  deletingPath = "",
+  onDelete,
 }: {
   assets: UploadedAsset[];
   accessToken?: string;
   publicAssets?: boolean;
+  deletingPath?: string;
+  onDelete?: (asset: UploadedAsset) => void;
 }) {
   const [urls, setUrls] = useState<Record<string, string>>(() =>
     publicAssets
@@ -588,6 +693,21 @@ function AssetGallery({
                 <Download className="h-3.5 w-3.5" />
                 Baixar
               </a>
+            )}
+            {onDelete && (
+              <button
+                type="button"
+                onClick={() => onDelete(asset)}
+                disabled={Boolean(deletingPath)}
+                className="mt-2 inline-flex h-8 w-full items-center justify-center gap-2 rounded-lg border border-red-400/25 bg-red-400/10 text-[10px] font-black uppercase text-red-200 transition hover:border-red-400/60 hover:bg-red-400/15 disabled:cursor-wait disabled:opacity-50"
+              >
+                {deletingPath === asset.path ? (
+                  <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Trash2 className="h-3.5 w-3.5" />
+                )}
+                {deletingPath === asset.path ? "Excluindo" : "Excluir imagem"}
+              </button>
             )}
           </div>
         );

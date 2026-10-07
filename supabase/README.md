@@ -10,9 +10,11 @@
 6. Execute `migrations/202610010002_cleanup_video_requests.sql` para migrar pedidos antigos e remover as colunas que não pertencem mais ao novo formulário.
 7. Execute `migrations/202610010003_secure_business_access.sql` para instalar as funções validadas do portal.
 8. Execute `migrations/202610050001_remove_business_pin.sql` para remover o PIN dos fluxos de cadastro, edição e solicitação.
-9. Teste `/solicitar-video`, `/solicitar-video/novo-negocio` e a página de um negócio.
-10. Confira os registros em **Table Editor → businesses** e **Table Editor → video_requests**.
-11. Confira os arquivos em **Storage → business-assets** e **Storage → video-request-assets**.
+9. Execute `migrations/202610060001_delete_business_assets_admin.sql` para permitir a exclusão autenticada de imagens antigas pelo painel.
+10. Execute `migrations/202610060002_add_business_instagram.sql` para adicionar o Instagram aos dados do negócio.
+11. Teste `/solicitar-video`, `/solicitar-video/novo-negocio` e a página de um negócio.
+12. Confira os registros em **Table Editor → businesses** e **Table Editor → video_requests**.
+13. Confira os arquivos em **Storage → business-assets** e **Storage → video-request-assets**.
 
 ## Variáveis de ambiente
 

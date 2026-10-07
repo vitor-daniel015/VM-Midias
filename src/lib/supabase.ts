@@ -45,6 +45,7 @@ export type BusinessPayload = {
   id: string;
   name: string;
   whatsapp: string | null;
+  instagram: string | null;
   address: string | null;
   segment: string;
   description: string | null;
@@ -190,6 +191,7 @@ export async function createBusiness(payload: BusinessPayload) {
       p_id: payload.id,
       p_name: payload.name,
       p_whatsapp: payload.whatsapp,
+      p_instagram: payload.instagram,
       p_address: payload.address,
       p_segment: payload.segment,
       p_description: payload.description,
@@ -227,6 +229,7 @@ export async function updateBusiness(
       p_business_id: id,
       p_name: payload.name,
       p_whatsapp: payload.whatsapp,
+      p_instagram: payload.instagram,
       p_address: payload.address,
       p_segment: payload.segment,
       p_description: payload.description,
@@ -380,12 +383,57 @@ export async function listVideoRequests(accessToken: string) {
 }
 
 export async function listBusinessesAdmin(accessToken: string) {
-  const response = await fetch(`${supabaseUrl}/rest/v1/businesses?select=id,name,whatsapp,address,segment,description,assets,consent,created_at,updated_at&order=name.asc`, {
+  const response = await fetch(`${supabaseUrl}/rest/v1/businesses?select=id,name,whatsapp,instagram,address,segment,description,assets,consent,created_at,updated_at&order=name.asc`, {
     headers: authenticatedHeaders(accessToken),
     cache: "no-store",
   });
   if (!response.ok) throw new Error("Não foi possível carregar os negócios no painel.");
   return (await response.json()) as BusinessRecord[];
+}
+
+export async function deleteBusinessAsset(
+  accessToken: string,
+  businessId: string,
+  assetPath: string,
+) {
+  const metadataResponse = await fetch(
+    `${supabaseUrl}/rest/v1/rpc/remove_business_asset_admin`,
+    {
+      method: "POST",
+      headers: {
+        ...authenticatedHeaders(accessToken),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        p_business_id: businessId,
+        p_asset_path: assetPath,
+      }),
+    },
+  );
+
+  if (!metadataResponse.ok) {
+    if (metadataResponse.status === 401) {
+      throw new Error("Sua sessão expirou. Entre novamente.");
+    }
+    if (metadataResponse.status === 404) {
+      throw new Error(
+        "A exclusão ainda não foi ativada no Supabase. Execute a migração 202610060001_delete_business_assets_admin.sql.",
+      );
+    }
+    throw new Error("Não foi possível excluir esta imagem do negócio.");
+  }
+
+  const storageResponse = await fetch(
+    `${supabaseUrl}/storage/v1/object/${BUSINESS_ASSETS_BUCKET}/${encodeStoragePath(assetPath)}`,
+    {
+      method: "DELETE",
+      headers: authenticatedHeaders(accessToken),
+    },
+  );
+
+  if (!storageResponse.ok && storageResponse.status !== 404) {
+    console.warn("A imagem saiu do cadastro, mas o arquivo não pôde ser removido do Storage.");
+  }
 }
 
 export async function createSignedAssetUrl(

@@ -251,6 +251,7 @@ function BusinessCard({ business }: { business: BusinessRecord }) {
 type BusinessFormState = {
   name: string;
   whatsapp: string;
+  instagram: string;
   address: string;
   segment: string;
   description: string;
@@ -259,6 +260,7 @@ type BusinessFormState = {
 const emptyBusiness: BusinessFormState = {
   name: "",
   whatsapp: "",
+  instagram: "",
   address: "",
   segment: "",
   description: "",
@@ -296,6 +298,7 @@ export function BusinessRegistrationPage() {
         id,
         name: form.name.trim(),
         whatsapp: clean(form.whatsapp),
+        instagram: clean(form.instagram),
         address: clean(form.address),
         segment: form.segment.trim(),
         description: clean(form.description),
@@ -354,7 +357,7 @@ export function BusinessRegistrationPage() {
             className="brand-panel rounded-2xl p-5 sm:p-8"
           >
             <div className="grid gap-5 sm:grid-cols-2">
-              <label className={labelClass}>
+              <label className={`${labelClass} sm:col-span-2`}>
                 Nome do negócio *
                 <input
                   required
@@ -379,6 +382,18 @@ export function BusinessRegistrationPage() {
                 />
               </label>
               <label className={labelClass}>
+                Endereço (caso seja físico)
+                <input
+                  maxLength={300}
+                  value={form.address}
+                  onChange={(e) =>
+                    setForm({ ...form, address: e.target.value })
+                  }
+                  className={inputClass}
+                  placeholder="Rua, número e bairro"
+                />
+              </label>
+              <label className={labelClass}>
                 WhatsApp
                 <input
                   maxLength={30}
@@ -391,15 +406,15 @@ export function BusinessRegistrationPage() {
                 />
               </label>
               <label className={labelClass}>
-                Endereço (caso seja físico)
+                Instagram
                 <input
-                  maxLength={300}
-                  value={form.address}
+                  maxLength={120}
+                  value={form.instagram}
                   onChange={(e) =>
-                    setForm({ ...form, address: e.target.value })
+                    setForm({ ...form, instagram: e.target.value })
                   }
                   className={inputClass}
-                  placeholder="Rua, número e bairro"
+                  placeholder="@nomedonegocio"
                 />
               </label>
             </div>
@@ -481,6 +496,7 @@ export function BusinessDetailPage() {
           setEditForm({
             name: found.name,
             whatsapp: found.whatsapp || "",
+            instagram: found.instagram || "",
             address: found.address || "",
             segment: found.segment,
             description: found.description || "",
@@ -533,6 +549,7 @@ export function BusinessDetailPage() {
       const patch = {
         name: editForm.name.trim(),
         whatsapp: clean(editForm.whatsapp),
+        instagram: clean(editForm.instagram),
         address: clean(editForm.address),
         segment: editForm.segment.trim(),
         description: clean(editForm.description),
@@ -679,7 +696,7 @@ export function BusinessDetailPage() {
           {editing && (
             <div className="mt-7 border-t border-white/10 pt-7">
               <div className="grid gap-5 sm:grid-cols-2">
-                <label className={labelClass}>
+                <label className={`${labelClass} sm:col-span-2`}>
                   Nome do negócio *
                   <input
                     required
@@ -702,6 +719,16 @@ export function BusinessDetailPage() {
                   />
                 </label>
                 <label className={labelClass}>
+                  Endereço
+                  <input
+                    value={editForm.address}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, address: e.target.value })
+                    }
+                    className={inputClass}
+                  />
+                </label>
+                <label className={labelClass}>
                   WhatsApp
                   <input
                     value={editForm.whatsapp}
@@ -712,13 +739,15 @@ export function BusinessDetailPage() {
                   />
                 </label>
                 <label className={labelClass}>
-                  Endereço
+                  Instagram
                   <input
-                    value={editForm.address}
+                    maxLength={120}
+                    value={editForm.instagram}
                     onChange={(e) =>
-                      setEditForm({ ...editForm, address: e.target.value })
+                      setEditForm({ ...editForm, instagram: e.target.value })
                     }
                     className={inputClass}
+                    placeholder="@nomedonegocio"
                   />
                 </label>
               </div>
