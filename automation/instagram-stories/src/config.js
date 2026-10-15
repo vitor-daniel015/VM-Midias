@@ -57,6 +57,7 @@ export const config = {
   supabaseUrl: clean(process.env.SUPABASE_URL).replace(/\/$/, ""),
   supabaseServiceRoleKey: clean(process.env.SUPABASE_SERVICE_ROLE_KEY),
   storageBucket: clean(process.env.SUPABASE_STORY_BUCKET || "instagram-story-assets"),
+  remoteStatePath: clean(process.env.STORY_STATE_OBJECT_PATH || "automation/state.json"),
   signedUrlSeconds: numberFromEnv("STORY_SIGNED_URL_SECONDS", 3600, 600, 86400),
   metaApiVersion: clean(process.env.META_GRAPH_API_VERSION),
   instagramAccountId: clean(process.env.META_INSTAGRAM_ACCOUNT_ID),

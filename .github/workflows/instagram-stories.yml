@@ -28,7 +28,8 @@ jobs:
       STORY_MAX_AGE_HOURS: "48"
       STORY_MAX_PER_CYCLE: "1"
       STORY_FIRST_RUN_MODE: latest
-      STORY_PUBLISH_ENABLED: "false"
+      STORY_PUBLISH_ENABLED: "true"
+      STORY_STATE_OBJECT_PATH: automation/state.json
 
       SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
@@ -55,5 +56,5 @@ jobs:
       - name: Instalar Chromium
         run: npx playwright install chromium --with-deps
 
-      - name: Executar diagnostico
-        run: npm run doctor
+      - name: Publicar proxima noticia inedita
+        run: npm run once

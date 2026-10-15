@@ -6,7 +6,7 @@ values (
   'instagram-story-assets',
   false,
   10485760,
-  array['image/jpeg']
+  array['image/jpeg', 'application/json']
 )
 on conflict (id) do update
 set public = excluded.public,

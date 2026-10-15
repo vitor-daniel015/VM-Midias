@@ -42,7 +42,12 @@ function eligibleArticles(items, state) {
     .filter((item) => {
       const key = articleKey(item);
       const record = state.articles[key];
-      if (record && ["published", "ignored-bootstrap"].includes(record.status)) return false;
+      if (record && [
+        "published",
+        "ignored-bootstrap",
+        "publishing",
+        "needs-review",
+      ].includes(record.status)) return false;
       if (record && record.status === "captured" && !config.publishEnabled) return false;
       if (config.firstRunMode === "all") return true;
       const published = Number(item.published_at);
@@ -69,7 +74,7 @@ async function initializeState(items, state) {
     }
   }
   state.initialized = true;
-  await writeState(config.stateFile, state);
+  await writeState(config, state);
 }
 
 async function runDoctor() {
@@ -96,7 +101,8 @@ async function runDoctor() {
 }
 
 async function processCycle() {
-  const state = await readState(config.stateFile);
+  if (config.publishEnabled) await ensureStorageBucket(config);
+  const state = await readState(config);
   const renderer = await openRenderer(config);
   try {
     const items = await renderer.list();
@@ -111,11 +117,11 @@ async function processCycle() {
       return;
     }
 
-    if (config.publishEnabled) await ensureStorageBucket(config);
     for (const article of queue) {
       const key = articleKey(article);
       const output = captureFilePath(config, article);
       const previous = state.articles[key] || {};
+      let publicationStarted = false;
       try {
         if (!(await fileExists(output))) {
           log(`Gerando Story: ${article.title}`);
@@ -132,7 +138,7 @@ async function processCycle() {
           updatedAt: new Date().toISOString(),
         };
         state.articles[key] = record;
-        await writeState(config.stateFile, state);
+        await writeState(config, state);
 
         if (!config.publishEnabled) {
           log("Imagem salva. Publicação desativada para teste.");
@@ -141,6 +147,15 @@ async function processCycle() {
 
         const remotePath = objectPath(article, key);
         const signedUrl = await uploadStory(config, output, remotePath);
+        state.articles[key] = {
+          ...record,
+          status: "publishing",
+          storagePath: `${config.storageBucket}/${remotePath}`,
+          publicationStartedAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        await writeState(config, state);
+        publicationStarted = true;
         const published = await publishInstagramStory(config, signedUrl);
         state.articles[key] = {
           ...record,
@@ -151,18 +166,18 @@ async function processCycle() {
           publishedToInstagramAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
-        await writeState(config.stateFile, state);
+        await writeState(config, state);
         log(`Story publicado: ${article.title}`);
       } catch (error) {
         state.articles[key] = {
           ...(state.articles[key] || previous),
-          status: "failed",
+          status: publicationStarted ? "needs-review" : "failed",
           title: article.title,
           attempts: Number(previous.attempts || 0) + 1,
           lastError: error.message,
           updatedAt: new Date().toISOString(),
         };
-        await writeState(config.stateFile, state);
+        await writeState(config, state);
         console.error(`Falha em “${article.title}”: ${error.message}`);
       }
     }

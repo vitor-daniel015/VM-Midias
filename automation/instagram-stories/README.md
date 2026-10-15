@@ -99,6 +99,11 @@ O computador precisa estar ligado e conectado à internet. O bloqueio interno
 impede duas execuções simultâneas. Falhas ficam no histórico e são tentadas
 novamente; uma publicação confirmada nunca é repetida.
 
+No GitHub Actions, use `npm run once` com `STORY_PUBLISH_ENABLED=true`. O
+histórico fica no objeto privado `automation/state.json` do bucket do Supabase,
+portanto continua existindo entre as execuções. Uma tentativa cujo resultado na
+Meta seja incerto recebe o estado `needs-review` e não é repetida automaticamente.
+
 ## Variáveis principais
 
 - `STORY_PAGE_URL`: URL pública da tela da VM.
@@ -106,6 +111,7 @@ novamente; uma publicação confirmada nunca é repetida.
 - `STORY_MAX_AGE_HOURS`: idade máxima de uma notícia nova.
 - `STORY_MAX_PER_CYCLE`: proteção contra muitas publicações de uma vez.
 - `STORY_PUBLISH_ENABLED`: trava de segurança para publicar.
+- `STORY_STATE_OBJECT_PATH`: objeto privado usado como histórico persistente.
 - `SUPABASE_SERVICE_ROLE_KEY`: segredo apenas do processo local.
 - `META_ACCESS_TOKEN`: segredo apenas do processo local.
 
