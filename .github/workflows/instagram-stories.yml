@@ -3,6 +3,11 @@ name: Radio Braba - Stories
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/story-production-trigger
   schedule:
     - cron: "3,13,23,33,43,53 * * * *"
 
