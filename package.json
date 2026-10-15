@@ -8,7 +8,12 @@
     "build": "vite build",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "stories:install": "npm --prefix automation/instagram-stories install",
+    "stories:browser": "npm --prefix automation/instagram-stories run install-browser",
+    "stories:doctor": "npm --prefix automation/instagram-stories run doctor",
+    "stories:once": "npm --prefix automation/instagram-stories run once",
+    "stories:start": "npm --prefix automation/instagram-stories start"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.14",

@@ -527,3 +527,10 @@ https://SEU-DOMINIO/VM/index.html?view=noticias&screen=teste-01&troca=20
 ### Erro 404 em `/vm-api`
 
 A versão deste pacote não precisa de `/vm-api`. Remova qualquer parâmetro `api` da URL. A URL padrão deve conter apenas `view`, `screen` e, na tela de notícias, opcionalmente `troca`.
+
+## Automação de notícias para Stories
+
+O projeto inclui uma automação local que reaproveita exatamente a tela vertical
+de notícias, gera imagens em 1080 × 1920, evita duplicatas e publica pela API
+oficial da Meta. A instalação, as variáveis secretas e o modo seguro de teste
+estão documentados em `automation/instagram-stories/README.md`.

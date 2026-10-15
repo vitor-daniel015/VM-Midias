@@ -13,9 +13,10 @@
 9. Execute `migrations/202610060001_delete_business_assets_admin.sql` para permitir a exclusão autenticada de imagens antigas pelo painel.
 10. Execute `migrations/202610060002_add_business_instagram.sql` para adicionar o Instagram aos dados do negócio.
 11. Execute `migrations/202610070001_harden_admin_access.sql` para restringir o painel aos administradores autorizados.
-12. Teste `/solicitar-video`, `/solicitar-video/novo-negocio` e a página de um negócio.
-13. Confira os registros em **Table Editor → businesses** e **Table Editor → video_requests**.
-14. Confira os arquivos em **Storage → business-assets** e **Storage → video-request-assets**.
+12. Para a automação de Stories, execute `migrations/202610140001_instagram_story_assets.sql`.
+13. Teste `/solicitar-video`, `/solicitar-video/novo-negocio` e a página de um negócio.
+14. Confira os registros em **Table Editor → businesses** e **Table Editor → video_requests**.
+15. Confira os arquivos em **Storage → business-assets** e **Storage → video-request-assets**.
 
 ## Variáveis de ambiente
 
