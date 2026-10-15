@@ -1,0 +1,58 @@
+
+name: Radio Braba - Stories
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/10 * * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: radio-braba-stories
+  cancel-in-progress: false
+
+jobs:
+  stories:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    defaults:
+      run:
+        working-directory: automation/instagram-stories
+
+    env:
+      STORY_PAGE_URL: https://vmmidias.com.br/VM/index.html?view=noticias
+      STORY_CHECK_INTERVAL_MINUTES: "10"
+      STORY_MAX_AGE_HOURS: "48"
+      STORY_MAX_PER_CYCLE: "1"
+      STORY_FIRST_RUN_MODE: latest
+      STORY_PUBLISH_ENABLED: "true"
+
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      SUPABASE_STORY_BUCKET: ${{ secrets.SUPABASE_STORY_BUCKET }}
+      STORY_SIGNED_URL_SECONDS: "3600"
+
+      META_GRAPH_API_VERSION: ${{ secrets.META_GRAPH_API_VERSION }}
+      META_INSTAGRAM_ACCOUNT_ID: ${{ secrets.META_INSTAGRAM_ACCOUNT_ID }}
+      META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
+
+    steps:
+      - name: Baixar projeto
+        uses: actions/checkout@v4
+
+      - name: Instalar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Instalar Chromium
+        run: npx playwright install chromium --with-deps
+
+      - name: Executar diagnostico
+        run: npm run doctor
