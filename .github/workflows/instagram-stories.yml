@@ -28,7 +28,7 @@ jobs:
       STORY_MAX_AGE_HOURS: "48"
       STORY_MAX_PER_CYCLE: "1"
       STORY_FIRST_RUN_MODE: latest
-      STORY_PUBLISH_ENABLED: "true"
+      STORY_PUBLISH_ENABLED: "false"
 
       SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
@@ -37,6 +37,7 @@ jobs:
 
       META_GRAPH_API_VERSION: ${{ secrets.META_GRAPH_API_VERSION }}
       META_INSTAGRAM_ACCOUNT_ID: ${{ secrets.META_INSTAGRAM_ACCOUNT_ID }}
+      META_EXPECTED_USERNAME: radiobraba
       META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
 
     steps:

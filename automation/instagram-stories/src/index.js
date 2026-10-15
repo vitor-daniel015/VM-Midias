@@ -1,6 +1,10 @@
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { config, validatePublishingConfig } from "./config.js";
+import {
+  config,
+  validateMetaDiagnosticConfig,
+  validatePublishingConfig,
+} from "./config.js";
 import { articleKey, captureFilePath, openRenderer } from "./capture.js";
 import { inspectInstagramAccount, publishInstagramStory } from "./meta.js";
 import { ensureStorageBucket, uploadStory } from "./storage.js";
@@ -69,7 +73,7 @@ async function initializeState(items, state) {
 }
 
 async function runDoctor() {
-  validatePublishingConfig();
+  validateMetaDiagnosticConfig();
   log(`Abrindo a arte em ${config.storyPageUrl}`);
   const renderer = await openRenderer(config);
   try {
@@ -83,13 +87,11 @@ async function runDoctor() {
     await renderer.close();
   }
 
-  if (!config.publishEnabled) {
-    log("Captura aprovada. A publicação continua desativada (STORY_PUBLISH_ENABLED=false).");
-    return;
-  }
-  await ensureStorageBucket(config);
   const account = await inspectInstagramAccount(config);
-  log(`Conta da Meta aprovada: @${account.username || account.id} (${account.account_type || "profissional"}).`);
+  log(`Conta da Meta aprovada: @${account.username} (ID conferido).`);
+  if (!config.publishEnabled) {
+    log("Publicação desativada (STORY_PUBLISH_ENABLED=false). Nenhum Story foi publicado.");
+  }
   log("Diagnóstico concluído. Nenhum Story foi publicado.");
 }
 

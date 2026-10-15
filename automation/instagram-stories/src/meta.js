@@ -5,13 +5,15 @@ async function graphRequest(config, path, { method = "GET", fields, body } = {})
     `${config.metaGraphBaseUrl || "https://graph.facebook.com"}/${config.metaApiVersion}/${path}`,
   );
   if (fields) url.searchParams.set("fields", fields);
-  if (method === "GET") url.searchParams.set("access_token", config.metaAccessToken);
 
   const response = await fetch(url, {
     method,
-    headers: method === "POST" ? { "Content-Type": "application/x-www-form-urlencoded" } : undefined,
+    headers: {
+      Authorization: `Bearer ${config.metaAccessToken}`,
+      ...(method === "POST" ? { "Content-Type": "application/x-www-form-urlencoded" } : {}),
+    },
     body: method === "POST"
-      ? new URLSearchParams({ ...body, access_token: config.metaAccessToken })
+      ? new URLSearchParams(body)
       : undefined,
   });
   const payload = await response.json().catch(() => ({}));
@@ -25,9 +27,23 @@ async function graphRequest(config, path, { method = "GET", fields, body } = {})
 }
 
 export async function inspectInstagramAccount(config) {
-  return graphRequest(config, config.instagramAccountId, {
-    fields: "id,username,account_type",
+  const account = await graphRequest(config, config.instagramAccountId, {
+    fields: "id,username",
   });
+
+  if (String(account.id || "") !== String(config.instagramAccountId)) {
+    throw new Error("A Meta devolveu uma conta diferente de META_INSTAGRAM_ACCOUNT_ID.");
+  }
+
+  const username = String(account.username || "").replace(/^@/, "").toLowerCase();
+  const expectedUsername = String(config.metaExpectedUsername || "radiobraba")
+    .replace(/^@/, "")
+    .toLowerCase();
+  if (username !== expectedUsername) {
+    throw new Error(`A conta da Meta não corresponde a @${expectedUsername}.`);
+  }
+
+  return account;
 }
 
 export async function publishInstagramStory(config, imageUrl) {

@@ -60,8 +60,24 @@ export const config = {
   signedUrlSeconds: numberFromEnv("STORY_SIGNED_URL_SECONDS", 3600, 600, 86400),
   metaApiVersion: clean(process.env.META_GRAPH_API_VERSION),
   instagramAccountId: clean(process.env.META_INSTAGRAM_ACCOUNT_ID),
+  metaExpectedUsername: clean(process.env.META_EXPECTED_USERNAME || "radiobraba")
+    .replace(/^@/, "")
+    .toLowerCase(),
   metaAccessToken: clean(process.env.META_ACCESS_TOKEN),
 };
+
+export function validateMetaDiagnosticConfig() {
+  const missing = [];
+  if (!config.metaApiVersion) missing.push("META_GRAPH_API_VERSION");
+  if (!config.instagramAccountId) missing.push("META_INSTAGRAM_ACCOUNT_ID");
+  if (!config.metaAccessToken) missing.push("META_ACCESS_TOKEN");
+  if (missing.length) {
+    throw new Error(`Configuração do diagnóstico da Meta incompleta: ${missing.join(", ")}.`);
+  }
+  if (!/^v\d+\.\d+$/.test(config.metaApiVersion)) {
+    throw new Error("META_GRAPH_API_VERSION deve seguir o formato vXX.X informado no painel da Meta.");
+  }
+}
 
 export function validatePublishingConfig() {
   if (!config.publishEnabled) return;
@@ -77,7 +93,5 @@ export function validatePublishingConfig() {
   if (/publishable|anon/i.test(config.supabaseServiceRoleKey)) {
     throw new Error("Use a service_role somente no processo local; a chave publicável não pode enviar os Stories.");
   }
-  if (!/^v\d+\.\d+$/.test(config.metaApiVersion)) {
-    throw new Error("META_GRAPH_API_VERSION deve seguir o formato vXX.X informado no painel da Meta.");
-  }
+  validateMetaDiagnosticConfig();
 }

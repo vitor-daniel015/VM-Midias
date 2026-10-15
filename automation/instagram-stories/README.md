@@ -37,10 +37,9 @@ Mantenha:
 STORY_PUBLISH_ENABLED=false
 ```
 
-Depois rode:
+Depois rode somente a captura:
 
 ```powershell
-npm run doctor
 npm run once
 ```
 
@@ -68,18 +67,19 @@ com Facebook Login, do tipo **Business**. No painel da Meta:
 Defina também a URL e a `service_role` do Supabase no `.env`. Essa chave fica
 somente no processo local e nunca é enviada ao navegador.
 
-Ative a publicação e teste a conexão sem postar:
+Preencha também o usuário esperado e teste a conexão sem postar:
 
 ```text
-STORY_PUBLISH_ENABLED=true
+META_EXPECTED_USERNAME=radiobraba
+STORY_PUBLISH_ENABLED=false
 ```
 
 ```powershell
 npm run doctor
 ```
 
-O diagnóstico gera uma captura, verifica o bucket e lê os dados da conta Meta,
-mas não publica Story.
+O diagnóstico gera uma captura e confere o ID e o usuário da conta Meta,
+mas nunca publica Story. Para verificar a conexão não é necessário ativar a publicação.
 
 ## 4. Rodar continuamente
 

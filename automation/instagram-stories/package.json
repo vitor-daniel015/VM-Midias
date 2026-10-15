@@ -7,6 +7,7 @@
     "start": "node src/index.js",
     "once": "node src/index.js --once",
     "doctor": "node src/index.js --doctor",
+    "test": "node --test",
     "install-browser": "playwright install chromium"
   },
   "dependencies": {
