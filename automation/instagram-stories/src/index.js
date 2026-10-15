@@ -179,6 +179,7 @@ async function processCycle() {
         };
         await writeState(config, state);
         console.error(`Falha em “${article.title}”: ${error.message}`);
+        if (once) throw error;
       }
     }
   } finally {
