@@ -3,7 +3,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { readState, writeState } from "../src/state.js";
-import { ensureStorageBucket } from "../src/storage.js";
+import { ensureStorageBucket, uploadStory } from "../src/storage.js";
 
 function storageConfig(overrides = {}) {
   return {
@@ -71,4 +71,36 @@ test("salva o histórico local e no bucket privado", async (context) => {
   const local = JSON.parse(await fs.readFile(config.stateFile, "utf8"));
   assert.equal(local.articles.noticia.status, "publishing");
   assert.equal(uploaded.articles.noticia.status, "publishing");
+});
+
+test("mantém o caminho storage/v1 na URL assinada da imagem", async (context) => {
+  const originalFetch = globalThis.fetch;
+  const directory = await fs.mkdtemp(path.join(process.cwd(), "test-runtime-"));
+  const imagePath = path.join(directory, "story.jpg");
+  await fs.writeFile(imagePath, Buffer.from([0xff, 0xd8, 0xff, 0xd9]));
+  context.after(async () => {
+    globalThis.fetch = originalFetch;
+    await fs.rm(directory, { recursive: true, force: true });
+  });
+  let requestNumber = 0;
+  globalThis.fetch = async () => {
+    requestNumber += 1;
+    if (requestNumber === 1) {
+      return new Response("{}", { status: 200, headers: { "Content-Type": "application/json" } });
+    }
+    return new Response(JSON.stringify({
+      signedURL: "/object/sign/instagram-story-assets/noticia.jpg?token=teste",
+    }), { status: 200, headers: { "Content-Type": "application/json" } });
+  };
+
+  const url = await uploadStory(
+    storageConfig({ signedUrlSeconds: 3600 }),
+    imagePath,
+    "noticia.jpg",
+  );
+
+  assert.equal(
+    url,
+    "https://projeto.supabase.co/storage/v1/object/sign/instagram-story-assets/noticia.jpg?token=teste",
+  );
 });

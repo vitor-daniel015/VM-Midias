@@ -130,7 +130,9 @@ export async function uploadStory(config, filePath, objectPath) {
   const signed = await signResponse.json();
   const relativeUrl = signed.signedURL || signed.signedUrl;
   if (!relativeUrl) throw new Error("O Supabase não devolveu a URL assinada da imagem.");
-  return relativeUrl.startsWith("http")
+  if (relativeUrl.startsWith("http")) return relativeUrl;
+  const storagePath = relativeUrl.startsWith("/storage/v1/")
     ? relativeUrl
-    : new URL(relativeUrl, `${config.supabaseUrl}/`).toString();
+    : `/storage/v1/${relativeUrl.replace(/^\//, "")}`;
+  return new URL(storagePath, `${config.supabaseUrl}/`).toString();
 }
