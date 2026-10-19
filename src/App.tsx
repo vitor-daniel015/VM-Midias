@@ -15,6 +15,7 @@ import { PrivacyModal } from "./components/PrivacyModal";
 import { PlanCycle } from "./types";
 import { PrivacyPolicyPage } from "./pages/PrivacyPolicyPage";
 import { AdminRequestsPage } from "./pages/AdminRequestsPage";
+import { AdminNewsPage } from "./pages/AdminNewsPage";
 import {
   BusinessDetailPage,
   BusinessDirectoryPage,
@@ -26,6 +27,7 @@ export default function App() {
     <Routes>
       <Route path="/admin" element={<AdminRequestsPage />} />
       <Route path="/admin/solicitacoes" element={<AdminRequestsPage />} />
+      <Route path="/admin/noticias" element={<AdminNewsPage />} />
       <Route path="/solicitar-video" element={<BusinessDirectoryPage />} />
       <Route
         path="/solicitar-video/novo-negocio"

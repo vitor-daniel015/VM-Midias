@@ -1,7 +1,36 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
-import {defineConfig, loadEnv} from 'vite';
+import {defineConfig, loadEnv, type Plugin} from 'vite';
+
+function vmPublicConfigPlugin(
+  supabaseUrl = '',
+  supabasePublishableKey = '',
+): Plugin {
+  const source = `window.VM_PUBLIC_CONFIG=Object.freeze(${JSON.stringify({
+    supabaseUrl,
+    supabasePublishableKey,
+  })});`;
+
+  return {
+    name: 'vm-public-runtime-config',
+    configureServer(server) {
+      server.middlewares.use((request, response, next) => {
+        if (request.url?.split('?')[0] !== '/vm-public-config.js') {
+          next();
+          return;
+        }
+        response.statusCode = 200;
+        response.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+        response.setHeader('Cache-Control', 'no-store');
+        response.end(source);
+      });
+    },
+    generateBundle() {
+      this.emitFile({type: 'asset', fileName: 'vm-public-config.js', source});
+    },
+  };
+}
 
 export default defineConfig(({command, mode}) => {
   const env = loadEnv(mode, process.cwd(), 'VITE_');
@@ -19,7 +48,11 @@ export default defineConfig(({command, mode}) => {
   }
 
   return {
-    plugins: [react(), tailwindcss()],
+    plugins: [
+      react(),
+      tailwindcss(),
+      vmPublicConfigPlugin(supabaseUrl, supabasePublishableKey),
+    ],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),

@@ -9,6 +9,7 @@ import {
   LoaderCircle,
   LockKeyhole,
   LogOut,
+  Newspaper,
   RefreshCw,
   Search,
   Trash2,
@@ -256,6 +257,14 @@ export function AdminRequestsPage() {
             </div>
           </div>
           <div className="flex gap-2">
+            <a
+              href="/admin/noticias"
+              aria-label="Aprovação de notícias"
+              className="inline-flex h-10 items-center gap-2 rounded-lg border border-white/12 px-3 text-xs font-bold text-white/70"
+            >
+              <Newspaper className="h-4 w-4" />
+              <span className="hidden sm:inline">Notícias</span>
+            </a>
             <button
               onClick={() => void load(session)}
               disabled={loading}
@@ -720,7 +729,7 @@ function AssetGallery({
   );
 }
 
-function AdminLogin({
+export function AdminLogin({
   onLogin,
   loading,
   error,

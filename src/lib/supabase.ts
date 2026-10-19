@@ -88,6 +88,37 @@ export type AdminSession = {
   };
 };
 
+export type NewsModerationStatus = "pending" | "approved" | "rejected";
+export type NewsStoryStatus =
+  | "waiting_approval"
+  | "queued"
+  | "publishing"
+  | "published"
+  | "failed"
+  | "needs_review"
+  | "skipped";
+
+export type NewsArticleRecord = {
+  id: string;
+  external_id: string;
+  title: string;
+  summary: string | null;
+  source_name: string;
+  category: string;
+  image_url: string | null;
+  article_url: string | null;
+  published_at: string;
+  moderation_status: NewsModerationStatus;
+  story_status: NewsStoryStatus;
+  reviewed_at: string | null;
+  queued_at: string | null;
+  story_published_at: string | null;
+  meta_media_id: string | null;
+  last_story_error: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export const videoAssetsBucket = VIDEO_ASSETS_BUCKET;
 export const businessAssetsBucket = BUSINESS_ASSETS_BUCKET;
 
@@ -420,6 +451,58 @@ export async function listBusinessesAdmin(accessToken: string) {
   });
   if (!response.ok) throw new Error("Não foi possível carregar os negócios no painel.");
   return (await response.json()) as BusinessRecord[];
+}
+
+export async function listNewsAdmin(accessToken: string) {
+  const newestAccepted = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString();
+  const response = await fetch(
+    `${supabaseUrl}/rest/v1/news_articles?select=*&published_at=gte.${encodeURIComponent(newestAccepted)}&order=published_at.desc`,
+    {
+      headers: authenticatedHeaders(accessToken),
+      cache: "no-store",
+    },
+  );
+  if (!response.ok) {
+    if (response.status === 404) {
+      throw new Error(
+        "O painel de notícias ainda não foi instalado no Supabase. Execute a migração 202610190001_news_moderation_queue.sql.",
+      );
+    }
+    throw new Error("Não foi possível carregar a fila de notícias.");
+  }
+  return (await response.json()) as NewsArticleRecord[];
+}
+
+export async function moderateNewsArticle(
+  accessToken: string,
+  articleId: string,
+  decision: Exclude<NewsModerationStatus, "pending">,
+) {
+  const response = await fetch(
+    `${supabaseUrl}/rest/v1/rpc/moderate_news_article_admin`,
+    {
+      method: "POST",
+      headers: {
+        ...authenticatedHeaders(accessToken),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        p_article_id: articleId,
+        p_decision: decision,
+      }),
+    },
+  );
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error("Sua sessão expirou. Entre novamente.");
+    }
+    if (response.status === 404) {
+      throw new Error(
+        "A aprovação de notícias ainda não foi instalada no Supabase.",
+      );
+    }
+    throw new Error("Não foi possível atualizar esta notícia.");
+  }
 }
 
 export async function deleteBusinessAsset(

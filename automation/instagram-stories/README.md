@@ -27,7 +27,18 @@ Execute no SQL Editor do Supabase:
 
 ```text
 supabase/migrations/202610140001_instagram_story_assets.sql
+supabase/migrations/202610190001_news_moderation_queue.sql
 ```
+
+Antes de capturar, atualize a fila editorial diretamente a partir dos RSS:
+
+```powershell
+npm run ingest
+```
+
+As notícias novas entram como **Aguardando aprovação** em
+`/admin/noticias`. Aprovar coloca a matéria na fila; a automação publica uma por
+vez e registra no painel quando o Story foi confirmado.
 
 ## 2. Primeiro teste sem publicar
 
@@ -46,10 +57,9 @@ npm run once
 As artes aparecerão em `runtime/captures`. O histórico fica em
 `runtime/state.json`. Os dois locais estão fora do Git.
 
-`STORY_FIRST_RUN_MODE=latest` evita despejar todo o histórico no Instagram na
-primeira execução. Depois disso, toda matéria nova entra na fila. Use `recent`
-para processar todas as matérias ainda dentro de `STORY_MAX_AGE_HOURS`, ou `all`
-para permitir todo o conteúdo retornado pelo painel, independentemente da idade.
+`STORY_FIRST_RUN_MODE=all` é seguro neste fluxo porque nenhuma matéria chega à
+automação antes da aprovação no painel. A ordem usada é a ordem de aprovação e
+o limite por execução impede publicações em lote.
 
 ## 3. Autorizar a conta da Rádio Braba
 
@@ -110,10 +120,13 @@ Meta seja incerto recebe o estado `needs-review` e não é repetida automaticame
 - `STORY_CHECK_INTERVAL_MINUTES`: intervalo do modo contínuo.
 - `STORY_MAX_AGE_HOURS`: idade máxima de uma notícia nova.
 - `STORY_MAX_PER_CYCLE`: proteção contra muitas publicações de uma vez.
+- `NEWS_MAX_AGE_DAYS`: idade máxima aceita na coleta RSS.
+- `NEWS_ITEMS_PER_SOURCE`: limite de itens novos lidos de cada fonte por coleta.
+- `NEWS_REQUEST_TIMEOUT_MS`: tempo máximo de resposta de uma fonte RSS.
 - `STORY_PUBLISH_ENABLED`: trava de segurança para publicar.
 - `STORY_STATE_OBJECT_PATH`: objeto privado usado como histórico persistente.
 - `SUPABASE_SERVICE_ROLE_KEY`: segredo apenas do processo local.
 - `META_ACCESS_TOKEN`: segredo apenas do processo local.
 
-Se a arte ou o feed falhar, nada é publicado. A automação exige uma imagem
-carregada e uma matéria identificada antes de gerar o JPEG.
+Se a arte ou o feed falhar, nada é publicado. Fontes sem foto usam a arte de
+reserva da VM, portanto continuam disponíveis para aprovação sem quebrar a fila.

@@ -14,9 +14,11 @@
 10. Execute `migrations/202610060002_add_business_instagram.sql` para adicionar o Instagram aos dados do negócio.
 11. Execute `migrations/202610070001_harden_admin_access.sql` para restringir o painel aos administradores autorizados.
 12. Para a automação de Stories, execute `migrations/202610140001_instagram_story_assets.sql`.
-13. Teste `/solicitar-video`, `/solicitar-video/novo-negocio` e a página de um negócio.
-14. Confira os registros em **Table Editor → businesses** e **Table Editor → video_requests**.
-15. Confira os arquivos em **Storage → business-assets** e **Storage → video-request-assets**.
+13. Para a fila editorial, execute `migrations/202610190001_news_moderation_queue.sql`.
+14. Execute `migrations/202610190002_public_news_feed.sql` para liberar o feed da TV/site sem aprovação e manter a avaliação apenas nos Stories.
+15. Teste `/solicitar-video`, `/solicitar-video/novo-negocio` e a página de um negócio.
+16. Confira os registros em **Table Editor → businesses**, **video_requests** e **news_articles**.
+17. Confira os arquivos em **Storage → business-assets** e **Storage → video-request-assets**.
 
 ## Variáveis de ambiente
 
@@ -37,7 +39,12 @@ O painel está disponível em:
 
 ```text
 /admin/solicitacoes
+/admin/noticias
 ```
+
+As matérias coletadas aparecem automaticamente na TV e no site. Em
+`/admin/noticias`, a decisão controla apenas quais delas também entram na fila
+automática dos Stories.
 
 Para ativá-lo:
 

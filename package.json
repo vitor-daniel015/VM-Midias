@@ -10,6 +10,7 @@
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
     "stories:install": "npm --prefix automation/instagram-stories install",
+    "stories:ingest": "npm --prefix automation/instagram-stories run ingest",
     "stories:browser": "npm --prefix automation/instagram-stories run install-browser",
     "stories:doctor": "npm --prefix automation/instagram-stories run doctor",
     "stories:once": "npm --prefix automation/instagram-stories run once",

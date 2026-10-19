@@ -37,13 +37,16 @@ function storyPageUrl() {
   return url.toString();
 }
 
-const firstRunMode = clean(process.env.STORY_FIRST_RUN_MODE || "latest").toLowerCase();
+const firstRunMode = clean(process.env.STORY_FIRST_RUN_MODE || "all").toLowerCase();
 if (!new Set(["latest", "recent", "all"]).has(firstRunMode)) {
   throw new Error("STORY_FIRST_RUN_MODE deve ser latest, recent ou all.");
 }
 
 export const config = {
   storyPageUrl: storyPageUrl(),
+  newsMaxAgeDays: numberFromEnv("NEWS_MAX_AGE_DAYS", 7, 1, 30),
+  newsItemsPerSource: numberFromEnv("NEWS_ITEMS_PER_SOURCE", 12, 1, 50),
+  newsRequestTimeoutMs: numberFromEnv("NEWS_REQUEST_TIMEOUT_MS", 15000, 5000, 60000),
   checkIntervalMinutes: numberFromEnv("STORY_CHECK_INTERVAL_MINUTES", 10, 1, 1440),
   maxAgeHours: numberFromEnv("STORY_MAX_AGE_HOURS", 48, 1, 720),
   maxPerCycle: numberFromEnv("STORY_MAX_PER_CYCLE", 5, 1, 25),

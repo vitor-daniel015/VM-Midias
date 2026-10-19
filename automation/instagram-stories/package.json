@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "ingest": "node src/ingest.js",
     "start": "node src/index.js",
     "once": "node src/index.js --once",
     "doctor": "node src/index.js --doctor",

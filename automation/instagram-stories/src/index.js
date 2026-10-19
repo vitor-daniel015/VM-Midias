@@ -7,6 +7,7 @@ import {
 } from "./config.js";
 import { articleKey, captureFilePath, openRenderer } from "./capture.js";
 import { inspectInstagramAccount, publishInstagramStory } from "./meta.js";
+import { updateNewsStoryStatus } from "./news.js";
 import { ensureStorageBucket, uploadStory } from "./storage.js";
 import {
   acquireLock,
@@ -53,7 +54,10 @@ function eligibleArticles(items, state) {
       const published = Number(item.published_at);
       return !Number.isFinite(published) || published >= oldestAccepted;
     })
-    .sort((a, b) => Number(a.published_at || 0) - Number(b.published_at || 0));
+    .sort((a, b) =>
+      Number(a.queued_at || a.published_at || 0) -
+      Number(b.queued_at || b.published_at || 0),
+    );
 }
 
 async function initializeState(items, state) {
@@ -155,6 +159,9 @@ async function processCycle() {
           updatedAt: new Date().toISOString(),
         };
         await writeState(config, state);
+        await updateNewsStoryStatus(article.id, "publishing", {
+          last_story_error: null,
+        });
         publicationStarted = true;
         const published = await publishInstagramStory(config, signedUrl);
         state.articles[key] = {
@@ -167,6 +174,15 @@ async function processCycle() {
           updatedAt: new Date().toISOString(),
         };
         await writeState(config, state);
+        try {
+          await updateNewsStoryStatus(article.id, "published", {
+            story_published_at: new Date().toISOString(),
+            meta_media_id: published.mediaId,
+            last_story_error: null,
+          });
+        } catch (statusError) {
+          console.warn(`Story publicado, mas o painel não foi atualizado: ${statusError.message}`);
+        }
         log(`Story publicado: ${article.title}`);
       } catch (error) {
         state.articles[key] = {
@@ -178,6 +194,15 @@ async function processCycle() {
           updatedAt: new Date().toISOString(),
         };
         await writeState(config, state);
+        try {
+          await updateNewsStoryStatus(
+            article.id,
+            publicationStarted ? "needs_review" : "failed",
+            { last_story_error: error.message },
+          );
+        } catch (statusError) {
+          console.warn(`Não foi possível registrar a falha no painel: ${statusError.message}`);
+        }
         console.error(`Falha em “${article.title}”: ${error.message}`);
         if (once) throw error;
       }

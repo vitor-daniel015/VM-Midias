@@ -32,9 +32,12 @@ jobs:
       STORY_CHECK_INTERVAL_MINUTES: "10"
       STORY_MAX_AGE_HOURS: "48"
       STORY_MAX_PER_CYCLE: "1"
-      STORY_FIRST_RUN_MODE: latest
+      STORY_FIRST_RUN_MODE: all
       STORY_PUBLISH_ENABLED: "true"
       STORY_STATE_OBJECT_PATH: automation/state.json
+      NEWS_MAX_AGE_DAYS: "7"
+      NEWS_ITEMS_PER_SOURCE: "12"
+      NEWS_REQUEST_TIMEOUT_MS: "15000"
 
       SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
@@ -57,6 +60,9 @@ jobs:
 
       - name: Instalar dependencias
         run: npm ci
+
+      - name: Atualizar fila de noticias
+        run: npm run ingest
 
       - name: Instalar Chromium
         run: npx playwright install chromium --with-deps

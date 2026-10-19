@@ -1,0 +1,1 @@
+window.VM_PUBLIC_CONFIG=Object.freeze({"supabaseUrl":"https://dtmoboiwgqaphlthoexe.supabase.co","supabasePublishableKey":"sb_publishable_QsbWeq7SpeQo-5etkC4noA_67efJh8M"});
