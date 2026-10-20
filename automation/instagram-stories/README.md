@@ -118,6 +118,7 @@ Meta seja incerto recebe o estado `needs-review` e não é repetida automaticame
 
 - `STORY_PAGE_URL`: URL pública da tela da VM.
 - `STORY_CHECK_INTERVAL_MINUTES`: intervalo do modo contínuo.
+- `STORY_MIN_PUBLISH_INTERVAL_MINUTES`: intervalo mínimo entre duas publicações reais; em produção usamos 60 minutos.
 - `STORY_MAX_AGE_HOURS`: idade máxima de uma notícia nova.
 - `STORY_MAX_PER_CYCLE`: proteção contra muitas publicações de uma vez.
 - `NEWS_MAX_AGE_DAYS`: idade máxima aceita na coleta RSS.

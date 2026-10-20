@@ -78,16 +78,27 @@ function hasBrokenEncoding(value) {
   return /�|Ã[\u0080-\u00bf]|Â[\u0080-\u00bf]/.test(String(value || ""));
 }
 
-function isBroadcastPromo(title) {
-  const value = normalized(title);
-  return /\b(jornal|telejornal|eptv|sptv|bom dia|jornal hoje|jornal nacional|link vanguarda|jac\s?1|mg\s?1|rj\s?1|df\s?1|globonews)\b/.test(value) &&
-    /\b(assista|acompanhe|ao vivo|esta no ar|agora no ar)\b/.test(value);
+export function isLowValueNews(title, summary = "") {
+  const value = normalized(`${title} ${summary}`);
+  const program = /\b(jornal|telejornal|eptv|sptv|bom dia|jornal hoje|jornal nacional|jornal do almoco|jornal anhanguera|link vanguarda|jac\s?1|mg\s?1|rj\s?1|df\s?1|globonews)\b/;
+  return /^videos?\s*:/i.test(normalized(title)) ||
+    (/\b(assista|acompanhe|veja)\b/.test(value) && /\b(videos?|jornal|edicao)\b/.test(value)) ||
+    (program.test(value) && /\b(ao vivo|esta no ar|agora no ar|integra|edicao|segunda|terca|quarta|quinta|sexta|sabado|domingo)\b/.test(value)) ||
+    /^ao vivo\s*:/i.test(normalized(title));
+}
+
+const GENERIC_IMAGE_PATTERN = /(?:logo-30-anos|share-30-anos|favicon|spacer|pixel|placeholder|sem[-_ ]imagem|\/logo(?:[-_.\/]|$))/i;
+
+export function isUsableNewsImage(value) {
+  return /^https?:\/\//i.test(String(value || "")) &&
+    !GENERIC_IMAGE_PATTERN.test(String(value || ""));
 }
 
 function upgradedUolImage(value) {
-  return /^https?:\/\/conteudo\.imguol\.com\.br\//i.test(value)
+  const upgraded = /^https?:\/\/conteudo\.imguol\.com\.br\//i.test(value)
     ? value.replace(/_\d+x\d+(\.(?:jpe?g|png|webp))(?=$|\?)/i, "_615x300$1")
     : value;
+  return isUsableNewsImage(upgraded) ? upgraded : "";
 }
 
 function articleImage(block, description) {
@@ -102,9 +113,7 @@ function articleImage(block, description) {
     (htmlImage && decodeEntities(htmlImage[1])) ||
     "";
   const upgraded = upgradedUolImage(value);
-  return /^https?:\/\//i.test(upgraded) && !/(logo|favicon|spacer|pixel)/i.test(upgraded)
-    ? upgraded
-    : "";
+  return isUsableNewsImage(upgraded) ? upgraded : "";
 }
 
 function charsetFrom(contentType, bytes) {
@@ -135,24 +144,33 @@ function htmlAttribute(tagValue, name) {
 
 export function extractPageMetadata(html) {
   const metadata = {};
+  const imageCandidates = [];
   const tags = String(html || "").match(/<meta\b[^>]*>/gi) || [];
   for (const meta of tags) {
     const key = (htmlAttribute(meta, "property") || htmlAttribute(meta, "name")).toLowerCase();
-    if (!["og:title", "og:description", "og:image"].includes(key)) continue;
+    if (!["og:title", "og:description", "og:image", "twitter:image", "twitter:image:src"].includes(key)) continue;
     const content = htmlAttribute(meta, "content");
     if (!content) continue;
-    if (key === "og:image") {
-      if (!metadata[key] || (/(logo|share-30-anos)/i.test(metadata[key]) && !/(logo|share-30-anos)/i.test(content))) {
-        metadata[key] = content;
-      }
+    if (["og:image", "twitter:image", "twitter:image:src"].includes(key)) {
+      imageCandidates.push(content);
     } else if (!metadata[key]) {
       metadata[key] = content;
     }
   }
+  const links = String(html || "").match(/<link\b[^>]*>/gi) || [];
+  for (const link of links) {
+    const rel = htmlAttribute(link, "rel").toLowerCase();
+    if (rel === "image_src" || rel === "preload" && htmlAttribute(link, "as").toLowerCase() === "image") {
+      imageCandidates.push(htmlAttribute(link, "href"));
+    }
+  }
+  const imageUrl = imageCandidates
+    .map((value) => upgradedUolImage(value))
+    .find((value) => isUsableNewsImage(value)) || "";
   return {
     title: plain(metadata["og:title"] || ""),
     summary: plain(metadata["og:description"] || ""),
-    image_url: upgradedUolImage(metadata["og:image"] || ""),
+    image_url: imageUrl,
   };
 }
 
@@ -163,13 +181,14 @@ export function parseFeed(xml, source) {
 
   for (const block of blocks) {
     const title = plain(tag(block, ["title"]));
-    if (!title || isBroadcastPromo(title)) continue;
+    const description = tag(block, ["description", "content:encoded", "summary", "content"]);
+    const summary = plain(description).slice(0, 420) || null;
+    if (!title || isLowValueNews(title, summary || "")) continue;
 
     const rawDate = plain(tag(block, ["pubDate", "published", "updated", "dc:date"]));
     const publishedAt = parsedNewsDate(rawDate);
     if (Number.isFinite(publishedAt) && publishedAt < oldest) continue;
 
-    const description = tag(block, ["description", "content:encoded", "summary", "content"]);
     const link = plain(tag(block, ["link"])) || attribute(block, ["link"], "href");
     const guid = plain(tag(block, ["guid", "id"])) || link || title;
     const externalId = createHash("sha256")
@@ -179,7 +198,7 @@ export function parseFeed(xml, source) {
     articles.push({
       external_id: externalId,
       title,
-      summary: plain(description).slice(0, 420) || null,
+      summary,
       source_name: source.name,
       category: source.category,
       image_url: articleImage(block, description) || null,
@@ -216,7 +235,7 @@ async function fetchWithRetry(
   throw lastError;
 }
 
-async function enrichUolArticle(article) {
+async function enrichArticle(article) {
   if (!article.article_url) return article;
   try {
     const html = await fetchWithRetry(
@@ -230,7 +249,9 @@ async function enrichUolArticle(article) {
       ...article,
       title: hasBrokenEncoding(article.title) && metadata.title ? metadata.title : article.title,
       summary: hasBrokenEncoding(article.summary) && metadata.summary ? metadata.summary : article.summary,
-      image_url: upgradedUolImage(article.image_url || metadata.image_url || "") || null,
+      image_url: upgradedUolImage(
+        isUsableNewsImage(article.image_url) ? article.image_url : metadata.image_url || "",
+      ) || null,
     };
   } catch {
     return article;
@@ -293,29 +314,35 @@ export async function ingestNews() {
 
   for (const article of recordsToSync.values()) {
     const current = existing.get(article.external_id);
-    if (article.source_name === "UOL Notícias" && !article.image_url && current?.image_url) {
+    if (!isUsableNewsImage(article.image_url) && isUsableNewsImage(current?.image_url)) {
       article.image_url = upgradedUolImage(current.image_url);
     }
+    if (!isUsableNewsImage(article.image_url)) article.image_url = null;
   }
   for (const item of existing.values()) {
     if (
-      item.source_name === "UOL Notícias" &&
-      (!item.image_url || hasBrokenEncoding(item.title) || hasBrokenEncoding(item.summary)) &&
+      (!isUsableNewsImage(item.image_url) || hasBrokenEncoding(item.title) || hasBrokenEncoding(item.summary)) &&
       !recordsToSync.has(item.external_id)
     ) {
-      recordsToSync.set(item.external_id, item);
+      recordsToSync.set(item.external_id, {
+        ...item,
+        image_url: isUsableNewsImage(item.image_url)
+          ? upgradedUolImage(item.image_url)
+          : null,
+      });
     }
   }
 
-  const uolToEnrich = [...recordsToSync.values()].filter((article) =>
-    article.source_name === "UOL Notícias" &&
-    (!article.image_url || hasBrokenEncoding(article.title) || hasBrokenEncoding(article.summary)),
+  const articlesToEnrich = [...recordsToSync.values()].filter((article) =>
+    !isUsableNewsImage(article.image_url) ||
+    hasBrokenEncoding(article.title) ||
+    hasBrokenEncoding(article.summary),
   );
   let enrichIndex = 0;
-  const enrichWorkers = Array.from({ length: Math.min(6, uolToEnrich.length) }, async () => {
-    while (enrichIndex < uolToEnrich.length) {
-      const article = uolToEnrich[enrichIndex++];
-      recordsToSync.set(article.external_id, await enrichUolArticle(article));
+  const enrichWorkers = Array.from({ length: Math.min(8, articlesToEnrich.length) }, async () => {
+    while (enrichIndex < articlesToEnrich.length) {
+      const article = articlesToEnrich[enrichIndex++];
+      recordsToSync.set(article.external_id, await enrichArticle(article));
     }
   });
   await Promise.all(enrichWorkers);

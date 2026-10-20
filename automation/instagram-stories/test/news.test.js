@@ -1,6 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { decodeFeedBytes, extractPageMetadata, parseFeed } from "../src/news.js";
+import {
+  decodeFeedBytes,
+  extractPageMetadata,
+  isLowValueNews,
+  isUsableNewsImage,
+  parseFeed,
+} from "../src/news.js";
 
 const source = {
   name: "Fonte teste",
@@ -35,6 +41,21 @@ test("remove chamadas promocionais de telejornal", () => {
   `, source);
 
   assert.equal(articles.length, 0);
+});
+
+test("remove compilações de vídeos e edições datadas de telejornal", () => {
+  assert.equal(
+    isLowValueNews("VÍDEOS: Jornal Anhanguera 1ª Edição-TO de terça-feira, 20 de outubro de 2026"),
+    true,
+  );
+  assert.equal(
+    isLowValueNews("VÍDEOS: Jornal do Almoço Florianópolis de terça-feira, 20 de outubro de 2026"),
+    true,
+  );
+  assert.equal(
+    isLowValueNews("Motorista sofre mal súbito e carro invade quartel em Sorocaba"),
+    false,
+  );
 });
 
 test("decodifica o RSS ISO-8859-1 da UOL e usa a imagem maior", () => {
@@ -82,4 +103,25 @@ test("lê título e imagem dos metadados da página sem sobrescrever o primeiro 
 
   assert.equal(metadata.title, "'Tudo é política': título com acentuação");
   assert.equal(metadata.image_url, "https://example.com/noticia.jpg");
+});
+
+test("descarta a imagem institucional de 30 anos da UOL", () => {
+  const metadata = extractPageMetadata(`
+    <meta property="og:title" content="Notícia sem foto própria">
+    <meta property="og:image" content="https://conteudo.imguol.com.br/c/_layout/v3/logo-30-anos/share-30-anos.png">
+  `);
+
+  assert.equal(metadata.image_url, "");
+  assert.equal(
+    isUsableNewsImage("https://conteudo.imguol.com.br/c/_layout/v3/logo-30-anos/share-30-anos.png"),
+    false,
+  );
+});
+
+test("usa a imagem social real da página quando o RSS não fornece foto", () => {
+  const metadata = extractPageMetadata(`
+    <meta property="og:image" content="https://s2-g1.glbimg.com/noticia-real.jpg">
+  `);
+
+  assert.equal(metadata.image_url, "https://s2-g1.glbimg.com/noticia-real.jpg");
 });

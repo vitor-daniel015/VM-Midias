@@ -37,6 +37,23 @@ function objectPath(article, key) {
   ].join("/");
 }
 
+export function remainingPublishDelayMs(
+  state,
+  minimumMinutes,
+  now = Date.now(),
+) {
+  const minimumMs = Math.max(0, Number(minimumMinutes) || 0) * 60 * 1000;
+  if (!minimumMs) return 0;
+  const lastPublishedAt = Math.max(
+    0,
+    ...Object.values(state?.articles || {})
+      .filter((record) => record?.status === "published")
+      .map((record) => Date.parse(record.publishedToInstagramAt || record.updatedAt || ""))
+      .filter(Number.isFinite),
+  );
+  return lastPublishedAt ? Math.max(0, lastPublishedAt + minimumMs - now) : 0;
+}
+
 function eligibleArticles(items, state) {
   const oldestAccepted = Date.now() - config.maxAgeHours * 60 * 60 * 1000;
   return items
@@ -107,6 +124,13 @@ async function runDoctor() {
 async function processCycle() {
   if (config.publishEnabled) await ensureStorageBucket(config);
   const state = await readState(config);
+  const publishDelay = config.publishEnabled
+    ? remainingPublishDelayMs(state, config.minPublishIntervalMinutes)
+    : 0;
+  if (publishDelay > 0) {
+    log(`Próximo Story liberado em ${Math.ceil(publishDelay / 60000)} minuto(s).`);
+    return;
+  }
   const renderer = await openRenderer(config);
   try {
     const items = await renderer.list();
@@ -115,7 +139,10 @@ async function processCycle() {
       return;
     }
     await initializeState(items, state);
-    const queue = eligibleArticles(items, state).slice(0, config.maxPerCycle);
+    const cycleLimit = config.publishEnabled && config.minPublishIntervalMinutes > 0
+      ? 1
+      : config.maxPerCycle;
+    const queue = eligibleArticles(items, state).slice(0, cycleLimit);
     if (!queue.length) {
       log(`Sem notícias novas. ${items.length} matérias foram verificadas.`);
       return;
