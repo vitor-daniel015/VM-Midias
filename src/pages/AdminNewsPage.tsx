@@ -59,7 +59,7 @@ function formatDate(value: string | null) {
   }).format(new Date(value));
 }
 
-const genericNewsImage = /(?:logo-30-anos|share-30-anos|favicon|spacer|pixel|placeholder|sem[-_ ]imagem|\/logo(?:[-_.\/]|$))/i;
+const genericNewsImage = /(?:logo-30-anos|share-30-anos|favicon|spacer|pixel|placeholder|sem[-_ ]imagem|\/logo(?:[-_.\/]|$)|lh3\.googleusercontent\.com\/J6_coFbogxhRI9iM864NL_liGXvsQp2AupsKei7z0cNNfDvGUmWUy20nuUhkREQyrpY4bEeIBuc)/i;
 
 function normalizedNewsText(value: string) {
   return value
@@ -95,7 +95,7 @@ function selectStoryReviewCandidates(articles: NewsArticleRecord[]) {
     if (articleView(article) !== "pending" || !hasUsableStoryImage(article) || !isUsefulStoryNews(article)) continue;
     const publishedAt = Date.parse(article.published_at);
     if (Number.isFinite(publishedAt) && publishedAt < oldest) continue;
-    const key = normalizedNewsText(article.article_url || article.title).replace(/[?#].*$/, "");
+    const key = normalizedNewsText(article.title).trim();
     if (!key || seen.has(key)) continue;
     const sourceCount = perSource.get(article.source_name) || 0;
     if (sourceCount >= 3) continue;

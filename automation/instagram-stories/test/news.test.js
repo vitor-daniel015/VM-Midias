@@ -118,6 +118,33 @@ test("descarta a imagem institucional de 30 anos da UOL", () => {
   );
 });
 
+test("limpa título e descrição duplicada vindos do Google Notícias", () => {
+  const articles = parseFeed(`
+    <rss><channel><item>
+      <title>Jogo do Vasco hoje pela Copa Sul-Americana: onde assistir - UOL</title>
+      <link>https://news.google.com/rss/articles/noticia-vasco?oc=5</link>
+      <guid>noticia-google-1</guid>
+      <pubDate>${new Date().toUTCString()}</pubDate>
+      <description>&lt;a href="https://news.google.com/rss/articles/noticia-vasco?oc=5"&gt;Jogo do Vasco hoje pela Copa Sul-Americana: onde assistir&lt;/a&gt;&amp;nbsp;&amp;nbsp;&lt;font&gt;UOL&lt;/font&gt;</description>
+      <source url="https://www.uol.com.br">UOL</source>
+    </item></channel></rss>
+  `, {
+    name: "Futebol brasileiro",
+    category: "Futebol",
+    url: "https://news.google.com/rss/search?q=futebol",
+  });
+
+  assert.equal(articles[0].title, "Jogo do Vasco hoje pela Copa Sul-Americana: onde assistir");
+  assert.equal(articles[0].summary, null);
+});
+
+test("descarta a imagem institucional do Google Notícias", () => {
+  assert.equal(
+    isUsableNewsImage("https://lh3.googleusercontent.com/J6_coFbogxhRI9iM864NL_liGXvsQp2AupsKei7z0cNNfDvGUmWUy20nuUhkREQyrpY4bEeIBuc=s0-w300-rw"),
+    false,
+  );
+});
+
 test("usa a imagem social real da página quando o RSS não fornece foto", () => {
   const metadata = extractPageMetadata(`
     <meta property="og:image" content="https://s2-g1.glbimg.com/noticia-real.jpg">

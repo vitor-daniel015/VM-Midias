@@ -14,18 +14,23 @@ function decodeEntities(value) {
     nbsp: " ",
     quot: '"',
   };
-  return String(value || "")
-    .replace(/^<!\[CDATA\[|\]\]>$/g, "")
-    .replace(/&#(x?[0-9a-f]+);/gi, (match, number) => {
-      const codePoint = parseInt(
-        number.replace(/^x/i, ""),
-        /^x/i.test(number) ? 16 : 10,
-      );
-      return Number.isFinite(codePoint) && codePoint <= 0x10ffff
-        ? String.fromCodePoint(codePoint)
-        : match;
-    })
-    .replace(/&([a-z]+);/gi, (match, name) => entities[name.toLowerCase()] || match);
+  let decoded = String(value || "").replace(/^<!\[CDATA\[|\]\]>$/g, "");
+  for (let pass = 0; pass < 3; pass += 1) {
+    const previous = decoded;
+    decoded = decoded
+      .replace(/&#(x?[0-9a-f]+);/gi, (match, number) => {
+        const codePoint = parseInt(
+          number.replace(/^x/i, ""),
+          /^x/i.test(number) ? 16 : 10,
+        );
+        return Number.isFinite(codePoint) && codePoint <= 0x10ffff
+          ? String.fromCodePoint(codePoint)
+          : match;
+      })
+      .replace(/&([a-z]+);/gi, (match, name) => entities[name.toLowerCase()] || match);
+    if (decoded === previous) break;
+  }
+  return decoded;
 }
 
 function plain(value) {
@@ -87,7 +92,7 @@ export function isLowValueNews(title, summary = "") {
     /^ao vivo\s*:/i.test(normalized(title));
 }
 
-const GENERIC_IMAGE_PATTERN = /(?:logo-30-anos|share-30-anos|favicon|spacer|pixel|placeholder|sem[-_ ]imagem|\/logo(?:[-_.\/]|$))/i;
+const GENERIC_IMAGE_PATTERN = /(?:logo-30-anos|share-30-anos|favicon|spacer|pixel|placeholder|sem[-_ ]imagem|\/logo(?:[-_.\/]|$)|lh3\.googleusercontent\.com\/J6_coFbogxhRI9iM864NL_liGXvsQp2AupsKei7z0cNNfDvGUmWUy20nuUhkREQyrpY4bEeIBuc)/i;
 
 export function isUsableNewsImage(value) {
   return /^https?:\/\//i.test(String(value || "")) &&
@@ -174,15 +179,41 @@ export function extractPageMetadata(html) {
   };
 }
 
+function isGoogleNewsFeed(source) {
+  return /^https?:\/\/news\.google\.com(?:\/|$)/i.test(String(source?.url || ""));
+}
+
+function cleanGoogleNewsTitle(value) {
+  return String(value || "").replace(/\s+-\s+[^–—-]{2,80}$/u, "").trim();
+}
+
+function cleanGoogleNewsSummary(value, title) {
+  const summary = plain(value);
+  const normalizedTitle = normalized(title);
+  const normalizedSummary = normalized(summary);
+  if (
+    normalizedSummary === normalizedTitle ||
+    normalizedSummary.startsWith(`${normalizedTitle} `) &&
+      normalizedSummary.length - normalizedTitle.length <= 80
+  ) {
+    return null;
+  }
+  return summary.slice(0, 420) || null;
+}
+
 export function parseFeed(xml, source) {
   const blocks = xml.match(/<(?:item|entry)\b[\s\S]*?<\/(?:item|entry)>/gi) || [];
   const oldest = Date.now() - config.newsMaxAgeDays * 24 * 60 * 60 * 1000;
   const articles = [];
+  const googleNewsFeed = isGoogleNewsFeed(source);
 
   for (const block of blocks) {
-    const title = plain(tag(block, ["title"]));
+    const rawTitle = plain(tag(block, ["title"]));
+    const title = googleNewsFeed ? cleanGoogleNewsTitle(rawTitle) : rawTitle;
     const description = tag(block, ["description", "content:encoded", "summary", "content"]);
-    const summary = plain(description).slice(0, 420) || null;
+    const summary = googleNewsFeed
+      ? cleanGoogleNewsSummary(description, title)
+      : plain(description).slice(0, 420) || null;
     if (!title || isLowValueNews(title, summary || "")) continue;
 
     const rawDate = plain(tag(block, ["pubDate", "published", "updated", "dc:date"]));
@@ -311,6 +342,9 @@ export async function ingestNews() {
 
   const existing = new Map((await existingResponse.json()).map((item) => [item.external_id, item]));
   const recordsToSync = new Map(articles.map((article) => [article.external_id, article]));
+  const googleNewsSourceNames = new Set(
+    NEWS_SOURCES.filter(isGoogleNewsFeed).map((source) => source.name),
+  );
 
   for (const article of recordsToSync.values()) {
     const current = existing.get(article.external_id);
@@ -320,12 +354,27 @@ export async function ingestNews() {
     if (!isUsableNewsImage(article.image_url)) article.image_url = null;
   }
   for (const item of existing.values()) {
+    const googleNewsArticle = googleNewsSourceNames.has(item.source_name);
+    const cleanedTitle = googleNewsArticle ? cleanGoogleNewsTitle(item.title) : item.title;
+    const cleanedSummary = googleNewsArticle
+      ? cleanGoogleNewsSummary(item.summary, cleanedTitle)
+      : item.summary;
+    const needsGoogleCleanup = googleNewsArticle && (
+      cleanedTitle !== item.title || cleanedSummary !== item.summary
+    );
     if (
-      (!isUsableNewsImage(item.image_url) || hasBrokenEncoding(item.title) || hasBrokenEncoding(item.summary)) &&
+      (
+        !isUsableNewsImage(item.image_url) ||
+        hasBrokenEncoding(item.title) ||
+        hasBrokenEncoding(item.summary) ||
+        needsGoogleCleanup
+      ) &&
       !recordsToSync.has(item.external_id)
     ) {
       recordsToSync.set(item.external_id, {
         ...item,
+        title: cleanedTitle,
+        summary: cleanedSummary,
         image_url: isUsableNewsImage(item.image_url)
           ? upgradedUolImage(item.image_url)
           : null,
