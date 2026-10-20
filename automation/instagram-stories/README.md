@@ -40,6 +40,11 @@ As notícias novas entram como **Aguardando aprovação** em
 `/admin/noticias`. Aprovar coloca a matéria na fila; a automação publica uma por
 vez e registra no painel quando o Story foi confirmado.
 
+As matérias marcadas como **Fora dos Stories** permanecem visíveis somente até
+o fim do dia da publicação. Na primeira coleta depois da virada do dia em São
+Paulo, elas são excluídas definitivamente da tabela `news_articles` e não são
+cadastradas outra vez a partir de um RSS antigo.
+
 ## 2. Primeiro teste sem publicar
 
 Mantenha:

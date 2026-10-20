@@ -6,6 +6,7 @@ import {
   isLowValueNews,
   isUsableNewsImage,
   parseFeed,
+  startOfSaoPauloDay,
 } from "../src/news.js";
 
 const source = {
@@ -142,6 +143,17 @@ test("descarta a imagem institucional do Google Notícias", () => {
   assert.equal(
     isUsableNewsImage("https://lh3.googleusercontent.com/J6_coFbogxhRI9iM864NL_liGXvsQp2AupsKei7z0cNNfDvGUmWUy20nuUhkREQyrpY4bEeIBuc=s0-w300-rw"),
     false,
+  );
+});
+
+test("calcula a virada do dia no horário de São Paulo", () => {
+  assert.equal(
+    startOfSaoPauloDay(new Date("2026-10-20T12:00:00.000Z")).toISOString(),
+    "2026-10-20T03:00:00.000Z",
+  );
+  assert.equal(
+    startOfSaoPauloDay(new Date("2026-10-20T02:30:00.000Z")).toISOString(),
+    "2026-10-19T03:00:00.000Z",
   );
 });
 

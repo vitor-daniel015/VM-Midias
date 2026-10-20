@@ -330,6 +330,14 @@ export function AdminNewsPage() {
           ))}
         </nav>
 
+        {view === "rejected" && (
+          <p className="mt-4 flex items-center gap-2 rounded-xl border border-white/10 bg-[#0c0e12] px-4 py-3 text-xs leading-5 text-white/55">
+            <Clock3 className="h-4 w-4 shrink-0 text-[#ff3155]" />
+            As notícias recusadas são excluídas definitivamente do banco quando
+            o dia termina, considerando o horário de São Paulo.
+          </p>
+        )}
+
         {error && (
           <p className="mt-6 rounded-xl border border-red-400/25 bg-red-400/10 p-4 text-sm text-red-100">
             {error}

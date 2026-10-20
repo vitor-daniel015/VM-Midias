@@ -4,6 +4,7 @@ import { NEWS_SOURCES } from "./news-sources.js";
 
 const USER_AGENT = "VM-Midias-News/1.0 (+https://vmmidias.com.br)";
 const PAGE_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/140 Safari/537.36";
+const NEWS_TIME_ZONE = "America/Sao_Paulo";
 
 function decodeEntities(value) {
   const entities = {
@@ -297,10 +298,69 @@ function serviceHeaders(extra = {}) {
   };
 }
 
+function timeZoneParts(date, timeZone) {
+  return Object.fromEntries(
+    new Intl.DateTimeFormat("en-US", {
+      timeZone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hourCycle: "h23",
+    })
+      .formatToParts(date)
+      .filter((part) => part.type !== "literal")
+      .map((part) => [part.type, Number(part.value)]),
+  );
+}
+
+export function startOfSaoPauloDay(referenceDate = new Date()) {
+  const local = timeZoneParts(referenceDate, NEWS_TIME_ZONE);
+  const target = Date.UTC(local.year, local.month - 1, local.day);
+  let utcGuess = target;
+
+  for (let pass = 0; pass < 2; pass += 1) {
+    const guess = new Date(utcGuess);
+    const zoned = timeZoneParts(guess, NEWS_TIME_ZONE);
+    const representedAsUtc = Date.UTC(
+      zoned.year,
+      zoned.month - 1,
+      zoned.day,
+      zoned.hour,
+      zoned.minute,
+      zoned.second,
+    );
+    utcGuess = target - (representedAsUtc - Math.floor(utcGuess / 1000) * 1000);
+  }
+
+  return new Date(utcGuess);
+}
+
+export async function deleteExpiredRejectedNews(referenceDate = new Date()) {
+  const cutoff = startOfSaoPauloDay(referenceDate).toISOString();
+  const response = await fetch(
+    `${config.supabaseUrl}/rest/v1/news_articles?moderation_status=eq.rejected&published_at=lt.${encodeURIComponent(cutoff)}`,
+    {
+      method: "DELETE",
+      headers: serviceHeaders({ Prefer: "return=representation" }),
+    },
+  );
+  if (!response.ok) {
+    throw new Error(`Não foi possível excluir notícias recusadas vencidas (HTTP ${response.status}).`);
+  }
+  const deleted = await response.json();
+  return Array.isArray(deleted) ? deleted.length : 0;
+}
+
 export async function ingestNews() {
   if (!config.supabaseUrl || !config.supabaseServiceRoleKey) {
     throw new Error("SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY são obrigatórios para coletar notícias.");
   }
+
+  const currentDayStart = startOfSaoPauloDay();
+  const deletedRejected = await deleteExpiredRejectedNews();
 
   const settled = await Promise.allSettled(
     NEWS_SOURCES.map(async (source) => ({ source, articles: parseFeed(await fetchWithRetry(source.url), source) })),
@@ -406,7 +466,10 @@ export async function ingestNews() {
     }
     return String(left?.[field] ?? "") === String(right?.[field] ?? "");
   });
-  const additions = synchronizedArticles.filter((article) => !existing.has(article.external_id));
+  const additions = synchronizedArticles.filter((article) =>
+    !existing.has(article.external_id) &&
+    Date.parse(article.published_at) >= currentDayStart.getTime(),
+  );
   const updates = synchronizedArticles.filter((article) => {
     const current = existing.get(article.external_id);
     return current && !sameContent(current, article);
@@ -457,6 +520,7 @@ export async function ingestNews() {
     imported: rssArticleCount,
     added: additions.length,
     updated: updates.length,
+    deletedRejected,
     failedSources: failures.length,
   };
 }
