@@ -3,6 +3,7 @@ import { config } from "./config.js";
 import { NEWS_SOURCES } from "./news-sources.js";
 
 const USER_AGENT = "VM-Midias-News/1.0 (+https://vmmidias.com.br)";
+const PAGE_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/140 Safari/537.36";
 
 function decodeEntities(value) {
   const entities = {
@@ -61,22 +62,98 @@ function normalized(value) {
     .toLowerCase();
 }
 
+function parsedNewsDate(value) {
+  const months = {
+    jan: "Jan", fev: "Feb", mar: "Mar", abr: "Apr", mai: "May", jun: "Jun",
+    jul: "Jul", ago: "Aug", set: "Sep", out: "Oct", nov: "Nov", dez: "Dec",
+  };
+  const translated = String(value || "").replace(
+    /\b(jan|fev|mar|abr|mai|jun|jul|ago|set|out|nov|dez)\b/gi,
+    (month) => months[month.toLowerCase()],
+  );
+  return Date.parse(translated);
+}
+
+function hasBrokenEncoding(value) {
+  return /�|Ã[\u0080-\u00bf]|Â[\u0080-\u00bf]/.test(String(value || ""));
+}
+
 function isBroadcastPromo(title) {
   const value = normalized(title);
   return /\b(jornal|telejornal|eptv|sptv|bom dia|jornal hoje|jornal nacional|link vanguarda|jac\s?1|mg\s?1|rj\s?1|df\s?1|globonews)\b/.test(value) &&
     /\b(assista|acompanhe|ao vivo|esta no ar|agora no ar)\b/.test(value);
 }
 
+function upgradedUolImage(value) {
+  return /^https?:\/\/conteudo\.imguol\.com\.br\//i.test(value)
+    ? value.replace(/_\d+x\d+(\.(?:jpe?g|png|webp))(?=$|\?)/i, "_615x300$1")
+    : value;
+}
+
 function articleImage(block, description) {
-  const enclosure = block.match(/<enclosure\b[^>]*\burl=["']([^"']+)["'][^>]*\btype=["']image\//i);
-  const htmlImage = String(description || "").match(/<img\b[^>]*\bsrc=["']([^"']+)["']/i);
+  const decodedDescription = decodeEntities(description);
+  const enclosureUrl = attribute(block, ["enclosure"], "url");
+  const enclosureTag = block.match(/<enclosure\b[^>]*>/i)?.[0] || "";
+  const enclosureIsImage = /\btype=["']image\//i.test(enclosureTag) ||
+    /\.(?:avif|gif|jpe?g|png|webp)(?:[?#]|$)/i.test(enclosureUrl);
+  const htmlImage = String(decodedDescription || "").match(/<img\b[^>]*\bsrc\s*=\s*["']?([^"'\s>]+)/i);
   const value = attribute(block, ["media:content", "media:thumbnail"], "url") ||
-    (enclosure && decodeEntities(enclosure[1])) ||
+    (enclosureIsImage && enclosureUrl) ||
     (htmlImage && decodeEntities(htmlImage[1])) ||
     "";
-  return /^https?:\/\//i.test(value) && !/(logo|favicon|spacer|pixel)/i.test(value)
-    ? value
+  const upgraded = upgradedUolImage(value);
+  return /^https?:\/\//i.test(upgraded) && !/(logo|favicon|spacer|pixel)/i.test(upgraded)
+    ? upgraded
     : "";
+}
+
+function charsetFrom(contentType, bytes) {
+  const header = String(contentType || "").match(/charset\s*=\s*["']?([^;"'\s]+)/i)?.[1];
+  if (header) return header;
+  const prefix = new TextDecoder("windows-1252").decode(bytes.slice(0, 240));
+  return prefix.match(/<\?xml[^>]*encoding=["']([^"']+)["']/i)?.[1] || "utf-8";
+}
+
+export function decodeFeedBytes(bytes, contentType = "") {
+  const encoding = charsetFrom(contentType, bytes)
+    .toLowerCase()
+    .replace(/^latin-?1$/, "windows-1252")
+    .replace(/^iso-8859-1$/, "windows-1252");
+  try {
+    return new TextDecoder(encoding).decode(bytes);
+  } catch {
+    return new TextDecoder("utf-8").decode(bytes);
+  }
+}
+
+function htmlAttribute(tagValue, name) {
+  const match = String(tagValue || "").match(
+    new RegExp(`\\b${name}\\s*=\\s*(["'])(.*?)\\1`, "i"),
+  );
+  return match ? decodeEntities(match[2]) : "";
+}
+
+export function extractPageMetadata(html) {
+  const metadata = {};
+  const tags = String(html || "").match(/<meta\b[^>]*>/gi) || [];
+  for (const meta of tags) {
+    const key = (htmlAttribute(meta, "property") || htmlAttribute(meta, "name")).toLowerCase();
+    if (!["og:title", "og:description", "og:image"].includes(key)) continue;
+    const content = htmlAttribute(meta, "content");
+    if (!content) continue;
+    if (key === "og:image") {
+      if (!metadata[key] || (/(logo|share-30-anos)/i.test(metadata[key]) && !/(logo|share-30-anos)/i.test(content))) {
+        metadata[key] = content;
+      }
+    } else if (!metadata[key]) {
+      metadata[key] = content;
+    }
+  }
+  return {
+    title: plain(metadata["og:title"] || ""),
+    summary: plain(metadata["og:description"] || ""),
+    image_url: upgradedUolImage(metadata["og:image"] || ""),
+  };
 }
 
 export function parseFeed(xml, source) {
@@ -89,7 +166,7 @@ export function parseFeed(xml, source) {
     if (!title || isBroadcastPromo(title)) continue;
 
     const rawDate = plain(tag(block, ["pubDate", "published", "updated", "dc:date"]));
-    const publishedAt = Date.parse(rawDate);
+    const publishedAt = parsedNewsDate(rawDate);
     if (Number.isFinite(publishedAt) && publishedAt < oldest) continue;
 
     const description = tag(block, ["description", "content:encoded", "summary", "content"]);
@@ -114,23 +191,50 @@ export function parseFeed(xml, source) {
   return articles.slice(0, config.newsItemsPerSource);
 }
 
-async function fetchWithRetry(url, attempts = 3) {
+async function fetchWithRetry(
+  url,
+  attempts = 3,
+  accept = "application/rss+xml, application/xml, text/xml, */*",
+  userAgent = USER_AGENT,
+) {
   let lastError;
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     try {
       const response = await fetch(url, {
-        headers: { "User-Agent": USER_AGENT, Accept: "application/rss+xml, application/xml, text/xml, */*" },
+        headers: { "User-Agent": userAgent, Accept: accept },
         redirect: "follow",
         signal: AbortSignal.timeout(config.newsRequestTimeoutMs),
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.text();
+      const bytes = new Uint8Array(await response.arrayBuffer());
+      return decodeFeedBytes(bytes, response.headers.get("content-type") || "");
     } catch (error) {
       lastError = error;
       if (attempt < attempts) await new Promise((resolve) => setTimeout(resolve, 700 * attempt));
     }
   }
   throw lastError;
+}
+
+async function enrichUolArticle(article) {
+  if (!article.article_url) return article;
+  try {
+    const html = await fetchWithRetry(
+      article.article_url,
+      2,
+      "text/html,application/xhtml+xml",
+      PAGE_USER_AGENT,
+    );
+    const metadata = extractPageMetadata(html);
+    return {
+      ...article,
+      title: hasBrokenEncoding(article.title) && metadata.title ? metadata.title : article.title,
+      summary: hasBrokenEncoding(article.summary) && metadata.summary ? metadata.summary : article.summary,
+      image_url: upgradedUolImage(article.image_url || metadata.image_url || "") || null,
+    };
+  } catch {
+    return article;
+  }
 }
 
 function serviceHeaders(extra = {}) {
@@ -169,30 +273,116 @@ export async function ingestNews() {
   if (!articles.length) {
     throw new Error(`Nenhuma fonte RSS respondeu com notícias válidas. ${failures.join("; ")}`);
   }
+  const rssArticleCount = articles.length;
 
-  const response = await fetch(
-    `${config.supabaseUrl}/rest/v1/news_articles?on_conflict=external_id`,
-    {
-      method: "POST",
-      headers: serviceHeaders({
-        "Content-Type": "application/json",
-        // Uma matéria já moderada nunca pode voltar ao estado inicial quando
-        // a mesma fonte RSS for coletada novamente.
-        Prefer: "resolution=ignore-duplicates,missing=default,return=minimal",
-      }),
-      body: JSON.stringify(articles),
-    },
+  const newestAccepted = new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString();
+  const existingResponse = await fetch(
+    `${config.supabaseUrl}/rest/v1/news_articles?select=external_id,title,summary,source_name,category,image_url,article_url,published_at&published_at=gte.${encodeURIComponent(newestAccepted)}&limit=1000`,
+    { headers: serviceHeaders(), cache: "no-store" },
   );
-
-  if (!response.ok) {
-    const details = await response.text();
-    if (response.status === 404 || /news_articles/i.test(details)) {
+  if (!existingResponse.ok) {
+    const details = await existingResponse.text();
+    if (existingResponse.status === 404 || /news_articles/i.test(details)) {
       throw new Error("A fila de notícias ainda não foi instalada no Supabase. Aplique a migração 202610190001_news_moderation_queue.sql.");
     }
-    throw new Error(`Não foi possível salvar a fila de notícias (HTTP ${response.status}).`);
+    throw new Error(`Não foi possível consultar a fila de notícias (HTTP ${existingResponse.status}).`);
   }
 
-  return { imported: articles.length, failedSources: failures.length };
+  const existing = new Map((await existingResponse.json()).map((item) => [item.external_id, item]));
+  const recordsToSync = new Map(articles.map((article) => [article.external_id, article]));
+
+  for (const article of recordsToSync.values()) {
+    const current = existing.get(article.external_id);
+    if (article.source_name === "UOL Notícias" && !article.image_url && current?.image_url) {
+      article.image_url = upgradedUolImage(current.image_url);
+    }
+  }
+  for (const item of existing.values()) {
+    if (
+      item.source_name === "UOL Notícias" &&
+      (!item.image_url || hasBrokenEncoding(item.title) || hasBrokenEncoding(item.summary)) &&
+      !recordsToSync.has(item.external_id)
+    ) {
+      recordsToSync.set(item.external_id, item);
+    }
+  }
+
+  const uolToEnrich = [...recordsToSync.values()].filter((article) =>
+    article.source_name === "UOL Notícias" &&
+    (!article.image_url || hasBrokenEncoding(article.title) || hasBrokenEncoding(article.summary)),
+  );
+  let enrichIndex = 0;
+  const enrichWorkers = Array.from({ length: Math.min(6, uolToEnrich.length) }, async () => {
+    while (enrichIndex < uolToEnrich.length) {
+      const article = uolToEnrich[enrichIndex++];
+      recordsToSync.set(article.external_id, await enrichUolArticle(article));
+    }
+  });
+  await Promise.all(enrichWorkers);
+
+  const synchronizedArticles = [...recordsToSync.values()];
+  const contentFields = [
+    "title", "summary", "source_name", "category", "image_url", "article_url", "published_at",
+  ];
+  const sameContent = (left, right) => contentFields.every((field) => {
+    if (field === "published_at") {
+      return Date.parse(left?.[field] || "") === Date.parse(right?.[field] || "");
+    }
+    return String(left?.[field] ?? "") === String(right?.[field] ?? "");
+  });
+  const additions = synchronizedArticles.filter((article) => !existing.has(article.external_id));
+  const updates = synchronizedArticles.filter((article) => {
+    const current = existing.get(article.external_id);
+    return current && !sameContent(current, article);
+  });
+
+  if (additions.length) {
+    const insertResponse = await fetch(
+      `${config.supabaseUrl}/rest/v1/news_articles?on_conflict=external_id`,
+      {
+        method: "POST",
+        headers: serviceHeaders({
+          "Content-Type": "application/json",
+          Prefer: "resolution=ignore-duplicates,missing=default,return=minimal",
+        }),
+        body: JSON.stringify(additions),
+      },
+    );
+    if (!insertResponse.ok) {
+      throw new Error(`Não foi possível adicionar notícias à fila (HTTP ${insertResponse.status}).`);
+    }
+  }
+
+  let updateIndex = 0;
+  const workers = Array.from({ length: Math.min(8, updates.length) }, async () => {
+    while (updateIndex < updates.length) {
+      const article = updates[updateIndex++];
+      const body = Object.fromEntries(contentFields.map((field) => [field, article[field]]));
+      body.updated_at = new Date().toISOString();
+      const updateResponse = await fetch(
+        `${config.supabaseUrl}/rest/v1/news_articles?external_id=eq.${article.external_id}`,
+        {
+          method: "PATCH",
+          headers: serviceHeaders({
+            "Content-Type": "application/json",
+            Prefer: "return=minimal",
+          }),
+          body: JSON.stringify(body),
+        },
+      );
+      if (!updateResponse.ok) {
+        throw new Error(`Não foi possível corrigir uma notícia existente (HTTP ${updateResponse.status}).`);
+      }
+    }
+  });
+  await Promise.all(workers);
+
+  return {
+    imported: rssArticleCount,
+    added: additions.length,
+    updated: updates.length,
+    failedSources: failures.length,
+  };
 }
 
 export async function updateNewsStoryStatus(articleId, storyStatus, fields = {}) {

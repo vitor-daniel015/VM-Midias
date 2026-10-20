@@ -130,12 +130,6 @@ export function AdminNewsPage() {
     decision: "approved" | "rejected",
   ) => {
     if (!session) return;
-    if (
-      decision === "rejected" &&
-      !window.confirm("Deseja realmente recusar esta notícia?")
-    ) {
-      return;
-    }
     setWorkingId(article.id);
     setError("");
     try {

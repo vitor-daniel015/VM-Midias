@@ -1,8 +1,8 @@
 import { ingestNews } from "./news.js";
 
 ingestNews()
-  .then(({ imported, failedSources }) => {
-    console.log(`${imported} notícia(s) sincronizada(s); ${failedSources} fonte(s) indisponível(is).`);
+  .then(({ imported, added, updated, failedSources }) => {
+    console.log(`${imported} notícia(s) lida(s); ${added} nova(s); ${updated} corrigida(s); ${failedSources} fonte(s) indisponível(is).`);
   })
   .catch((error) => {
     console.error(`Coleta encerrada: ${error.message}`);

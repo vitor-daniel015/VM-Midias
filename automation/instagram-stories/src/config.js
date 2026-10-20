@@ -45,7 +45,7 @@ if (!new Set(["latest", "recent", "all"]).has(firstRunMode)) {
 export const config = {
   storyPageUrl: storyPageUrl(),
   newsMaxAgeDays: numberFromEnv("NEWS_MAX_AGE_DAYS", 7, 1, 30),
-  newsItemsPerSource: numberFromEnv("NEWS_ITEMS_PER_SOURCE", 12, 1, 50),
+  newsItemsPerSource: numberFromEnv("NEWS_ITEMS_PER_SOURCE", 50, 1, 50),
   newsRequestTimeoutMs: numberFromEnv("NEWS_REQUEST_TIMEOUT_MS", 15000, 5000, 60000),
   checkIntervalMinutes: numberFromEnv("STORY_CHECK_INTERVAL_MINUTES", 10, 1, 1440),
   maxAgeHours: numberFromEnv("STORY_MAX_AGE_HOURS", 48, 1, 720),
