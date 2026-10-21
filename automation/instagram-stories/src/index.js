@@ -6,7 +6,11 @@ import {
   validatePublishingConfig,
 } from "./config.js";
 import { articleKey, captureFilePath, openRenderer } from "./capture.js";
-import { inspectInstagramAccount, publishInstagramStory } from "./meta.js";
+import {
+  getContentPublishingLimit,
+  inspectInstagramAccount,
+  publishInstagramStory,
+} from "./meta.js";
 import { updateNewsStoryStatus } from "./news.js";
 import { ensureStorageBucket, uploadStory } from "./storage.js";
 import {
@@ -24,6 +28,16 @@ let stopping = false;
 
 function log(message) {
   console.log(`[${new Date().toLocaleString("pt-BR")}] ${message}`);
+}
+
+function latestPublishedAt(state) {
+  return Math.max(
+    0,
+    ...Object.values(state?.articles || {})
+      .filter((record) => record?.status === "published")
+      .map((record) => Date.parse(record.publishedToInstagramAt || record.updatedAt || ""))
+      .filter(Number.isFinite),
+  );
 }
 
 function objectPath(article, key) {
@@ -44,14 +58,22 @@ export function remainingPublishDelayMs(
 ) {
   const minimumMs = Math.max(0, Number(minimumMinutes) || 0) * 60 * 1000;
   if (!minimumMs) return 0;
-  const lastPublishedAt = Math.max(
-    0,
-    ...Object.values(state?.articles || {})
-      .filter((record) => record?.status === "published")
-      .map((record) => Date.parse(record.publishedToInstagramAt || record.updatedAt || ""))
-      .filter(Number.isFinite),
-  );
+  const lastPublishedAt = latestPublishedAt(state);
   return lastPublishedAt ? Math.max(0, lastPublishedAt + minimumMs - now) : 0;
+}
+
+export function availablePublishSlots(
+  state,
+  minimumMinutes,
+  maximumPerCycle,
+  now = Date.now(),
+) {
+  const maximum = Math.max(1, Number(maximumPerCycle) || 1);
+  const minimumMs = Math.max(0, Number(minimumMinutes) || 0) * 60 * 1000;
+  if (!minimumMs) return maximum;
+  const lastPublishedAt = latestPublishedAt(state);
+  if (!lastPublishedAt) return maximum;
+  return Math.min(maximum, Math.max(0, Math.floor((now - lastPublishedAt) / minimumMs)));
 }
 
 function eligibleArticles(items, state) {
@@ -124,12 +146,30 @@ async function runDoctor() {
 async function processCycle() {
   if (config.publishEnabled) await ensureStorageBucket(config);
   const state = await readState(config);
-  const publishDelay = config.publishEnabled
-    ? remainingPublishDelayMs(state, config.minPublishIntervalMinutes)
-    : 0;
-  if (publishDelay > 0) {
+  let publishSlots = config.publishEnabled
+    ? availablePublishSlots(
+      state,
+      config.minPublishIntervalMinutes,
+      config.maxPerCycle,
+    )
+    : config.maxPerCycle;
+  if (config.publishEnabled && publishSlots < 1) {
+    const publishDelay = remainingPublishDelayMs(state, config.minPublishIntervalMinutes);
     log(`Próximo Story liberado em ${Math.ceil(publishDelay / 60000)} minuto(s).`);
     return;
+  }
+  if (config.publishEnabled) {
+    try {
+      const limit = await getContentPublishingLimit(config);
+      publishSlots = Math.min(publishSlots, Math.max(0, limit.total - limit.used));
+      log(`Cota Meta: ${limit.used}/${limit.total} publicações nas últimas 24 horas.`);
+      if (publishSlots < 1) {
+        log("A cota de publicação da Meta está esgotada neste ciclo.");
+        return;
+      }
+    } catch (error) {
+      console.warn(`Não foi possível consultar a cota da Meta: ${error.message}`);
+    }
   }
   const renderer = await openRenderer(config);
   try {
@@ -139,15 +179,13 @@ async function processCycle() {
       return;
     }
     await initializeState(items, state);
-    const cycleLimit = config.publishEnabled && config.minPublishIntervalMinutes > 0
-      ? 1
-      : config.maxPerCycle;
-    const queue = eligibleArticles(items, state).slice(0, cycleLimit);
+    const queue = eligibleArticles(items, state).slice(0, publishSlots);
     if (!queue.length) {
       log(`Sem notícias novas. ${items.length} matérias foram verificadas.`);
       return;
     }
 
+    const cycleErrors = [];
     for (const article of queue) {
       const key = articleKey(article);
       const output = captureFilePath(config, article);
@@ -231,8 +269,11 @@ async function processCycle() {
           console.warn(`Não foi possível registrar a falha no painel: ${statusError.message}`);
         }
         console.error(`Falha em “${article.title}”: ${error.message}`);
-        if (once) throw error;
+        cycleErrors.push(error);
       }
+    }
+    if (once && cycleErrors.length) {
+      throw new Error(`${cycleErrors.length} Story(s) falharam neste ciclo.`);
     }
   } finally {
     await renderer.close();

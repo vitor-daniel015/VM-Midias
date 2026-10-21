@@ -30,9 +30,9 @@ jobs:
     env:
       STORY_PAGE_URL: https://vmmidias.com.br/VM/index.html?view=noticias
       STORY_CHECK_INTERVAL_MINUTES: "10"
-      STORY_MIN_PUBLISH_INTERVAL_MINUTES: "60"
+      STORY_MIN_PUBLISH_INTERVAL_MINUTES: "20"
       STORY_MAX_AGE_HOURS: "48"
-      STORY_MAX_PER_CYCLE: "1"
+      STORY_MAX_PER_CYCLE: "5"
       STORY_FIRST_RUN_MODE: all
       STORY_PUBLISH_ENABLED: "true"
       STORY_STATE_OBJECT_PATH: automation/state.json
@@ -63,7 +63,13 @@ jobs:
         run: npm ci
 
       - name: Atualizar fila de noticias
+        id: ingest
+        continue-on-error: true
         run: npm run ingest
+
+      - name: Avisar sobre falha temporaria na coleta
+        if: steps.ingest.outcome == 'failure'
+        run: echo "::warning::A coleta RSS falhou, mas a fila já aprovada continuará sendo publicada."
 
       - name: Instalar Chromium
         run: npx playwright install chromium --with-deps

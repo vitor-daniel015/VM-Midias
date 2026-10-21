@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { inspectInstagramAccount } from "../src/meta.js";
+import { getContentPublishingLimit, inspectInstagramAccount } from "../src/meta.js";
 
 function metaConfig(overrides = {}) {
   return {
@@ -57,4 +57,26 @@ test("rejeita um usuário diferente de radiobraba", async (context) => {
     inspectInstagramAccount(metaConfig()),
     /não corresponde a @radiobraba/,
   );
+});
+
+test("consulta a cota de publicação sem expor o token na URL", async (context) => {
+  const originalFetch = globalThis.fetch;
+  context.after(() => { globalThis.fetch = originalFetch; });
+  globalThis.fetch = async (url, options) => {
+    assert.equal(url.searchParams.get("fields"), "config,quota_usage");
+    assert.equal(url.searchParams.has("access_token"), false);
+    assert.equal(options.headers.Authorization, "Bearer token-de-teste");
+    return new Response(JSON.stringify({
+      data: [{
+        quota_usage: 7,
+        config: { quota_total: 100, quota_duration: 86400 },
+      }],
+    }), { status: 200, headers: { "Content-Type": "application/json" } });
+  };
+
+  assert.deepEqual(await getContentPublishingLimit(metaConfig()), {
+    used: 7,
+    total: 100,
+    durationSeconds: 86400,
+  });
 });

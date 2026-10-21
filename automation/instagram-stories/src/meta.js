@@ -46,6 +46,25 @@ export async function inspectInstagramAccount(config) {
   return account;
 }
 
+export async function getContentPublishingLimit(config) {
+  const payload = await graphRequest(
+    config,
+    `${config.instagramAccountId}/content_publishing_limit`,
+    { fields: "config,quota_usage" },
+  );
+  const limit = Array.isArray(payload.data) ? payload.data[0] : null;
+  const used = Number(limit?.quota_usage);
+  const total = Number(limit?.config?.quota_total);
+  if (!Number.isFinite(used) || !Number.isFinite(total) || total < 1) {
+    throw new Error("A Meta não informou a cota de publicação da conta.");
+  }
+  return {
+    used: Math.max(0, used),
+    total: Math.max(1, total),
+    durationSeconds: Number(limit?.config?.quota_duration) || 86400,
+  };
+}
+
 export async function publishInstagramStory(config, imageUrl) {
   const container = await graphRequest(config, `${config.instagramAccountId}/media`, {
     method: "POST",
