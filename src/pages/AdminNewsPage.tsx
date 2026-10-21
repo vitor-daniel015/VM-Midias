@@ -68,6 +68,37 @@ function normalizedNewsText(value: string) {
     .toLowerCase();
 }
 
+function cleanNewsText(value: string | null) {
+  const entities: Record<string, string> = {
+    amp: "&",
+    apos: "'",
+    gt: ">",
+    lt: "<",
+    nbsp: " ",
+    quot: '"',
+  };
+  let cleaned = String(value || "").replace(/<!\[CDATA\[|\]\]>/gi, "");
+  for (let pass = 0; pass < 3; pass += 1) {
+    const previous = cleaned;
+    cleaned = cleaned
+      .replace(/&#(x?[0-9a-f]+);/gi, (match, number: string) => {
+        const code = Number.parseInt(number.replace(/^x/i, ""), /^x/i.test(number) ? 16 : 10);
+        return Number.isFinite(code) && code <= 0x10ffff ? String.fromCodePoint(code) : match;
+      })
+      .replace(/&(amp|apos|gt|lt|nbsp|quot);/gi, (_match, name: string) => entities[name.toLowerCase()]);
+    if (cleaned === previous) break;
+  }
+  return cleaned.replace(/\s+/g, " ").trim();
+}
+
+function sanitizeNewsArticle(article: NewsArticleRecord): NewsArticleRecord {
+  return {
+    ...article,
+    title: cleanNewsText(article.title),
+    summary: cleanNewsText(article.summary) || null,
+  };
+}
+
 function isUsefulStoryNews(article: NewsArticleRecord) {
   const title = normalizedNewsText(article.title);
   const content = normalizedNewsText(`${article.title} ${article.summary || ""}`);
@@ -123,7 +154,7 @@ export function AdminNewsPage() {
     try {
       const valid = await ensureAdminSession(currentSession);
       setSession(valid);
-      setArticles(await listNewsAdmin(valid.access_token));
+      setArticles((await listNewsAdmin(valid.access_token)).map(sanitizeNewsArticle));
     } catch (reason) {
       const message =
         reason instanceof Error
@@ -491,6 +522,13 @@ function NewsCard({
 
 function StoryPreview({ article }: { article: NewsArticleRecord }) {
   const hasImage = hasUsableStoryImage(article);
+  const previewTitleSize = article.title.length > 170
+    ? 10
+    : article.title.length > 130
+      ? 12
+      : article.title.length > 95
+        ? 14
+        : 17;
   return (
     <div>
       <div
@@ -522,7 +560,10 @@ function StoryPreview({ article }: { article: NewsArticleRecord }) {
           <p className="text-[7px] font-black uppercase tracking-[.18em] text-[#ff3155]">
             {article.category || "Informação"}
           </p>
-          <h4 className="mt-2 line-clamp-3 text-[17px] font-black leading-[1.02] tracking-[-.035em] text-white">
+          <h4
+            className="mt-2 font-black leading-[1.02] tracking-[-.035em] text-white"
+            style={{ fontSize: `${previewTitleSize}px` }}
+          >
             {article.title}
           </h4>
           <div className="mt-2 h-1 w-[37%] bg-gradient-to-r from-[#f8034b] via-[#86152f] to-[#33121d]" />

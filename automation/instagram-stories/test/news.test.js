@@ -32,6 +32,21 @@ test("converte RSS em notícia pronta para a fila", () => {
   assert.equal(articles[0].source_name, "Fonte teste");
 });
 
+test("remove resíduos de CDATA do começo do corpo da notícia", () => {
+  const articles = parseFeed(`
+    <rss><channel><item>
+      <title><![CDATA[Notícia internacional importante]]></title>
+      <link>https://example.com/internacional</link>
+      <guid>noticia-cdata-quebrado</guid>
+      <pubDate>${new Date().toUTCString()}</pubDate>
+      <description><![CDATA[]]> Os presidentes anunciaram uma reunião.</description>
+    </item></channel></rss>
+  `, source);
+
+  assert.equal(articles[0].summary, "Os presidentes anunciaram uma reunião.");
+  assert.doesNotMatch(articles[0].summary, /\]\]>/);
+});
+
 test("remove chamadas promocionais de telejornal", () => {
   const articles = parseFeed(`
     <rss><channel><item>

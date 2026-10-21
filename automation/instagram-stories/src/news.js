@@ -15,7 +15,10 @@ function decodeEntities(value) {
     nbsp: " ",
     quot: '"',
   };
-  let decoded = String(value || "").replace(/^<!\[CDATA\[|\]\]>$/g, "");
+  // Alguns feeds encerram e reabrem CDATA de forma inconsistente. Esses
+  // marcadores nunca fazem parte do texto da notícia e podem aparecer tanto
+  // nas pontas quanto no meio do valor extraído.
+  let decoded = String(value || "").replace(/<!\[CDATA\[|\]\]>/gi, "");
   for (let pass = 0; pass < 3; pass += 1) {
     const previous = decoded;
     decoded = decoded
@@ -415,19 +418,19 @@ export async function ingestNews() {
   }
   for (const item of existing.values()) {
     const googleNewsArticle = googleNewsSourceNames.has(item.source_name);
-    const cleanedTitle = googleNewsArticle ? cleanGoogleNewsTitle(item.title) : item.title;
+    const sanitizedTitle = plain(item.title);
+    const sanitizedSummary = plain(item.summary) || null;
+    const cleanedTitle = googleNewsArticle ? cleanGoogleNewsTitle(sanitizedTitle) : sanitizedTitle;
     const cleanedSummary = googleNewsArticle
-      ? cleanGoogleNewsSummary(item.summary, cleanedTitle)
-      : item.summary;
-    const needsGoogleCleanup = googleNewsArticle && (
-      cleanedTitle !== item.title || cleanedSummary !== item.summary
-    );
+      ? cleanGoogleNewsSummary(sanitizedSummary, cleanedTitle)
+      : sanitizedSummary;
+    const needsTextCleanup = cleanedTitle !== item.title || cleanedSummary !== item.summary;
     if (
       (
         !isUsableNewsImage(item.image_url) ||
         hasBrokenEncoding(item.title) ||
         hasBrokenEncoding(item.summary) ||
-        needsGoogleCleanup
+        needsTextCleanup
       ) &&
       !recordsToSync.has(item.external_id)
     ) {
