@@ -179,6 +179,12 @@ export function AdminNewsPage() {
     if (session) void load(session);
   }, []);
 
+  useEffect(() => {
+    if (!session) return;
+    const refresh = window.setInterval(() => void load(session), 60_000);
+    return () => window.clearInterval(refresh);
+  }, [session?.access_token]);
+
   const storyReviewCandidates = useMemo(
     () => selectStoryReviewCandidates(articles),
     [articles],

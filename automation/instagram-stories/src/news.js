@@ -341,17 +341,17 @@ export function startOfSaoPauloDay(referenceDate = new Date()) {
   return new Date(utcGuess);
 }
 
-export async function deleteExpiredRejectedNews(referenceDate = new Date()) {
+export async function deleteExpiredNews(referenceDate = new Date()) {
   const cutoff = startOfSaoPauloDay(referenceDate).toISOString();
   const response = await fetch(
-    `${config.supabaseUrl}/rest/v1/news_articles?moderation_status=eq.rejected&published_at=lt.${encodeURIComponent(cutoff)}`,
+    `${config.supabaseUrl}/rest/v1/news_articles?published_at=lt.${encodeURIComponent(cutoff)}`,
     {
       method: "DELETE",
       headers: serviceHeaders({ Prefer: "return=representation" }),
     },
   );
   if (!response.ok) {
-    throw new Error(`Não foi possível excluir notícias recusadas vencidas (HTTP ${response.status}).`);
+    throw new Error(`Não foi possível excluir notícias de dias anteriores (HTTP ${response.status}).`);
   }
   const deleted = await response.json();
   return Array.isArray(deleted) ? deleted.length : 0;
@@ -363,7 +363,7 @@ export async function ingestNews() {
   }
 
   const currentDayStart = startOfSaoPauloDay();
-  const deletedRejected = await deleteExpiredRejectedNews();
+  const deletedExpired = await deleteExpiredNews();
 
   const settled = await Promise.allSettled(
     NEWS_SOURCES.map(async (source) => ({ source, articles: parseFeed(await fetchWithRetry(source.url), source) })),
@@ -523,7 +523,7 @@ export async function ingestNews() {
     imported: rssArticleCount,
     added: additions.length,
     updated: updates.length,
-    deletedRejected,
+    deletedExpired,
     failedSources: failures.length,
   };
 }

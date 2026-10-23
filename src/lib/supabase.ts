@@ -453,8 +453,57 @@ export async function listBusinessesAdmin(accessToken: string) {
   return (await response.json()) as BusinessRecord[];
 }
 
+function startOfSaoPauloDayIso(referenceDate = new Date()) {
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/Sao_Paulo",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hourCycle: "h23",
+    })
+      .formatToParts(referenceDate)
+      .filter((part) => part.type !== "literal")
+      .map((part) => [part.type, Number(part.value)]),
+  );
+  const target = Date.UTC(parts.year, parts.month - 1, parts.day);
+  let utcGuess = target;
+
+  for (let pass = 0; pass < 2; pass += 1) {
+    const zonedParts = Object.fromEntries(
+      new Intl.DateTimeFormat("en-US", {
+        timeZone: "America/Sao_Paulo",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hourCycle: "h23",
+      })
+        .formatToParts(new Date(utcGuess))
+        .filter((part) => part.type !== "literal")
+        .map((part) => [part.type, Number(part.value)]),
+    );
+    const representedAsUtc = Date.UTC(
+      zonedParts.year,
+      zonedParts.month - 1,
+      zonedParts.day,
+      zonedParts.hour,
+      zonedParts.minute,
+      zonedParts.second,
+    );
+    utcGuess = target - (representedAsUtc - Math.floor(utcGuess / 1000) * 1000);
+  }
+
+  return new Date(utcGuess).toISOString();
+}
+
 export async function listNewsAdmin(accessToken: string) {
-  const newestAccepted = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString();
+  const newestAccepted = startOfSaoPauloDayIso();
   const response = await fetch(
     `${supabaseUrl}/rest/v1/news_articles?select=*&published_at=gte.${encodeURIComponent(newestAccepted)}&order=published_at.desc`,
     {

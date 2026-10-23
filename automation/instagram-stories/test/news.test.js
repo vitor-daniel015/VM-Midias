@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   decodeFeedBytes,
+  deleteExpiredNews,
   extractPageMetadata,
   isLowValueNews,
   isUsableNewsImage,
@@ -102,11 +103,11 @@ test("interpreta a data em português publicada pela UOL", () => {
     <rss><channel><item>
       <title>Notícia com data em português</title>
       <link>https://example.com/data</link>
-      <pubDate>Ter, 20 Out 2026 14:57:06 -0300</pubDate>
+      <pubDate>Ter, 20 Out 2099 14:57:06 -0300</pubDate>
     </item></channel></rss>
   `, { name: "UOL Notícias", category: "Brasil" });
 
-  assert.equal(articles[0].published_at, "2026-10-20T17:57:06.000Z");
+  assert.equal(articles[0].published_at, "2099-10-20T17:57:06.000Z");
 });
 
 test("lê título e imagem dos metadados da página sem sobrescrever o primeiro título", () => {
@@ -170,6 +171,30 @@ test("calcula a virada do dia no horário de São Paulo", () => {
     startOfSaoPauloDay(new Date("2026-10-20T02:30:00.000Z")).toISOString(),
     "2026-10-19T03:00:00.000Z",
   );
+});
+
+test("exclui do banco todas as notícias anteriores ao dia atual em São Paulo", async () => {
+  const originalFetch = globalThis.fetch;
+  let requestUrl = "";
+  let requestOptions;
+  globalThis.fetch = async (url, options) => {
+    requestUrl = String(url);
+    requestOptions = options;
+    return new Response("[]", {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  };
+
+  try {
+    const deleted = await deleteExpiredNews(new Date("2026-10-23T12:00:00.000Z"));
+    assert.equal(deleted, 0);
+    assert.equal(requestOptions.method, "DELETE");
+    assert.match(requestUrl, /published_at=lt\.2026-10-23T03%3A00%3A00\.000Z/);
+    assert.doesNotMatch(requestUrl, /moderation_status/);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
 });
 
 test("usa a imagem social real da página quando o RSS não fornece foto", () => {

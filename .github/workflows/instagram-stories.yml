@@ -36,7 +36,7 @@ jobs:
       STORY_FIRST_RUN_MODE: all
       STORY_PUBLISH_ENABLED: "true"
       STORY_STATE_OBJECT_PATH: automation/state.json
-      NEWS_MAX_AGE_DAYS: "7"
+      NEWS_MAX_AGE_DAYS: "1"
       NEWS_ITEMS_PER_SOURCE: "50"
       NEWS_REQUEST_TIMEOUT_MS: "15000"
 
