@@ -16,11 +16,6 @@ function vm_reply(int $status, array $payload): void
     exit;
 }
 
-if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
-    header('Allow: POST');
-    vm_reply(405, ['error' => 'Use o botão do painel para iniciar a busca.']);
-}
-
 $configPath = __DIR__ . '/api/.news-config.php';
 if (!is_file($configPath)) {
     vm_reply(503, ['error' => 'A busca manual ainda não foi configurada no servidor.']);
@@ -31,6 +26,15 @@ $supabaseUrl = rtrim((string) ($config['supabase_url'] ?? ''), '/');
 $serviceRoleKey = trim((string) ($config['service_role_key'] ?? ''));
 if ($supabaseUrl === '' || $serviceRoleKey === '') {
     vm_reply(503, ['error' => 'A busca manual está temporariamente indisponível.']);
+}
+
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET' && ($_GET['health'] ?? '') === '1') {
+    vm_reply(200, ['ok' => true, 'configured' => true]);
+}
+
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+    header('Allow: POST');
+    vm_reply(405, ['error' => 'Use o botão do painel para iniciar a busca.']);
 }
 
 function vm_authorization_header(): string
