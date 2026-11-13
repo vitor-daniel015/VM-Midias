@@ -9,6 +9,7 @@ import {
   parseFeed,
   startOfSaoPauloDay,
 } from "../src/news.js";
+import { MANUAL_NEWS_SOURCES } from "../src/news-sources.js";
 
 const source = {
   name: "Fonte teste",
@@ -31,6 +32,30 @@ test("converte RSS em notícia pronta para a fila", () => {
   assert.equal(articles[0].summary, "Resumo da notícia.");
   assert.equal(articles[0].image_url, "https://example.com/foto.jpg");
   assert.equal(articles[0].source_name, "Fonte teste");
+});
+
+test("não aceita notícia com mais de 24 horas", () => {
+  const oldDate = new Date(Date.now() - 25 * 60 * 60 * 1000).toUTCString();
+  const articles = parseFeed(`
+    <rss><channel><item>
+      <title>Notícia antiga que não deve voltar para a fila</title>
+      <link>https://example.com/noticia-antiga</link>
+      <guid>noticia-antiga</guid>
+      <pubDate>${oldDate}</pubDate>
+      <description>Conteúdo que já perdeu a validade.</description>
+    </item></channel></rss>
+  `, source);
+
+  assert.equal(articles.length, 0);
+});
+
+test("a busca manual usa fontes complementares com consultas do último dia", () => {
+  assert.ok(MANUAL_NEWS_SOURCES.length >= 8);
+  const googleSources = MANUAL_NEWS_SOURCES.filter((item) =>
+    item.url.startsWith("https://news.google.com/"),
+  );
+  assert.ok(googleSources.length >= 4);
+  assert.ok(googleSources.every((item) => decodeURIComponent(item.url).includes("when:1d")));
 });
 
 test("remove resíduos de CDATA do começo do corpo da notícia", () => {

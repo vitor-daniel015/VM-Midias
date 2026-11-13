@@ -1,0 +1,47 @@
+name: Atualizar notícias
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "2,7,12,17,22,27,32,37,42,47,52,57 * * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vm-news-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+
+    defaults:
+      run:
+        working-directory: automation/instagram-stories
+
+    env:
+      NEWS_MAX_AGE_DAYS: "1"
+      NEWS_ITEMS_PER_SOURCE: "50"
+      NEWS_REQUEST_TIMEOUT_MS: "15000"
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
+    steps:
+      - name: Baixar projeto
+        uses: actions/checkout@v4
+
+      - name: Instalar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: automation/instagram-stories/package-lock.json
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Buscar notícias recentes
+        run: npm run ingest
+

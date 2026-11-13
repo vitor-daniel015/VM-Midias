@@ -119,16 +119,9 @@ export type NewsArticleRecord = {
   updated_at: string;
 };
 
-export type NewsRefreshResult = {
-  found: number;
-  added: number;
-  skipped: number;
-  failed_sources: number;
-  validity_hours: number;
-};
-
 export const videoAssetsBucket = VIDEO_ASSETS_BUCKET;
 export const businessAssetsBucket = BUSINESS_ASSETS_BUCKET;
+export const manualNewsRefreshExternalId = "vm-manual-news-refresh-v1";
 
 function safeFileName(fileName: string) {
   const lastDot = fileName.lastIndexOf(".");
@@ -530,39 +523,6 @@ export async function listNewsAdmin(accessToken: string) {
   return (await response.json()) as NewsArticleRecord[];
 }
 
-export async function fetchMoreNews(accessToken: string) {
-  const response = await fetch("/atualizar-noticias.php", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      Accept: "application/json",
-    },
-    cache: "no-store",
-  });
-
-  const result = await response.json().catch(() => null) as
-    | (NewsRefreshResult & { error?: string })
-    | null;
-
-  if (!response.ok) {
-    if (response.status === 401) {
-      throw new Error("Sua sessão expirou. Entre novamente.");
-    }
-    if (response.status === 403) {
-      throw new Error("Somente administradores podem buscar mais notícias.");
-    }
-    if (response.status === 429) {
-      throw new Error(result?.error || "Aguarde um minuto antes de buscar novamente.");
-    }
-    throw new Error(result?.error || "Não foi possível buscar mais notícias agora.");
-  }
-
-  if (!result) {
-    throw new Error("A busca terminou sem uma resposta válida.");
-  }
-  return result;
-}
-
 export async function moderateNewsArticle(
   accessToken: string,
   articleId: string,
@@ -593,6 +553,13 @@ export async function moderateNewsArticle(
     }
     throw new Error("Não foi possível atualizar esta notícia.");
   }
+}
+
+export async function requestNewsRefresh(
+  accessToken: string,
+  controlArticleId: string,
+) {
+  await moderateNewsArticle(accessToken, controlArticleId, "approved");
 }
 
 export async function deleteBusinessAsset(

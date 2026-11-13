@@ -1,10 +1,11 @@
 import { createHash } from "node:crypto";
 import { config } from "./config.js";
-import { NEWS_SOURCES } from "./news-sources.js";
+import { MANUAL_NEWS_SOURCES, NEWS_SOURCES } from "./news-sources.js";
 
 const USER_AGENT = "VM-Midias-News/1.0 (+https://vmmidias.com.br)";
 const PAGE_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/140 Safari/537.36";
 const NEWS_TIME_ZONE = "America/Sao_Paulo";
+export const MANUAL_NEWS_REFRESH_EXTERNAL_ID = "vm-manual-news-refresh-v1";
 
 function decodeEntities(value) {
   const entities = {
@@ -44,6 +45,29 @@ function plain(value) {
     .replace(/<[^>]+>/g, " ")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+function databaseText(value, maximumLength) {
+  let clean = "";
+  for (const character of String(value || "")) {
+    const codePoint = character.codePointAt(0);
+    if (codePoint === 0 || codePoint >= 0xd800 && codePoint <= 0xdfff) continue;
+    clean += character;
+  }
+  const normalized = clean.replace(/[\u0001-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, "").trim();
+  return maximumLength ? [...normalized].slice(0, maximumLength).join("") : normalized;
+}
+
+function databaseArticle(article) {
+  return {
+    ...article,
+    title: databaseText(article.title, 500),
+    summary: databaseText(article.summary, 420) || null,
+    source_name: databaseText(article.source_name, 160),
+    category: databaseText(article.category, 80) || "Informação",
+    image_url: databaseText(article.image_url, 2000) || null,
+    article_url: databaseText(article.article_url, 2000) || null,
+  };
 }
 
 function tag(block, names) {
@@ -301,6 +325,78 @@ function serviceHeaders(extra = {}) {
   };
 }
 
+async function ensureManualRefreshControl() {
+  const query = `${config.supabaseUrl}/rest/v1/news_articles?select=id,moderation_status,story_status&external_id=eq.${encodeURIComponent(MANUAL_NEWS_REFRESH_EXTERNAL_ID)}&limit=1`;
+  const response = await fetch(query, {
+    headers: serviceHeaders(),
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    throw new Error(`Não foi possível consultar o pedido de busca manual (HTTP ${response.status}).`);
+  }
+  const rows = await response.json();
+  if (rows[0]) return rows[0];
+
+  const createResponse = await fetch(
+    `${config.supabaseUrl}/rest/v1/news_articles?on_conflict=external_id`,
+    {
+      method: "POST",
+      headers: serviceHeaders({
+        "Content-Type": "application/json",
+        Prefer: "resolution=ignore-duplicates,missing=default,return=representation",
+      }),
+      body: JSON.stringify({
+        external_id: MANUAL_NEWS_REFRESH_EXTERNAL_ID,
+        title: "Controle interno de busca manual",
+        summary: "Registro técnico usado pelo botão Buscar mais notícias.",
+        source_name: "VM Mídias",
+        category: "Sistema",
+        image_url: null,
+        article_url: null,
+        published_at: new Date().toISOString(),
+        moderation_status: "rejected",
+        story_status: "skipped",
+      }),
+    },
+  );
+  if (!createResponse.ok) {
+    throw new Error(`Não foi possível preparar a busca manual (HTTP ${createResponse.status}).`);
+  }
+  const created = await createResponse.json();
+  if (created[0]) return created[0];
+
+  const retryResponse = await fetch(query, {
+    headers: serviceHeaders(),
+    cache: "no-store",
+  });
+  const retried = retryResponse.ok ? await retryResponse.json() : [];
+  if (!retried[0]) throw new Error("Não foi possível localizar o controle da busca manual.");
+  return retried[0];
+}
+
+async function completeManualRefresh(controlId) {
+  const response = await fetch(
+    `${config.supabaseUrl}/rest/v1/news_articles?id=eq.${encodeURIComponent(controlId)}`,
+    {
+      method: "PATCH",
+      headers: serviceHeaders({
+        "Content-Type": "application/json",
+        Prefer: "return=minimal",
+      }),
+      body: JSON.stringify({
+        moderation_status: "rejected",
+        story_status: "skipped",
+        queued_at: null,
+        last_story_error: null,
+        updated_at: new Date().toISOString(),
+      }),
+    },
+  );
+  if (!response.ok) {
+    throw new Error(`A busca terminou, mas o pedido não foi concluído (HTTP ${response.status}).`);
+  }
+}
+
 function timeZoneParts(date, timeZone) {
   return Object.fromEntries(
     new Intl.DateTimeFormat("en-US", {
@@ -364,9 +460,14 @@ export async function ingestNews() {
 
   const currentDayStart = startOfSaoPauloDay();
   const deletedExpired = await deleteExpiredNews();
+  const manualRefreshControl = await ensureManualRefreshControl();
+  const manualRefresh = manualRefreshControl.moderation_status === "approved";
+  const activeSources = manualRefresh
+    ? [...NEWS_SOURCES, ...MANUAL_NEWS_SOURCES]
+    : NEWS_SOURCES;
 
   const settled = await Promise.allSettled(
-    NEWS_SOURCES.map(async (source) => ({ source, articles: parseFeed(await fetchWithRetry(source.url), source) })),
+    activeSources.map(async (source) => ({ source, articles: parseFeed(await fetchWithRetry(source.url), source) })),
   );
   const articles = [];
   const failures = [];
@@ -403,10 +504,15 @@ export async function ingestNews() {
     throw new Error(`Não foi possível consultar a fila de notícias (HTTP ${existingResponse.status}).`);
   }
 
-  const existing = new Map((await existingResponse.json()).map((item) => [item.external_id, item]));
+  const existingRows = await existingResponse.json();
+  const existing = new Map(
+    existingRows
+      .filter((item) => item.external_id !== MANUAL_NEWS_REFRESH_EXTERNAL_ID)
+      .map((item) => [item.external_id, item]),
+  );
   const recordsToSync = new Map(articles.map((article) => [article.external_id, article]));
   const googleNewsSourceNames = new Set(
-    NEWS_SOURCES.filter(isGoogleNewsFeed).map((source) => source.name),
+    activeSources.filter(isGoogleNewsFeed).map((source) => source.name),
   );
 
   for (const article of recordsToSync.values()) {
@@ -459,7 +565,9 @@ export async function ingestNews() {
   });
   await Promise.all(enrichWorkers);
 
-  const synchronizedArticles = [...recordsToSync.values()];
+  const synchronizedArticles = [...recordsToSync.values()]
+    .map(databaseArticle)
+    .filter((article) => article.title.length >= 5);
   const contentFields = [
     "title", "summary", "source_name", "category", "image_url", "article_url", "published_at",
   ];
@@ -478,7 +586,9 @@ export async function ingestNews() {
     return current && !sameContent(current, article);
   });
 
-  if (additions.length) {
+  let addedCount = 0;
+  let firstInsertError = "";
+  const insertRecords = async (records) => {
     const insertResponse = await fetch(
       `${config.supabaseUrl}/rest/v1/news_articles?on_conflict=external_id`,
       {
@@ -487,12 +597,34 @@ export async function ingestNews() {
           "Content-Type": "application/json",
           Prefer: "resolution=ignore-duplicates,missing=default,return=minimal",
         }),
-        body: JSON.stringify(additions),
+        body: JSON.stringify(records),
       },
     );
-    if (!insertResponse.ok) {
-      throw new Error(`Não foi possível adicionar notícias à fila (HTTP ${insertResponse.status}).`);
+    if (insertResponse.ok) return { ok: true, details: "" };
+    const details = (await insertResponse.text()).replace(/\s+/g, " ").slice(0, 400);
+    return { ok: false, details: `HTTP ${insertResponse.status}: ${details}` };
+  };
+
+  for (let index = 0; index < additions.length; index += 25) {
+    const batch = additions.slice(index, index + 25);
+    const result = await insertRecords(batch);
+    if (result.ok) {
+      addedCount += batch.length;
+      continue;
     }
+    firstInsertError ||= result.details;
+    for (const article of batch) {
+      const singleResult = await insertRecords([article]);
+      if (singleResult.ok) {
+        addedCount += 1;
+      } else {
+        firstInsertError ||= singleResult.details;
+        console.warn(`Notícia ignorada por falha de validação: ${article.title}`);
+      }
+    }
+  }
+  if (additions.length && !addedCount) {
+    throw new Error(`Não foi possível adicionar notícias à fila (${firstInsertError || "erro desconhecido"}).`);
   }
 
   let updateIndex = 0;
@@ -519,12 +651,15 @@ export async function ingestNews() {
   });
   await Promise.all(workers);
 
+  if (manualRefresh) await completeManualRefresh(manualRefreshControl.id);
+
   return {
     imported: rssArticleCount,
-    added: additions.length,
+    added: addedCount,
     updated: updates.length,
     deletedExpired,
     failedSources: failures.length,
+    manualRefresh,
   };
 }
 

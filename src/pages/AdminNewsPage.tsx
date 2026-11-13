@@ -19,10 +19,11 @@ import {
   NewsArticleRecord,
   clearAdminSession,
   ensureAdminSession,
-  fetchMoreNews,
   getStoredAdminSession,
   listNewsAdmin,
+  manualNewsRefreshExternalId,
   moderateNewsArticle,
+  requestNewsRefresh,
   signInAdmin,
 } from "../lib/supabase";
 import { AdminLogin } from "./AdminRequestsPage";
@@ -149,6 +150,7 @@ export function AdminNewsPage() {
   const [loading, setLoading] = useState(Boolean(session));
   const [searchingMore, setSearchingMore] = useState(false);
   const [searchMessage, setSearchMessage] = useState("");
+  const [refreshControlId, setRefreshControlId] = useState("");
   const [workingId, setWorkingId] = useState("");
   const [error, setError] = useState("");
 
@@ -158,7 +160,16 @@ export function AdminNewsPage() {
     try {
       const valid = await ensureAdminSession(currentSession);
       setSession(valid);
-      setArticles((await listNewsAdmin(valid.access_token)).map(sanitizeNewsArticle));
+      const rows = await listNewsAdmin(valid.access_token);
+      const control = rows.find(
+        (article) => article.external_id === manualNewsRefreshExternalId,
+      );
+      setRefreshControlId(control?.id || "");
+      setArticles(
+        rows
+          .filter((article) => article.external_id !== manualNewsRefreshExternalId)
+          .map(sanitizeNewsArticle),
+      );
     } catch (reason) {
       const message =
         reason instanceof Error
@@ -265,21 +276,16 @@ export function AdminNewsPage() {
   };
 
   const searchMoreNews = async () => {
-    if (!session || searchingMore) return;
+    if (!session || !refreshControlId || searchingMore) return;
     setSearchingMore(true);
     setSearchMessage("");
     setError("");
     try {
       const valid = await ensureAdminSession(session);
       setSession(valid);
-      const result = await fetchMoreNews(valid.access_token);
-      await load(valid);
+      await requestNewsRefresh(valid.access_token, refreshControlId);
       setView("pending");
-      setSearchMessage(
-        result.added > 0
-          ? `${result.added} nova${result.added === 1 ? " notícia encontrada" : "s notícias encontradas"}. A lista já foi atualizada.`
-          : "Nenhuma notícia nova com imagem foi encontrada nas últimas 24 horas. Tente novamente mais tarde.",
-      );
+      setSearchMessage("Busca solicitada. As novas notícias aparecerão automaticamente aqui em até 5 minutos.");
     } catch (reason) {
       setError(
         reason instanceof Error
@@ -381,7 +387,7 @@ export function AdminNewsPage() {
             <button
               type="button"
               onClick={() => void searchMoreNews()}
-              disabled={searchingMore || loading}
+              disabled={searchingMore || loading || !refreshControlId}
               className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#f40b36] px-5 text-sm font-black shadow-[0_12px_35px_rgba(244,11,54,.2)] transition hover:bg-[#ff1644] disabled:cursor-wait disabled:opacity-55"
             >
               {searchingMore ? (
@@ -389,10 +395,10 @@ export function AdminNewsPage() {
               ) : (
                 <Search className="h-4 w-4" />
               )}
-              {searchingMore ? "Buscando notícias..." : "Buscar mais notícias"}
+              {searchingMore ? "Solicitando busca..." : "Buscar mais notícias"}
             </button>
             <span className="text-xs leading-5 text-white/45">
-              Busca fontes adicionais e aceita somente matérias de hoje, sempre com menos de 24 horas.
+              Busca fontes adicionais. Somente matérias de hoje e com menos de 24 horas entram na lista.
             </span>
           </div>
           {searchMessage && (
