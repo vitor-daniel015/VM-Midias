@@ -119,6 +119,14 @@ export type NewsArticleRecord = {
   updated_at: string;
 };
 
+export type NewsRefreshResult = {
+  found: number;
+  added: number;
+  skipped: number;
+  failed_sources: number;
+  validity_hours: number;
+};
+
 export const videoAssetsBucket = VIDEO_ASSETS_BUCKET;
 export const businessAssetsBucket = BUSINESS_ASSETS_BUCKET;
 
@@ -520,6 +528,39 @@ export async function listNewsAdmin(accessToken: string) {
     throw new Error("Não foi possível carregar a fila de notícias.");
   }
   return (await response.json()) as NewsArticleRecord[];
+}
+
+export async function fetchMoreNews(accessToken: string) {
+  const response = await fetch("/api/news-refresh.php", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      Accept: "application/json",
+    },
+    cache: "no-store",
+  });
+
+  const result = await response.json().catch(() => null) as
+    | (NewsRefreshResult & { error?: string })
+    | null;
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error("Sua sessão expirou. Entre novamente.");
+    }
+    if (response.status === 403) {
+      throw new Error("Somente administradores podem buscar mais notícias.");
+    }
+    if (response.status === 429) {
+      throw new Error(result?.error || "Aguarde um minuto antes de buscar novamente.");
+    }
+    throw new Error(result?.error || "Não foi possível buscar mais notícias agora.");
+  }
+
+  if (!result) {
+    throw new Error("A busca terminou sem uma resposta válida.");
+  }
+  return result;
 }
 
 export async function moderateNewsArticle(

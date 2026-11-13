@@ -8,6 +8,7 @@ import {
   LogOut,
   Newspaper,
   RefreshCw,
+  Search,
   Send,
   X,
 } from "lucide-react";
@@ -18,6 +19,7 @@ import {
   NewsArticleRecord,
   clearAdminSession,
   ensureAdminSession,
+  fetchMoreNews,
   getStoredAdminSession,
   listNewsAdmin,
   moderateNewsArticle,
@@ -145,6 +147,8 @@ export function AdminNewsPage() {
   const [articles, setArticles] = useState<NewsArticleRecord[]>([]);
   const [view, setView] = useState<QueueView>("pending");
   const [loading, setLoading] = useState(Boolean(session));
+  const [searchingMore, setSearchingMore] = useState(false);
+  const [searchMessage, setSearchMessage] = useState("");
   const [workingId, setWorkingId] = useState("");
   const [error, setError] = useState("");
 
@@ -260,6 +264,33 @@ export function AdminNewsPage() {
     }
   };
 
+  const searchMoreNews = async () => {
+    if (!session || searchingMore) return;
+    setSearchingMore(true);
+    setSearchMessage("");
+    setError("");
+    try {
+      const valid = await ensureAdminSession(session);
+      setSession(valid);
+      const result = await fetchMoreNews(valid.access_token);
+      await load(valid);
+      setView("pending");
+      setSearchMessage(
+        result.added > 0
+          ? `${result.added} nova${result.added === 1 ? " notícia encontrada" : "s notícias encontradas"}. A lista já foi atualizada.`
+          : "Nenhuma notícia nova com imagem foi encontrada nas últimas 24 horas. Tente novamente mais tarde.",
+      );
+    } catch (reason) {
+      setError(
+        reason instanceof Error
+          ? reason.message
+          : "Não foi possível buscar mais notícias agora.",
+      );
+    } finally {
+      setSearchingMore(false);
+    }
+  };
+
   if (!session) {
     return (
       <AdminLogin
@@ -346,6 +377,29 @@ export function AdminNewsPage() {
             avalia uma seleção menor para os Stories. A prévia 9:16 mostra o
             corte real da imagem antes da aprovação.
           </p>
+          <div className="mt-6 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+            <button
+              type="button"
+              onClick={() => void searchMoreNews()}
+              disabled={searchingMore || loading}
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#f40b36] px-5 text-sm font-black shadow-[0_12px_35px_rgba(244,11,54,.2)] transition hover:bg-[#ff1644] disabled:cursor-wait disabled:opacity-55"
+            >
+              {searchingMore ? (
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+              ) : (
+                <Search className="h-4 w-4" />
+              )}
+              {searchingMore ? "Buscando notícias..." : "Buscar mais notícias"}
+            </button>
+            <span className="text-xs leading-5 text-white/45">
+              Busca fontes adicionais e aceita somente matérias de hoje, sempre com menos de 24 horas.
+            </span>
+          </div>
+          {searchMessage && (
+            <p className="mt-4 rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-100" role="status">
+              {searchMessage}
+            </p>
+          )}
         </section>
 
         <nav className="mt-6 grid grid-cols-2 gap-2 lg:grid-cols-4" aria-label="Filtrar notícias">

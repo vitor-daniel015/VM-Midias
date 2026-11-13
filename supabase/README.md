@@ -46,6 +46,12 @@ As matérias coletadas aparecem automaticamente na TV e no site. Em
 `/admin/noticias`, a decisão controla apenas quais delas também entram na fila
 automática dos Stories.
 
+O botão **Buscar mais notícias** consulta fontes complementares no servidor e
+adiciona somente matérias de hoje, publicadas há menos de 24 horas e com imagem
+válida. A chamada exige uma sessão administrativa do Supabase e possui intervalo
+de segurança entre buscas. A chave `service_role` fica exclusivamente no PHP do
+servidor e é gerada pelo workflow de produção; ela nunca é enviada ao navegador.
+
 Para ativá-lo:
 
 1. Execute também `migrations/202609300001_admin_read_access.sql` no SQL Editor.
