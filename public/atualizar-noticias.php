@@ -21,7 +21,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
     vm_reply(405, ['error' => 'Use o botão do painel para iniciar a busca.']);
 }
 
-$configPath = __DIR__ . '/.news-config.php';
+$configPath = __DIR__ . '/api/.news-config.php';
 if (!is_file($configPath)) {
     vm_reply(503, ['error' => 'A busca manual ainda não foi configurada no servidor.']);
 }

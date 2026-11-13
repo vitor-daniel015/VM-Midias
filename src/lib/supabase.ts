@@ -531,7 +531,7 @@ export async function listNewsAdmin(accessToken: string) {
 }
 
 export async function fetchMoreNews(accessToken: string) {
-  const response = await fetch("/api/news-refresh.php", {
+  const response = await fetch("/atualizar-noticias.php", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${accessToken}`,
