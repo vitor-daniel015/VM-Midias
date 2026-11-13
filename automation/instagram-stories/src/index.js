@@ -11,7 +11,11 @@ import {
   inspectInstagramAccount,
   publishInstagramStory,
 } from "./meta.js";
-import { updateNewsStoryStatus } from "./news.js";
+import {
+  claimNewsStoryForPublishing,
+  newsStoryCanStillPublish,
+  updateNewsStoryStatus,
+} from "./news.js";
 import { ensureStorageBucket, uploadStory } from "./storage.js";
 import {
   acquireLock,
@@ -214,6 +218,19 @@ async function processCycle() {
           continue;
         }
 
+        const claimed = await claimNewsStoryForPublishing(article.id);
+        if (!claimed) {
+          state.articles[key] = {
+            ...record,
+            status: "removed-from-queue",
+            updatedAt: new Date().toISOString(),
+          };
+          await writeState(config, state);
+          log(`Notícia retirada da fila antes da publicação: ${article.title}`);
+          continue;
+        }
+        publicationStarted = true;
+
         const remotePath = objectPath(article, key);
         const signedUrl = await uploadStory(config, output, remotePath);
         state.articles[key] = {
@@ -224,10 +241,17 @@ async function processCycle() {
           updatedAt: new Date().toISOString(),
         };
         await writeState(config, state);
-        await updateNewsStoryStatus(article.id, "publishing", {
-          last_story_error: null,
-        });
-        publicationStarted = true;
+        if (!(await newsStoryCanStillPublish(article.id))) {
+          state.articles[key] = {
+            ...record,
+            status: "removed-from-queue",
+            storagePath: `${config.storageBucket}/${remotePath}`,
+            updatedAt: new Date().toISOString(),
+          };
+          await writeState(config, state);
+          log(`Notícia retirada da fila antes do envio à Meta: ${article.title}`);
+          continue;
+        }
         const published = await publishInstagramStory(config, signedUrl);
         state.articles[key] = {
           ...record,

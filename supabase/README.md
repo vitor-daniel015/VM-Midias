@@ -46,6 +46,10 @@ As matérias coletadas aparecem automaticamente na TV e no site. Em
 `/admin/noticias`, a decisão controla apenas quais delas também entram na fila
 automática dos Stories.
 
+Na aba **Fila de Stories**, o botão **Retirar da fila** usa a mesma operação
+administrativa protegida para marcar a matéria como `skipped`. A TV e o site não
+são afetados; apenas o envio para o Instagram é cancelado.
+
 O botão **Buscar mais notícias** registra um pedido administrativo no Supabase.
 Uma coleta leve, executada a cada cinco minutos, reconhece o pedido e consulta
 fontes complementares. Somente matérias de hoje e publicadas há menos de 24 horas

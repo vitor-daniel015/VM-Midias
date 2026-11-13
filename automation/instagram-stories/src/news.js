@@ -682,3 +682,49 @@ export async function updateNewsStoryStatus(articleId, storyStatus, fields = {})
   );
   if (!response.ok) throw new Error(`Não foi possível atualizar o estado da notícia (HTTP ${response.status}).`);
 }
+
+export async function claimNewsStoryForPublishing(articleId) {
+  if (!articleId || !config.supabaseUrl || !config.supabaseServiceRoleKey) return false;
+  const query = [
+    `${config.supabaseUrl}/rest/v1/news_articles?id=eq.${encodeURIComponent(articleId)}`,
+    "moderation_status=eq.approved",
+    "story_status=in.(queued,failed)",
+  ].join("&");
+  const response = await fetch(query, {
+    method: "PATCH",
+    headers: serviceHeaders({
+      "Content-Type": "application/json",
+      Prefer: "return=representation",
+    }),
+    body: JSON.stringify({
+      story_status: "publishing",
+      last_story_error: null,
+      updated_at: new Date().toISOString(),
+    }),
+  });
+  if (!response.ok) {
+    throw new Error(`Não foi possível reservar a notícia para publicação (HTTP ${response.status}).`);
+  }
+  const rows = await response.json();
+  return Array.isArray(rows) && rows.length > 0;
+}
+
+export async function newsStoryCanStillPublish(articleId) {
+  if (!articleId || !config.supabaseUrl || !config.supabaseServiceRoleKey) return false;
+  const query = [
+    `${config.supabaseUrl}/rest/v1/news_articles?select=id`,
+    `id=eq.${encodeURIComponent(articleId)}`,
+    "moderation_status=eq.approved",
+    "story_status=eq.publishing",
+    "limit=1",
+  ].join("&");
+  const response = await fetch(query, {
+    headers: serviceHeaders(),
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    throw new Error(`Não foi possível confirmar a notícia antes da publicação (HTTP ${response.status}).`);
+  }
+  const rows = await response.json();
+  return Array.isArray(rows) && rows.length > 0;
+}

@@ -38,7 +38,9 @@ npm run ingest
 
 As notícias novas entram como **Aguardando aprovação** em
 `/admin/noticias`. Aprovar coloca a matéria na fila; a automação publica uma por
-vez e registra no painel quando o Story foi confirmado.
+vez e registra no painel quando o Story foi confirmado. Enquanto a publicação
+ainda não começou, **Retirar da fila** muda a matéria para **Fora dos Stories**.
+A automação confirma esse estado novamente antes de enviar a imagem à Meta.
 
 As matérias marcadas como **Fora dos Stories** permanecem visíveis somente até
 o fim do dia da publicação. Na primeira coleta depois da virada do dia em São

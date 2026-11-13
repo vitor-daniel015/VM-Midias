@@ -152,6 +152,7 @@ export function AdminNewsPage() {
   const [searchMessage, setSearchMessage] = useState("");
   const [refreshControlId, setRefreshControlId] = useState("");
   const [workingId, setWorkingId] = useState("");
+  const [actionMessage, setActionMessage] = useState("");
   const [error, setError] = useState("");
 
   const load = async (currentSession: AdminSession) => {
@@ -237,6 +238,8 @@ export function AdminNewsPage() {
   ) => {
     if (!session) return;
     setWorkingId(article.id);
+    setActionMessage("");
+    setSearchMessage("");
     setError("");
     try {
       const valid = await ensureAdminSession(session);
@@ -264,6 +267,9 @@ export function AdminNewsPage() {
             : item,
         ),
       );
+      if (decision === "rejected" && articleView(article) === "approved") {
+        setActionMessage("Notícia retirada da fila de Stories.");
+      }
     } catch (reason) {
       setError(
         reason instanceof Error
@@ -279,6 +285,7 @@ export function AdminNewsPage() {
     if (!session || !refreshControlId || searchingMore) return;
     setSearchingMore(true);
     setSearchMessage("");
+    setActionMessage("");
     setError("");
     try {
       const valid = await ensureAdminSession(session);
@@ -404,6 +411,11 @@ export function AdminNewsPage() {
           {searchMessage && (
             <p className="mt-4 rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-100" role="status">
               {searchMessage}
+            </p>
+          )}
+          {actionMessage && (
+            <p className="mt-4 rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-100" role="status">
+              {actionMessage}
             </p>
           )}
         </section>
@@ -556,6 +568,20 @@ function NewsCard({
                 className="rounded-lg border border-white/12 px-3 py-2 text-xs font-black hover:border-[#f40b36]/60 disabled:opacity-50"
               >
                 Enviar aos Stories
+              </button>
+            )}
+            {view === "approved" && article.story_status !== "publishing" && (
+              <button
+                onClick={onReject}
+                disabled={working}
+                className="inline-flex items-center gap-2 rounded-lg border border-red-400/25 px-3 py-2 text-xs font-black text-red-100 transition hover:border-red-400/60 hover:bg-red-400/10 disabled:opacity-50"
+              >
+                {working ? (
+                  <LoaderCircle className="h-4 w-4 animate-spin" />
+                ) : (
+                  <X className="h-4 w-4" />
+                )}
+                Retirar da fila
               </button>
             )}
             {view === "approved" && article.story_status === "needs_review" && (
