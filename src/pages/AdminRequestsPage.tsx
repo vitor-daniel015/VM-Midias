@@ -258,6 +258,14 @@ export function AdminRequestsPage() {
           </div>
           <div className="flex gap-2">
             <a
+              href="/admin/verao-premiado"
+              aria-label="Verão Premiado 2027"
+              className="inline-flex h-10 items-center gap-2 rounded-lg border border-white/12 px-3 text-xs font-bold text-white/70"
+            >
+              <span className="text-[#ffcc0b]">☀</span>
+              <span className="hidden md:inline">Verão 2027</span>
+            </a>
+            <a
               href="/admin/noticias"
               aria-label="Aprovação de notícias"
               className="inline-flex h-10 items-center gap-2 rounded-lg border border-white/12 px-3 text-xs font-bold text-white/70"

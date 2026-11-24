@@ -16,6 +16,8 @@ import { PlanCycle } from "./types";
 import { PrivacyPolicyPage } from "./pages/PrivacyPolicyPage";
 import { AdminRequestsPage } from "./pages/AdminRequestsPage";
 import { AdminNewsPage } from "./pages/AdminNewsPage";
+import { VeraoPremiadoPage } from "./pages/VeraoPremiadoPage";
+import { AdminVeraoPremiadoPage } from "./pages/AdminVeraoPremiadoPage";
 import {
   BusinessDetailPage,
   BusinessDirectoryPage,
@@ -28,6 +30,8 @@ export default function App() {
       <Route path="/admin" element={<AdminRequestsPage />} />
       <Route path="/admin/solicitacoes" element={<AdminRequestsPage />} />
       <Route path="/admin/noticias" element={<AdminNewsPage />} />
+      <Route path="/admin/verao-premiado" element={<AdminVeraoPremiadoPage />} />
+      <Route path="/veraopremiado" element={<VeraoPremiadoPage />} />
       <Route path="/solicitar-video" element={<BusinessDirectoryPage />} />
       <Route
         path="/solicitar-video/novo-negocio"
