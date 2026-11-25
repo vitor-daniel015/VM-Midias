@@ -43,32 +43,63 @@ export async function uploadCampaignFiles(submissionId: string, files: File[], k
     const response = await fetch(`${url}/storage/v1/object/${bucket}/${encodePath(path)}`, {
       method: "POST", headers: { ...headers(), "Content-Type": file.type, "cache-control": "3600", "x-upsert": "false" }, body: file,
     });
-    if (!response.ok) throw new Error(`Não foi possível enviar “${file.name}”.`);
+    if (!response.ok) {
+      const detail = await response.text();
+      if (/row-level security|policy|unauthorized/i.test(detail)) throw new Error("O Storage do logotipo ainda não está liberado. Aplique a migration mais recente do Supabase.");
+      if (/mime|content.?type/i.test(detail)) throw new Error(`O formato de “${file.name}” não foi aceito pelo Storage.`);
+      throw new Error(`Não foi possível enviar “${file.name}” (erro ${response.status}).`);
+    }
     return { path, name: file.name, size: file.size, mime_type: file.type, kind };
   }));
 }
 
 export async function createCampaignSubmission(args: {
   id: string; form: VeraoFormData; assets: CampaignAsset[]; declarations: boolean[];
-  startedAt: string; honeypot: string;
 }) {
   const commercialSnapshot = {
     campaign: "Verão Premiado 2027", period: "02/01/2027 a 27/02/2027",
     prize: "Moto elétrica Smart Wheel (prevista)", cash_price_brl: 250,
     installment_price_brl: 300, installments: "2x de R$ 150,00",
-    collective_prize_contribution_brl: 100,
+    optional_voucher_brl: 100,
     legal_notice: "Campanha sujeita à autorização dos órgãos competentes e às condições do regulamento oficial.",
   };
-  const payload = { ...args.form, cnpj: digits(args.form.cnpj) || null, cpf: digits(args.form.cpf), businessPhone: digits(args.form.businessPhone), responsiblePhone: digits(args.form.responsiblePhone), assets: args.assets, termsVersion: TERMS_VERSION, declarations: args.declarations, commercialSnapshot };
+  const payload = { ...args.form, cnpj: digits(args.form.cnpj) || null, cpf: digits(args.form.cpf), businessPhone: "", responsiblePhone: "", assets: args.assets, termsVersion: TERMS_VERSION, declarations: args.declarations, commercialSnapshot };
   const response = await fetch(`${url}/rest/v1/rpc/create_verao_premiado_submission`, {
     method: "POST", headers: { ...headers(), "Content-Type": "application/json" },
-    body: JSON.stringify({ p_id: args.id, p_payload: payload, p_started_at: args.startedAt, p_honeypot: args.honeypot }),
+    body: JSON.stringify({
+      p_id: args.id,
+      p_payload: payload,
+      // A RPC exige ao menos três segundos. Gerar este valor no envio evita
+      // falsos positivos em abas restauradas ou abertas por muitas horas.
+      p_started_at: new Date(Date.now() - 5_000).toISOString(),
+      p_honeypot: "",
+    }),
   });
   if (!response.ok) {
     const detail = await response.text();
-    if (/INSCRICAO_DUPLICADA/i.test(detail)) throw new Error("Já existe uma inscrição com este CPF ou CNPJ. Fale com a VM Mídias para revisar o cadastro.");
-    if (/TELA_INDISPONIVEL/i.test(detail)) throw new Error("A tela escolhida não está mais disponível. Volte e selecione outra opção.");
-    throw new Error("Não foi possível concluir a inscrição. Confira os dados e tente novamente.");
+    let serverMessage = detail;
+    try {
+      const parsed = JSON.parse(detail) as { message?: string; details?: string };
+      serverMessage = parsed.message || parsed.details || detail;
+    } catch {
+      // O Supabase também pode devolver texto simples em falhas de infraestrutura.
+    }
+
+    console.error("Inscrição rejeitada pelo Supabase:", {
+      status: response.status,
+      reason: serverMessage,
+    });
+
+    if (/INSCRICAO_DUPLICADA/i.test(serverMessage)) throw new Error("Já existe uma inscrição com este CPF ou CNPJ. Fale com a VM Mídias para revisar o cadastro.");
+    if (/CAMPOS_OBRIGATORIOS/i.test(serverMessage)) throw new Error("Confira o nome do comércio, o segmento e o nome completo do responsável.");
+    if (/DOCUMENTO_INVALIDO/i.test(serverMessage)) throw new Error("O CPF ou o CNPJ informado não é válido.");
+    if (/ARQUIVOS_INVALIDOS/i.test(serverMessage)) throw new Error("O logotipo enviado não foi reconhecido. Remova o arquivo e envie novamente.");
+    if (/ACEITES_INCOMPLETOS/i.test(serverMessage)) throw new Error("Marque todas as declarações e confirme o aceite final.");
+    if (/TERMOS_INVALIDOS/i.test(serverMessage)) throw new Error("A página foi atualizada enquanto você preenchia o formulário. Recarregue e tente novamente.");
+    if (/FORMULARIO_INVALIDO/i.test(serverMessage)) throw new Error("A sessão do formulário expirou. Recarregue a página e envie novamente.");
+    if (/payment_option|check constraint/i.test(serverMessage)) throw new Error("Selecione novamente a forma de pagamento.");
+
+    throw new Error(`Não foi possível concluir a inscrição (erro ${response.status}). Tente novamente ou fale com a VM Mídias.`);
   }
   return (await response.json()) as { id: string; protocol: string; accepted_at: string; status: string };
 }
@@ -78,7 +109,7 @@ export type CampaignSubmissionAdmin = {
   responsible_phone: string; responsible_email: string | null; payment_option: string;
   registration_status: string; financial_status: string; spot_status: string;
   video_status: string; kit_status: string; contribution_status: string;
-  assets: CampaignAsset[]; created_at: string; screen_id: string;
+  assets: CampaignAsset[]; created_at: string; screen_id: string | null;
   cnpj: string | null; segment: string; business_phone: string; business_instagram: string | null;
   business_email: string | null; cep: string; street: string; address_number: string;
   complement: string | null; neighborhood: string; city: string; state: string;

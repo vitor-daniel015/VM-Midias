@@ -90,7 +90,6 @@ export function VeraoPremiadoStory({ onJoin }: StoryProps) {
         <div className="vp-sun-glow" data-vp-parallax="0.12" />
         <div className="vp-scene-shell vp-hero-grid">
           <div className="vp-story-copy" data-vp-reveal>
-            <div className="vp-kicker"><Sun /> O verão que faz o comércio brilhar</div>
             <h1>Verão<br /><em>Premiado</em><span>2027</span></h1>
             <p className="vp-lead">Sua marca no centro da campanha que conecta Capela do Alto, Rádio Braba FM e as telas da VM Mídias.</p>
             <div className="vp-hero-actions">
@@ -107,17 +106,13 @@ export function VeraoPremiadoStory({ onJoin }: StoryProps) {
             <div className="vp-orbit vp-orbit-two" />
             <img data-vp-parallax="0.2" src="/images/verao-premiado/logo-cutout-v2.png" alt="Verão Premiado da VM Mídias" className="vp-logo-cutout vp-logo-hero" />
             <img data-vp-parallax="0.32" src="/images/verao-premiado/moto-cutout-v2.png" alt="Moto elétrica Smart Wheel, prêmio principal previsto" className="vp-moto-cutout vp-moto-hero" />
-            <div className="vp-floating-badge vp-badge-prize"><Trophy /><strong>Prêmio principal</strong><span>Smart Wheel</span></div>
-            <div className="vp-floating-badge vp-badge-local"><Store /><strong>Campanha local</strong><span>Capela do Alto</span></div>
           </div>
         </div>
-        <div className="vp-marquee" aria-hidden="true"><div>VIBRANTE · PROMOCIONAL · PREMIADA · VERÃO · CONFIANÇA · COMÉRCIO LOCAL · VIBRANTE · PROMOCIONAL · PREMIADA · VERÃO ·</div></div>
       </section>
 
       <section id="proposta-2" className="vp-story-scene vp-scene-two">
         <div className="vp-scene-shell vp-split-grid">
           <div className="vp-art-wrap" data-vp-reveal>
-            <span className="vp-scene-label">Uma única cota</span>
             <div className="vp-benefit-orbit">
               <div className="vp-orbit-ring vp-ring-one" data-vp-parallax="0.12" />
               <div className="vp-orbit-ring vp-ring-two" data-vp-parallax="0.2" />
@@ -126,7 +121,6 @@ export function VeraoPremiadoStory({ onJoin }: StoryProps) {
             </div>
           </div>
           <div className="vp-story-copy" data-vp-reveal>
-            <div className="vp-kicker"><Sparkles /> Mais presença para sua marca</div>
             <h2>Uma campanha.<br /><em>Quatro frentes.</em></h2>
             <p>Um pacote pensado para colocar seu comércio em contato com clientes dentro da loja, no rádio, nas telas e na premiação coletiva.</p>
             <div className="vp-benefit-grid">
@@ -141,11 +135,8 @@ export function VeraoPremiadoStory({ onJoin }: StoryProps) {
       </section>
 
       <section id="proposta-3" className="vp-story-scene vp-scene-three">
-        <div className="vp-coupon-shape vp-coupon-one" data-vp-parallax="0.13">CUPOM</div>
-        <div className="vp-coupon-shape vp-coupon-two" data-vp-parallax="0.2">SORTEIO</div>
         <div className="vp-scene-shell vp-split-grid vp-reverse">
           <div className="vp-story-copy" data-vp-reveal>
-            <div className="vp-kicker"><Ticket /> Kit promocional exclusivo</div>
             <div className="vp-display-number">1.000</div>
             <h2>motivos para o cliente <em>lembrar de você.</em></h2>
             <p>Seu estabelecimento recebe materiais prontos para divulgar a campanha, envolver o público e transformar participação em presença de marca.</p>
@@ -172,11 +163,9 @@ export function VeraoPremiadoStory({ onJoin }: StoryProps) {
             </div>
           </div>
           <div className="vp-story-copy" data-vp-reveal>
-            <div className="vp-kicker"><Radio /> Rádio Braba FM 104,9</div>
             <h2>Sua marca também <em>ganha voz.</em></h2>
             <p>Durante o período da campanha, seu estabelecimento entra na programação da rádio com uma mensagem produzida a partir do seu briefing.</p>
             <div className="vp-quote-card"><span>“</span><p>Você conta o que deseja divulgar. A equipe transforma a ideia em uma mensagem clara para o público regional.</p></div>
-            <small>Frequência e horários das inserções definidos em contrato.</small>
           </div>
         </div>
       </section>
@@ -185,7 +174,6 @@ export function VeraoPremiadoStory({ onJoin }: StoryProps) {
         <div className="vp-screen-glow" data-vp-parallax="0.08" />
         <div className="vp-scene-shell vp-split-grid vp-reverse">
           <div className="vp-story-copy" data-vp-reveal>
-            <div className="vp-kicker"><MonitorPlay /> Publicidade nas telas VM Mídias</div>
             <h2>Onde a cidade passa, <em>sua marca aparece.</em></h2>
             <p>Escolha uma das telas cadastradas para exibir um vídeo Motion produzido para o seu comércio durante o período contratado.</p>
             <div className="vp-stat-row"><div><strong>01</strong><span>tela à escolha</span></div><div><strong>20s</strong><span>vídeo Motion</span></div><div><strong>Diária</strong><span>exibição</span></div></div>
@@ -202,8 +190,6 @@ export function VeraoPremiadoStory({ onJoin }: StoryProps) {
       </section>
 
       <section id="proposta-6" className="vp-story-scene vp-scene-six">
-        <div className="vp-gift-orb vp-orb-one" data-vp-parallax="0.16">R$ 100</div>
-        <div className="vp-gift-orb vp-orb-two" data-vp-parallax="0.1"><Gift /></div>
         <div className="vp-scene-shell vp-split-grid">
           <div className="vp-art-wrap" data-vp-reveal>
             <div className="vp-prize-stage">
@@ -213,9 +199,8 @@ export function VeraoPremiadoStory({ onJoin }: StoryProps) {
             </div>
           </div>
           <div className="vp-story-copy" data-vp-reveal>
-            <div className="vp-kicker"><Trophy /> Premiação coletiva</div>
             <h2>Quando o comércio participa junto, <em>toda a cidade ganha destaque.</em></h2>
-            <p>Cada participante contribui com R$ 100 em produtos ou serviços. Os itens são definidos e formalizados conforme o regulamento aprovado.</p>
+            <p>O comércio pode disponibilizar um vale-compras para fortalecer a premiação coletiva. Essa contribuição é opcional e será formalizada conforme o regulamento.</p>
             <div className="vp-prize-card"><span>Prêmio principal previsto</span><strong>Moto elétrica<br />Smart Wheel</strong></div>
           </div>
         </div>
@@ -225,12 +210,10 @@ export function VeraoPremiadoStory({ onJoin }: StoryProps) {
         <div className="vp-final-rays" data-vp-parallax="0.04" />
         <div className="vp-scene-shell vp-final-grid">
           <div className="vp-story-copy" data-vp-reveal>
-            <div className="vp-kicker"><Sparkles /> Sua marca em destaque neste verão</div>
             <h2>Uma cota que cabe no negócio e <em>aparece na cidade.</em></h2>
             <div className="vp-price-cards"><article><span>À vista</span><strong>R$ 250<small>,00</small></strong></article><b>ou</b><article><span>Parcelado</span><strong>2x R$ 150<small>,00</small></strong><small>Total: R$ 300,00</small></article></div>
-            <p className="vp-contribution-note"><Gift /> + R$ 100 em produtos ou serviços para a premiação coletiva.</p>
+            <p className="vp-contribution-note"><Gift /> Vale-compras opcional para a premiação coletiva.</p>
             <button onClick={onJoin} className="vp-primary-cta vp-final-cta">Quero colocar meu comércio em destaque</button>
-            <small>Campanha sujeita à autorização dos órgãos competentes e às condições do regulamento oficial.</small>
           </div>
           <div className="vp-art-wrap" data-vp-reveal>
             <div className="vp-finale-stage">

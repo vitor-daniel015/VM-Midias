@@ -1,4 +1,4 @@
-export const TERMS_VERSION = "verao-premiado-2027-v1";
+export const TERMS_VERSION = "verao-premiado-2027-v2";
 export const PROPOSAL_URL = "/docs/proposta-comercial-verao-premiado-2027.pdf";
 
 export type CampaignAsset = {
@@ -27,9 +27,7 @@ export type VeraoFormData = {
   businessName: string;
   cnpj: string;
   segment: string;
-  businessPhone: string;
   businessInstagram: string;
-  businessEmail: string;
   cep: string;
   street: string;
   number: string;
@@ -39,13 +37,9 @@ export type VeraoFormData = {
   state: string;
   responsibleName: string;
   cpf: string;
-  responsiblePhone: string;
-  responsibleEmail: string;
-  responsibleRole: string;
   radioBriefing: string;
   motionBriefing: string;
   sameBriefing: boolean;
-  screenId: string;
   paymentOption: PaymentOption | "";
   contributionType: ContributionType | "";
   contributionDescription: string;
@@ -54,12 +48,10 @@ export type VeraoFormData = {
 };
 
 export const initialVeraoForm: VeraoFormData = {
-  businessName: "", cnpj: "", segment: "", businessPhone: "",
-  businessInstagram: "", businessEmail: "", cep: "", street: "",
-  number: "", complement: "", neighborhood: "", city: "Capela do Alto",
-  state: "São Paulo", responsibleName: "", cpf: "", responsiblePhone: "",
-  responsibleEmail: "", responsibleRole: "", radioBriefing: "",
-  motionBriefing: "", sameBriefing: false, screenId: "", paymentOption: "",
+  businessName: "", cnpj: "", segment: "", businessInstagram: "", cep: "", street: "",
+  number: "", complement: "", neighborhood: "", city: "",
+  state: "", responsibleName: "", cpf: "", radioBriefing: "",
+  motionBriefing: "", sameBriefing: false, paymentOption: "",
   contributionType: "", contributionDescription: "",
   contributionConditions: "", contributionNotes: "",
 };
@@ -78,7 +70,7 @@ export const participationBenefits = [
 export const requiredDeclarations = [
   "Declaro que sou responsável pelo estabelecimento informado ou possuo autorização para representá-lo.",
   "Declaro que li e estou de acordo com as condições comerciais apresentadas na proposta do Verão Premiado 2027.",
-  "Estou ciente do investimento selecionado e da contribuição adicional de R$ 100,00 em produtos ou serviços para a premiação coletiva.",
+  "Estou ciente do investimento selecionado e de que o vale-compras é opcional.",
   "Declaro possuir autorização para disponibilizar os materiais e logomarcas enviados para utilização na campanha.",
   "Declaro que li o aviso de privacidade referente ao tratamento dos meus dados pessoais.",
 ];

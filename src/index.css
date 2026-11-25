@@ -660,7 +660,6 @@
 .vp-form-progress li.is-current b { border-color: var(--vp-red); background: var(--vp-red); }
 .vp-form-progress li.is-done { color: rgba(255,214,0,.72); }
 .vp-form-progress li.is-done b { border-color: rgba(255,214,0,.35); color: var(--vp-yellow); background: rgba(255,214,0,.08); }
-.vp-form-mobile-progress { display: none; }
 .vp-form-card { overflow: hidden; border: 1px solid rgba(255,255,255,.12); border-radius: 2rem; background: linear-gradient(145deg, rgba(21,11,14,.94), rgba(8,5,6,.97)); box-shadow: 0 45px 110px rgba(0,0,0,.42); }
 .vp-form-card form { min-height: 610px; }
 .vp-form-step { animation: vp-step-in 480ms var(--vm-ease) both; }
@@ -680,12 +679,7 @@
   .vp-hero-assets { width:min(100%,760px); min-height:620px; }
   .vp-story-rail { display: none; }
   .vp-form-layout { grid-template-columns: 1fr; }
-  .vp-form-progress { position: relative; top: auto; }
-  .vp-form-progress ol { display: none; }
-  .vp-form-mobile-progress { display: block; }
-  .vp-form-mobile-progress div { height: 0.38rem; overflow: hidden; border-radius: 999px; background: rgba(255,255,255,.09); }
-  .vp-form-mobile-progress i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--vp-red), var(--vp-yellow)); transition: width 420ms var(--vm-ease); }
-  .vp-form-mobile-progress p { margin-top: 0.75rem; color: rgba(255,255,255,.55); font-size: 0.76rem; font-weight: 800; }
+  .vp-form-progress { display: none; }
 }
 
 @media (max-width: 640px) {

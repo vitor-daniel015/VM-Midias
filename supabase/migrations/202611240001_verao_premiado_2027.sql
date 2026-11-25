@@ -21,7 +21,7 @@ create table if not exists public.verao_premiado_submissions (
   cnpj text,
   cnpj_hash text,
   segment text not null,
-  business_phone text not null,
+  business_phone text,
   business_instagram text,
   business_email text,
   cep text not null,
@@ -34,15 +34,15 @@ create table if not exists public.verao_premiado_submissions (
   responsible_name text not null,
   cpf text not null,
   cpf_hash text not null,
-  responsible_phone text not null,
+  responsible_phone text,
   responsible_email text,
   responsible_role text,
-  radio_briefing text not null,
-  motion_briefing text not null,
-  screen_id uuid not null references public.verao_premiado_screens(id),
+  radio_briefing text,
+  motion_briefing text,
+  screen_id uuid references public.verao_premiado_screens(id),
   payment_option text not null check (payment_option in ('avista', 'parcelado')),
-  contribution_type text not null check (contribution_type in ('produto', 'servico', 'vale_compra')),
-  contribution_description text not null,
+  contribution_type text check (contribution_type in ('produto', 'servico', 'vale_compra')),
+  contribution_description text,
   contribution_conditions text,
   contribution_notes text,
   assets jsonb not null default '[]'::jsonb check (jsonb_typeof(assets) = 'array'),
@@ -116,7 +116,6 @@ returns table (id uuid, protocol text, accepted_at timestamptz, status text)
 language plpgsql security definer set search_path = ''
 as $$
 declare
-  v_screen public.verao_premiado_screens%rowtype;
   v_protocol text;
   v_cpf text := regexp_replace(coalesce(p_payload->>'cpf',''), '\D', '', 'g');
   v_cnpj text := nullif(regexp_replace(coalesce(p_payload->>'cnpj',''), '\D', '', 'g'), '');
@@ -137,24 +136,13 @@ begin
      or exists (select 1 from jsonb_array_elements(v_declarations) d where d <> 'true'::jsonb) then
     raise exception 'ACEITES_INCOMPLETOS';
   end if;
-  if p_payload->>'termsVersion' <> 'verao-premiado-2027-v1' then raise exception 'TERMOS_INVALIDOS'; end if;
+  if p_payload->>'termsVersion' <> 'verao-premiado-2027-v2' then raise exception 'TERMOS_INVALIDOS'; end if;
   if char_length(trim(coalesce(p_payload->>'businessName',''))) < 2
      or char_length(trim(coalesce(p_payload->>'segment',''))) < 2
-     or char_length(trim(coalesce(p_payload->>'businessPhone',''))) < 10
      or char_length(trim(coalesce(p_payload->>'responsibleName',''))) < 4
-     or char_length(trim(coalesce(p_payload->>'responsiblePhone',''))) < 10
-     or char_length(trim(coalesce(p_payload->>'radioBriefing',''))) < 20
-     or char_length(trim(coalesce(p_payload->>'motionBriefing',''))) < 20
-     or char_length(trim(coalesce(p_payload->>'contributionDescription',''))) < 3 then
+     then
     raise exception 'CAMPOS_OBRIGATORIOS';
   end if;
-  select * into v_screen from public.verao_premiado_screens
-    where id = (p_payload->>'screenId')::uuid and is_active = true for update;
-  if not found or (v_screen.capacity is not null and (
-    select count(*) from public.verao_premiado_submissions
-    where screen_id = v_screen.id and registration_status <> 'cancelada'
-  ) >= v_screen.capacity) then raise exception 'TELA_INDISPONIVEL'; end if;
-
   v_protocol := 'VP2027-' || to_char(v_accepted at time zone 'America/Sao_Paulo', 'YYYYMMDD') || '-' || upper(substring(replace(p_id::text,'-','') from 1 for 6));
 
   insert into public.verao_premiado_submissions (
@@ -167,11 +155,11 @@ begin
   ) values (
     p_id, v_protocol, trim(p_payload->>'businessName'), v_cnpj,
     case when v_cnpj is null then null else encode(extensions.digest(v_cnpj, 'sha256'),'hex') end,
-    trim(p_payload->>'segment'), p_payload->>'businessPhone', nullif(trim(p_payload->>'businessInstagram'),''), nullif(trim(p_payload->>'businessEmail'),''),
+    trim(p_payload->>'segment'), nullif(trim(p_payload->>'businessPhone'),''), nullif(trim(p_payload->>'businessInstagram'),''), nullif(trim(p_payload->>'businessEmail'),''),
     p_payload->>'cep', trim(p_payload->>'street'), trim(p_payload->>'number'), nullif(trim(p_payload->>'complement'),''), trim(p_payload->>'neighborhood'), trim(p_payload->>'city'), trim(p_payload->>'state'),
-    trim(p_payload->>'responsibleName'), v_cpf, encode(extensions.digest(v_cpf, 'sha256'),'hex'), p_payload->>'responsiblePhone', nullif(trim(p_payload->>'responsibleEmail'),''), nullif(trim(p_payload->>'responsibleRole'),''),
-    trim(p_payload->>'radioBriefing'), trim(p_payload->>'motionBriefing'), v_screen.id, p_payload->>'paymentOption',
-    p_payload->>'contributionType', trim(p_payload->>'contributionDescription'), nullif(trim(p_payload->>'contributionConditions'),''), nullif(trim(p_payload->>'contributionNotes'),''),
+    trim(p_payload->>'responsibleName'), v_cpf, encode(extensions.digest(v_cpf, 'sha256'),'hex'), nullif(trim(p_payload->>'responsiblePhone'),''), nullif(trim(p_payload->>'responsibleEmail'),''), nullif(trim(p_payload->>'responsibleRole'),''),
+    nullif(trim(p_payload->>'radioBriefing'),''), nullif(trim(p_payload->>'motionBriefing'),''), null, p_payload->>'paymentOption',
+    nullif(p_payload->>'contributionType',''), nullif(trim(p_payload->>'contributionDescription'),''), nullif(trim(p_payload->>'contributionConditions'),''), nullif(trim(p_payload->>'contributionNotes'),''),
     v_assets, p_payload->>'termsVersion', v_declarations, p_payload->'commercialSnapshot', v_accepted
   );
 
@@ -190,7 +178,7 @@ on conflict (id) do update set public = false, file_size_limit = excluded.file_s
 
 drop policy if exists "public_uploads_verao_assets" on storage.objects;
 create policy "public_uploads_verao_assets" on storage.objects for insert to anon, authenticated
-  with check (bucket_id = 'verao-premiado-assets' and (storage.foldername(name))[1] = 'inscricoes' and array_length(storage.foldername(name), 1) >= 4);
+  with check (bucket_id = 'verao-premiado-assets' and (storage.foldername(name))[1] = 'inscricoes' and array_length(storage.foldername(name), 1) >= 3);
 drop policy if exists "admins_read_verao_assets" on storage.objects;
 create policy "admins_read_verao_assets" on storage.objects for select to authenticated
   using (bucket_id = 'verao-premiado-assets' and public.is_vm_admin());
