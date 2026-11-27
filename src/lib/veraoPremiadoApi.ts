@@ -63,7 +63,7 @@ export async function createCampaignSubmission(args: {
     optional_voucher_brl: 100,
     legal_notice: "Campanha sujeita à autorização dos órgãos competentes e às condições do regulamento oficial.",
   };
-  const payload = { ...args.form, cnpj: digits(args.form.cnpj) || null, cpf: digits(args.form.cpf), businessPhone: "", responsiblePhone: "", assets: args.assets, termsVersion: TERMS_VERSION, declarations: args.declarations, commercialSnapshot };
+  const payload = { ...args.form, cnpj: digits(args.form.cnpj) || null, cpf: digits(args.form.cpf), businessPhone: "", responsiblePhone: digits(args.form.responsiblePhone), assets: args.assets, termsVersion: TERMS_VERSION, declarations: args.declarations, commercialSnapshot };
   const response = await fetch(`${url}/rest/v1/rpc/create_verao_premiado_submission`, {
     method: "POST", headers: { ...headers(), "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -92,6 +92,7 @@ export async function createCampaignSubmission(args: {
 
     if (/INSCRICAO_DUPLICADA/i.test(serverMessage)) throw new Error("Já existe uma inscrição com este CPF ou CNPJ. Fale com a VM Mídias para revisar o cadastro.");
     if (/CAMPOS_OBRIGATORIOS/i.test(serverMessage)) throw new Error("Confira o nome do comércio, o segmento e o nome completo do responsável.");
+    if (/WHATSAPP_INVALIDO/i.test(serverMessage)) throw new Error("Informe um WhatsApp válido com DDD para contato.");
     if (/DOCUMENTO_INVALIDO/i.test(serverMessage)) throw new Error("O CPF ou o CNPJ informado não é válido.");
     if (/ARQUIVOS_INVALIDOS/i.test(serverMessage)) throw new Error("O logotipo enviado não foi reconhecido. Remova o arquivo e envie novamente.");
     if (/ACEITES_INCOMPLETOS/i.test(serverMessage)) throw new Error("Marque todas as declarações e confirme o aceite final.");
@@ -101,16 +102,22 @@ export async function createCampaignSubmission(args: {
 
     throw new Error(`Não foi possível concluir a inscrição (erro ${response.status}). Tente novamente ou fale com a VM Mídias.`);
   }
-  return (await response.json()) as { id: string; protocol: string; accepted_at: string; status: string };
+  type SubmissionResult = { id: string; protocol: string; accepted_at: string; status: string };
+  const data = (await response.json()) as SubmissionResult | SubmissionResult[];
+  const result = Array.isArray(data) ? data[0] : data;
+  if (!result?.protocol || !result.accepted_at) {
+    throw new Error("A inscrição foi recebida, mas a confirmação retornou incompleta. Fale com a VM Mídias antes de enviar novamente.");
+  }
+  return result;
 }
 
 export type CampaignSubmissionAdmin = {
   id: string; protocol: string; business_name: string; responsible_name: string;
-  responsible_phone: string; responsible_email: string | null; payment_option: string;
+  responsible_phone: string | null; responsible_email: string | null; payment_option: string;
   registration_status: string; financial_status: string; spot_status: string;
   video_status: string; kit_status: string; contribution_status: string;
   assets: CampaignAsset[]; created_at: string; screen_id: string | null;
-  cnpj: string | null; segment: string; business_phone: string; business_instagram: string | null;
+  cnpj: string | null; segment: string; business_phone: string | null; business_instagram: string | null;
   business_email: string | null; cep: string; street: string; address_number: string;
   complement: string | null; neighborhood: string; city: string; state: string;
   cpf: string; responsible_role: string | null; radio_briefing: string; motion_briefing: string;
@@ -118,6 +125,10 @@ export type CampaignSubmissionAdmin = {
   contribution_notes: string | null; terms_version: string; declarations: boolean[];
   commercial_snapshot: Record<string, unknown>; accepted_at: string; payment_notes: string | null;
   internal_notes: string | null; updated_at: string;
+  payment_due_date_1: string | null; payment_due_date_2: string | null;
+  payment_installment_1_status: "pendente" | "pago" | "atrasado" | "dispensado";
+  payment_installment_2_status: "pendente" | "pago" | "atrasado" | "dispensado";
+  payment_reminder_sent_at: string | null; payment_reminder_count: number;
 };
 
 export async function listCampaignSubmissions(session: AdminSession) {
@@ -126,11 +137,19 @@ export async function listCampaignSubmissions(session: AdminSession) {
   return (await response.json()) as CampaignSubmissionAdmin[];
 }
 
-export async function updateCampaignSubmission(session: AdminSession, id: string, updates: Record<string, string | null>) {
+export async function updateCampaignSubmission(session: AdminSession, id: string, updates: Record<string, string | number | null>) {
   const response = await fetch(`${url}/rest/v1/verao_premiado_submissions?id=eq.${id}`, {
     method: "PATCH", headers: { ...headers(session.access_token), "Content-Type": "application/json", Prefer: "return=minimal" }, body: JSON.stringify(updates),
   });
   if (!response.ok) throw new Error("Não foi possível atualizar a inscrição.");
+}
+
+export async function deleteCampaignSubmission(session: AdminSession, id: string) {
+  const response = await fetch(`${url}/rest/v1/verao_premiado_submissions?id=eq.${id}`, {
+    method: "DELETE",
+    headers: { ...headers(session.access_token), Prefer: "return=minimal" },
+  });
+  if (!response.ok) throw new Error("Não foi possível excluir a inscrição.");
 }
 
 export async function listScreensAdmin(session: AdminSession) {

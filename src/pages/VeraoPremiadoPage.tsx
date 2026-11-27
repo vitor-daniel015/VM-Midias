@@ -29,6 +29,7 @@ import {
   maskCnpj,
   maskCpf,
   maskCpfReview,
+  maskPhone,
   requiredDeclarations,
   type VeraoFormData,
 } from "../data/veraoPremiado";
@@ -107,6 +108,8 @@ export function VeraoPremiadoPage() {
           return "Preencha o endereço completo do comércio.";
         if (form.responsibleName.trim().length < 4)
           return "Informe o nome completo do responsável.";
+        if (form.responsiblePhone.replace(/\D/g, "").length < 10)
+          return "Informe um WhatsApp válido com DDD.";
         if (!isValidCpf(form.cpf))
           return "Informe um CPF válido para o responsável.";
         if (!isValidCnpj(form.cnpj))
@@ -556,6 +559,16 @@ function BusinessAndResponsibleStep({ form, setField }: StepProps) {
           onChange={(e) => setField("responsibleName", e.target.value)}
         />
       </Field>
+      <Field label="WhatsApp para contato" required>
+        <Input
+          type="tel"
+          inputMode="tel"
+          autoComplete="tel"
+          value={form.responsiblePhone}
+          onChange={(e) => setField("responsiblePhone", maskPhone(e.target.value))}
+          placeholder="(15) 99999-9999"
+        />
+      </Field>
       <Field label="CPF do responsável" required>
         <Input
           inputMode="numeric"
@@ -762,6 +775,7 @@ function ReviewStep({
   const rows = [
     ["Estabelecimento", form.businessName],
     ["Responsável", form.responsibleName],
+    ["WhatsApp", form.responsiblePhone],
     ["CPF", maskCpfReview(form.cpf)],
     ["Logotipo", logo?.name || "Não enviado"],
     [
@@ -849,6 +863,15 @@ function ConfirmationPage({
   confirmation: Confirmation;
   form: VeraoFormData;
 }) {
+  const acceptedDate = new Date(confirmation.accepted_at);
+  const acceptedAtLabel = Number.isNaN(acceptedDate.getTime())
+    ? "Registrada com sucesso"
+    : new Intl.DateTimeFormat("pt-BR", {
+        dateStyle: "long",
+        timeStyle: "short",
+        timeZone: "America/Sao_Paulo",
+      }).format(acceptedDate);
+
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,rgba(242,11,47,.2),transparent_38%),#050305] px-5 py-12 text-white">
       <main className="mx-auto max-w-2xl">
@@ -871,11 +894,7 @@ function ConfirmationPage({
               ["Protocolo", confirmation.protocol],
               [
                 "Data da inscrição",
-                new Intl.DateTimeFormat("pt-BR", {
-                  dateStyle: "long",
-                  timeStyle: "short",
-                  timeZone: "America/Sao_Paulo",
-                }).format(new Date(confirmation.accepted_at)),
+                acceptedAtLabel,
               ],
               [
                 "Forma de pagamento",

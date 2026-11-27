@@ -36,6 +36,7 @@ export type VeraoFormData = {
   city: string;
   state: string;
   responsibleName: string;
+  responsiblePhone: string;
   cpf: string;
   radioBriefing: string;
   motionBriefing: string;
@@ -50,7 +51,7 @@ export type VeraoFormData = {
 export const initialVeraoForm: VeraoFormData = {
   businessName: "", cnpj: "", segment: "", businessInstagram: "", cep: "", street: "",
   number: "", complement: "", neighborhood: "", city: "",
-  state: "", responsibleName: "", cpf: "", radioBriefing: "",
+  state: "", responsibleName: "", responsiblePhone: "", cpf: "", radioBriefing: "",
   motionBriefing: "", sameBriefing: false, paymentOption: "",
   contributionType: "", contributionDescription: "",
   contributionConditions: "", contributionNotes: "",
